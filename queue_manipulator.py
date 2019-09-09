@@ -49,8 +49,8 @@ def message_callback_function(ch, method, _properties, body, message_limit, mess
 
 def print_message(_properties, body):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
-    print(colored('Content type: ', 'green'), colored(_properties.content_type, 'grey'))
-    print(colored('Headers: ', 'green'), colored(_properties.headers, 'grey'))
+    print(colored('Content type: ', 'green'), colored(_properties.content_type, 'white'))
+    print(colored('Headers: ', 'green'), colored(_properties.headers, 'white'))
     if _properties.content_type == 'application/json':
         print(colored('Body: ', 'green'))
         pprint.pprint(json.loads(body.decode('utf-8')))
@@ -59,8 +59,8 @@ def print_message(_properties, body):
         dom = xml.dom.minidom.parseString(body.decode('utf-8'))
         print(dom.toprettyxml())
     else:
-        print(colored('Body: ', 'green'), colored(body.decode('utf-8'), 'grey'))
-    print(colored('Message hash: ', 'green'), colored(hashlib.sha256(body).hexdigest(), 'grey'))
+        print(colored('Body: ', 'green'), colored(body.decode('utf-8'), 'white'))
+    print(colored('Message hash: ', 'green'), colored(hashlib.sha256(body).hexdigest(), 'white'))
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('\n')
 
@@ -114,11 +114,11 @@ def main():
     if args.search and found_messages == 0:
         print(colored(f'ERROR: Could not find any messages containing "{args.search}"', 'red'))
 
-    print(colored('==============================================', 'blue'))
-    print(colored('====== ', 'blue'), colored('QUEUE TOTAL MESSAGES: ', 'green'), colored(queue_qty, 'grey'))
-    print(colored('====== ', 'blue'), colored('FOUND MESSAGES: ', 'green'), colored(found_messages, 'grey'))
-    print(colored('====== ', 'blue'), colored('SEEN MESSAGES: ', 'green'), colored(seen_messages, 'grey'))
-    print(colored('==============================================', 'blue'))
+    print(colored('==============================================', 'yellow'))
+    print(colored('====== ', 'yellow'), colored('QUEUE TOTAL MESSAGES: ', 'green'), colored(queue_qty, 'white'))
+    print(colored('====== ', 'yellow'), colored('FOUND MESSAGES: ', 'green'), colored(found_messages, 'white'))
+    print(colored('====== ', 'yellow'), colored('SEEN MESSAGES: ', 'green'), colored(seen_messages, 'white'))
+    print(colored('==============================================', 'yellow'))
 
 
 if __name__ == "__main__":
