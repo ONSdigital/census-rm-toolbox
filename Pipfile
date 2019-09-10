@@ -9,6 +9,7 @@ verify_ssl = true
 pika = "*"
 termcolor = "*"
 requests = "*"
+google-cloud-pubsub = "*"
 
 [requires]
 python_version = "3.7"
