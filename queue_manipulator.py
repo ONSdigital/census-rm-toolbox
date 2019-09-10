@@ -2,7 +2,6 @@ import argparse
 import functools
 import hashlib
 import json
-import pprint
 import xml.dom.minidom
 
 from termcolor import colored
@@ -32,7 +31,7 @@ def message_callback_function(ch, method, _properties, body, message_limit, mess
                 ch.basic_ack(delivery_tag=method.delivery_tag)
             elif action == 'MOVE':
                 with RabbitContext(queue_name=destination_queue_name) as rabbit:
-                    rabbit.publish_message(body, _properties.content_type)
+                    rabbit.publish_message(body, _properties.content_type, _properties.headers)
                     print(colored(f'Moved message to {destination_queue_name}', 'red'))
                     ch.basic_ack(delivery_tag=method.delivery_tag)
             else:
@@ -40,7 +39,7 @@ def message_callback_function(ch, method, _properties, body, message_limit, mess
     else:
         print_message(_properties, body)
 
-    if action != 'DELETE' and action != 'MOVE' :
+    if action != 'DELETE' and action != 'MOVE':
         ch.basic_nack(delivery_tag=method.delivery_tag)
 
     if seen_messages == message_limit:
@@ -53,11 +52,21 @@ def print_message(_properties, body):
     print(colored('Headers: ', 'green'), colored(_properties.headers, 'white'))
     if _properties.content_type == 'application/json':
         print(colored('Body: ', 'green'))
-        pprint.pprint(json.loads(body.decode('utf-8')))
+        try:
+            parsed_json = json.loads(body.decode('utf-8'))
+            print(colored(json.dumps(parsed_json, sort_keys=True, indent=4), 'white'))
+        except json.decoder.JSONDecodeError as e:
+            print(colored(body.decode('utf-8'), 'white'))
+            print(colored('ERROR: invalid JSON', 'red'))
+            print(colored(e.msg, 'red'))
     elif _properties.content_type == 'application/xml':
-        print(colored('Body: ', 'green'))
-        dom = xml.dom.minidom.parseString(body.decode('utf-8'))
-        print(dom.toprettyxml())
+        try:
+            dom = xml.dom.minidom.parseString(body.decode('utf-8'))
+            print(dom.toprettyxml())
+        except xml.parsers.expat.ExpatError as e:
+            print(colored(body.decode('utf-8'), 'white'))
+            print(colored('ERROR: invalid XML', 'red'))
+            print(colored(e, 'red'))
     else:
         print(colored('Body: ', 'green'), colored(body.decode('utf-8'), 'white'))
     print(colored('Message hash: ', 'green'), colored(hashlib.sha256(body).hexdigest(), 'white'))

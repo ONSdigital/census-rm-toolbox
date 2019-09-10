@@ -44,7 +44,7 @@ class RabbitContext:
         del self._channel
         del self._connection
 
-    def publish_message(self, message: str, content_type: str, exchange=None, routing_key=None):
+    def publish_message(self, message: str, content_type: str, headers, exchange=None, routing_key=None):
         if not self._connection.is_open:
             raise RabbitConnectionClosedError
 
@@ -52,7 +52,7 @@ class RabbitContext:
             exchange=exchange or self._exchange,
             routing_key=routing_key or self.queue_name,
             body=message,
-            properties=pika.BasicProperties(content_type=content_type))
+            properties=pika.BasicProperties(content_type=content_type, headers=headers))
 
     def get_queue_message_qty(self):
         return self.queue_declare_result.method.message_count
