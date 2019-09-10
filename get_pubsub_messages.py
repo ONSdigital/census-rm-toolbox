@@ -1,5 +1,7 @@
 import argparse
+import json
 
+from termcolor import colored
 from google.cloud import pubsub_v1
 
 
@@ -14,18 +16,41 @@ def main(subscription_name, subscription_project_id, search_term, number_message
         if not message.received_messages:
             break
         response.extend(message.received_messages)
-
+    if not response:
+        print(colored('No messages on pubsub ', 'red'))
+        return
     if search_term:
-        for msg in response:
-            if search_term.lower() in msg.message.data.decode('utf-8').lower():
-                print('Found message:', msg)
+        print_messages(msg for msg in response if search_term.lower() in msg.message.data.decode('utf-8').lower())
     elif id_search:
+        matching_id_messages = [msg for msg in response if id_search == msg.message.message_id]
         if action == 'DELETE':
             print('Attempting to delete: ', id_search)
-            subscriber.acknowledge(subscription_path, [msg.ack_id for msg in response if id_search == msg.message.message_id])
+            subscriber.acknowledge(subscription_path, (msg.ack_id for msg in matching_id_messages))
+        else:
+            print_messages(matching_id_messages)
     else:
-        for msg in response:
-            print("Received message:", msg)
+        print_messages(response)
+
+
+def print_messages(response):
+    for msg in response:
+        print(colored('-------------------------------------------------------------------------------------',
+                      'green'))
+        try:
+            parsed_json = json.loads((msg.message.data.decode('utf-8')))
+            print(colored('Json message:\n', 'green'),colored(json.dumps(parsed_json, sort_keys=True, indent=4), 'white'))
+        except json.decoder.JSONDecodeError as e:
+            print(colored(msg.message.data.decode('utf-8'), 'white'))
+            print(colored('ERROR: invalid JSON', 'red'))
+            print(colored(e, 'red'))
+        if msg.message.attributes:
+            print(colored('attributes:','green'), colored(msg.message.attributes, 'white'))
+        print(colored("message_id:", "green"), colored(msg.message.message_id, "white"))
+        print(colored("ack_id:", "green"), colored(msg.ack_id, "white"))
+        print(colored('-------------------------------------------------------------------------------------',
+                      'green'))
+        print('\n')
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Various Rabbit queue manipulation tools.')
