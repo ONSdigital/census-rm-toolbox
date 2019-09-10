@@ -8,7 +8,7 @@ View messages on a queue (default 100 max):
    `python queue_manipulator.py <queue name>`
 
 View messages on a queue with bigger limit:
-   `python queue_manipulator.py <queue name> -l 500`
+   `python queue_manipulator.py <queue name> -l <limit>`
    
    
 Search for message(s) on a queue:
