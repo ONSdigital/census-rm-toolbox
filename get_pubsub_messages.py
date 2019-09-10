@@ -1,8 +1,8 @@
 import argparse
 import json
 
-from termcolor import colored
 from google.cloud import pubsub_v1
+from termcolor import colored
 
 
 def main(subscription_name, subscription_project_id, search_term, number_messages, id_search, action):
@@ -38,13 +38,14 @@ def print_messages(response):
                       'green'))
         try:
             parsed_json = json.loads((msg.message.data.decode('utf-8')))
-            print(colored('Json message:\n', 'green'),colored(json.dumps(parsed_json, sort_keys=True, indent=4), 'white'))
+            print(colored('Json message:\n', 'green'),
+                  colored(json.dumps(parsed_json, sort_keys=True, indent=4), 'white'))
         except json.decoder.JSONDecodeError as e:
             print(colored(msg.message.data.decode('utf-8'), 'white'))
             print(colored('ERROR: invalid JSON', 'red'))
             print(colored(e, 'red'))
         if msg.message.attributes:
-            print(colored('attributes:','green'), colored(msg.message.attributes, 'white'))
+            print(colored('attributes:', 'green'), colored(msg.message.attributes, 'white'))
         print(colored("message_id:", "green"), colored(msg.message.message_id, "white"))
         print(colored("ack_id:", "green"), colored(msg.ack_id, "white"))
         print(colored('-------------------------------------------------------------------------------------',
@@ -57,7 +58,7 @@ def parse_arguments():
     parser.add_argument('source_subscription_name', help='source subscription name', type=str)
     parser.add_argument('source_subscription_ID', help='source subscription id', type=str)
     parser.add_argument('-s', '--search', help='message body search', type=str, default=None, nargs='?')
-    parser.add_argument('-l', '--limit', help='message limit', type=str, default=10, nargs='?')
+    parser.add_argument('-l', '--limit', help='message limit', type=int, default=10, nargs='?')
     parser.add_argument('message_id_search', help='message id search', type=str, default=None, nargs='?')
 
     parser.add_argument('action', help='action to perform', type=str, default=None, nargs='?',
