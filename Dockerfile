@@ -11,3 +11,7 @@ WORKDIR /app
 COPY . /app
 RUN pip install pipenv
 RUN pipenv install --system --deploy
+
+RUN chmod +x /app/splashscreen.sh
+RUN chmod +x /app/watch_for_poison_messages.sh
+RUN echo "/app/splashscreen.sh" >> /root/.bashrc
