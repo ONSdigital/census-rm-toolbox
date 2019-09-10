@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 if [ -z "$IMAGE" ]; then
-   IMAGE=eu.gcr.io/census-rm-ci/rm/census-rm-toolbox:latest
+   IMAGE=eu.gcr.io/census-rm-ci/census-rm-toolbox:latest
 fi
 
 echo "Image $IMAGE"
