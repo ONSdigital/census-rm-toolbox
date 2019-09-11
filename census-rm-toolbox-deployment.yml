@@ -1,0 +1,61 @@
+  apiVersion: apps/v1beta1
+  kind: Deployment
+  metadata:
+    name: census-rm-toolbox
+    labels:
+      app: census-rm-toolbox
+      env: dev
+  spec:
+    replicas: 1
+    strategy:
+      rollingUpdate:
+        maxSurge: 1
+        maxUnavailable: 1
+      type: RollingUpdate
+    template:
+      metadata:
+        name: census-rm-toolbox
+        labels:
+          app: census-rm-toolbox
+          env: dev
+      spec:
+        containers:
+        - name: census-rm-toolbox
+          image: eu.gcr.io/census-rm-ci/census-rm-toolbox:latest
+          tty: true
+          stdin: true
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
+          volumeMounts:
+          - name: gcp-credentials-volume
+            mountPath: /gcp-credentials
+          env:
+          - name: RABBITMQ_SERVICE_HOST
+            value: "rabbitmq"
+          - name: RABBITMQ_SERVICE_PORT
+            value: "5672"
+          - name: RABBITMQ_HTTP_PORT
+            value: "15672"
+          - name: RABBITMQ_USER
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-username
+          - name: RABBITMQ_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: rabbitmq
+                key: rabbitmq-password
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: "/gcp-credentials/service-account-key.json"
+        volumes:
+        - name: gcp-credentials-volume
+          secret:
+            secretName: pubsub-credentials
+

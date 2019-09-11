@@ -56,7 +56,7 @@ def print_messages(response):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Various Rabbit queue manipulation tools.')
     parser.add_argument('source_subscription_name', help='source subscription name', type=str)
-    parser.add_argument('source_subscription_ID', help='source subscription id', type=str)
+    parser.add_argument('source_subscription_project_ID', help='source subscription id', type=str)
     parser.add_argument('-s', '--search', help='message body search', type=str, default=None, nargs='?')
     parser.add_argument('-l', '--limit', help='message limit', type=int, default=10, nargs='?')
     parser.add_argument('message_id_search', help='message id search', type=str, default=None, nargs='?')
@@ -69,5 +69,6 @@ def parse_arguments():
 if __name__ == "__main__":
     args = parse_arguments()
 
-    main(args.source_subscription_name, args.source_subscription_ID, args.search, args.limit, args.message_id_search,
+    main(args.source_subscription_name, args.source_subscription_project_ID, args.search, args.limit,
+         args.message_id_search,
          args.action)
