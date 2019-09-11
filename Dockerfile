@@ -12,6 +12,12 @@ COPY . /app
 RUN pip install pipenv
 RUN pipenv install --system --deploy
 
+RUN apt-get update
+RUN apt-get -yq install curl
+RUN apt-get -yq install jq
+RUN apt-get -yq install vim-tiny
+RUN apt-get -yq clean
+
 RUN chmod +x /app/splashscreen.sh
 RUN chmod +x /app/watch_for_poison_messages.sh
 RUN echo "/app/splashscreen.sh" >> /root/.bashrc
