@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 
 import requests
@@ -22,13 +23,16 @@ def main():
 
         try:
             redeliver_rate = queue_details['message_stats']['redeliver_details']['rate']
+            publish_rate = queue_details['message_stats']['publish_details']['rate']
+            ack_rate = queue_details['message_stats']['ack_details']['rate']
 
-            if redeliver_rate > 1:
-                json_to_log = {
-                    "queue_name": queue_name,
-                    "redeliver_rate": redeliver_rate
-                }
-                print(json_to_log)
+            json_to_log = {
+                "queue_name": queue_name,
+                "redeliver_rate": redeliver_rate,
+                "publish_rate": publish_rate,
+                "ack_rate": ack_rate
+            }
+            print(json.dumps(json_to_log))
         except KeyError:
             pass
 
