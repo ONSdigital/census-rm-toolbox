@@ -26,3 +26,31 @@ Move message from one queue to another:
 
 Find queues with high redelivery rate:
    `python poison_message_queue_finder.py`
+   
+
+## How to use - Find and remove messages on pubsub
+
+View messages on pubsub subscription:
+   `python get_pubsub_messages.py <subscription name> <subscription project id>`
+   
+View messages on a pubsub subscription with bigger limit:
+   `python get_pubsub_messages.py <subscription name> <subscription project id> -l <limit>`
+   
+Search for a message:
+   `python get_pubsub_messages.py <subscription name> <subscription project id> -s <search term>`
+
+Delete message on pubsub subscription:   
+   `python get_pubsub_messages.py <subscription name> <subscription project id> <message_id> DELETE`
+   
+
+
+## Running in Kubernetes
+To run the toolbox in Kubernetes 
+
+```bash
+./run_in_kubernetes.sh
+```
+You can also run it with a specific image rather than the default with
+```bash
+IMAGE=fullimagelocation ./run_in_kubernetes.sh
+```
