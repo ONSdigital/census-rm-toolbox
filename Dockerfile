@@ -20,4 +20,6 @@ RUN apt-get -yq clean
 
 RUN chmod +x /app/splashscreen.sh
 RUN chmod +x /app/watch_for_poison_messages.sh
+RUN chmod +x /app/aliases.sh
+RUN echo "source /app/aliases.sh" >> /root/.bashrc
 RUN echo "/app/splashscreen.sh" >> /root/.bashrc
