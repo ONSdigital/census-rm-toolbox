@@ -1,3 +1,4 @@
+import argparse
 import json
 import urllib.parse
 
@@ -7,7 +8,15 @@ from requests.auth import HTTPBasicAuth
 from config import Config
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Find queues with high redelivery rates etc')
+    parser.add_argument('-r', '--redeliver', help='queues which are redelivering only', action='store_true')
+    return parser.parse_args()
+
+
 def main():
+    args = parse_arguments()
+
     v_host = urllib.parse.quote(Config.RABBITMQ_VHOST, safe='')
 
     response = requests.get(f"http://{Config.RABBITMQ_HOST}:{Config.RABBITMQ_HTTP_PORT}/api/queues/",
@@ -51,7 +60,9 @@ def main():
             "publish_rate": publish_rate,
             "ack_rate": ack_rate
         }
-        print(json.dumps(json_to_log))
+
+        if args.redeliver and redeliver_rate > 1 or not args.redeliver:
+            print(json.dumps(json_to_log))
 
 
 if __name__ == "__main__":

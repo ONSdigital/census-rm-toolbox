@@ -34,7 +34,7 @@ def message_callback_function(ch, method, _properties, body, message_limit, mess
                     rabbit.publish_message(body, _properties.content_type, _properties.headers)
                     print(colored(f'Moved message to {destination_queue_name}', 'red'))
                     ch.basic_ack(delivery_tag=method.delivery_tag)
-            else:
+            elif action == 'VIEW':
                 print_message(_properties, body)
     else:
         print_message(_properties, body)
@@ -81,7 +81,7 @@ def parse_arguments():
     parser.add_argument('-s', '--search', help='message body search', type=str, default=None, nargs='?')
     parser.add_argument('message_hash_search', help='message hash search', type=str, default=None, nargs='?')
     parser.add_argument('action', help='action to perform', type=str, default=None, nargs='?',
-                        choices=['DELETE', 'MOVE'])
+                        choices=['DELETE', 'MOVE', 'VIEW'])
     parser.add_argument('destination_queue_name', help='destination queue name', type=str, default=None, nargs='?')
     return parser.parse_args()
 
@@ -98,7 +98,7 @@ def main():
         return
 
     if args.message_hash_search and args.action is None:
-        print(colored(f'ERROR: Must specify an action for specific message', 'red'))
+        print(colored(f'ERROR: Must specify an action for specific message: DELETE, MOVE or VIEW', 'red'))
         return
 
     init_rabbit(args.source_queue_name)
