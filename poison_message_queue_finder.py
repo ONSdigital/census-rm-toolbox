@@ -38,6 +38,7 @@ def main():
         redeliver_rate = 0
         publish_rate = 0
         ack_rate = 0
+        total_messages = 0
 
         try:
             redeliver_rate = queue_details['message_stats']['redeliver_details']['rate']
@@ -54,11 +55,17 @@ def main():
         except KeyError:
             pass
 
+        try:
+            total_messages = queue_details['messages']
+        except KeyError:
+            pass
+
         json_to_log = {
             "queue_name": queue_name,
             "redeliver_rate": redeliver_rate,
             "publish_rate": publish_rate,
-            "ack_rate": ack_rate
+            "ack_rate": ack_rate,
+            "total_messages": total_messages
         }
 
         if args.redeliver and redeliver_rate > 1 or not args.redeliver:
