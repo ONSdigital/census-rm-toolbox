@@ -1,5 +1,5 @@
 docker_build:
-	docker build -t eu.gcr.io/census-rm-ci/census-rm-toolbox .
+	docker build -t eu.gcr.io/census-rm-ci/rm/census-rm-toolbox .
 
 apply-deployment:
 	kubectl apply -f census-rm-toolbox-deployment.yml
