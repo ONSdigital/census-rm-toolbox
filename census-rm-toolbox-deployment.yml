@@ -21,7 +21,7 @@
       spec:
         containers:
         - name: census-rm-toolbox
-          image: eu.gcr.io/census-rm-ci/census-rm-toolbox:latest
+          image: eu.gcr.io/census-rm-ci/rm/census-rm-toolbox:latest
           tty: true
           stdin: true
           imagePullPolicy: Always
