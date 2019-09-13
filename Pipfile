@@ -10,6 +10,7 @@ pika = "*"
 termcolor = "*"
 requests = "*"
 google-cloud-pubsub = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.7"
