@@ -7,16 +7,17 @@ ENV RABBITMQ_VHOST /
 ENV RABBITMQ_USER guest
 ENV RABBITMQ_PASSWORD guest
 
-WORKDIR /app
-COPY . /app
-RUN pip install pipenv
-RUN pipenv install --system --deploy
-
 RUN apt-get update
 RUN apt-get -yq install curl
 RUN apt-get -yq install jq
 RUN apt-get -yq install vim-tiny
+RUN apt-get -yq install postgresql-client || true
 RUN apt-get -yq clean
+
+WORKDIR /app
+COPY . /app
+RUN pip install pipenv
+RUN pipenv install --system --deploy
 
 RUN chmod +x /app/splashscreen.sh
 RUN chmod +x /app/watch_for_poison_messages.sh
