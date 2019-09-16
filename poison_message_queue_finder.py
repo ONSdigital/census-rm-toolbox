@@ -35,37 +35,19 @@ def main():
             f'http://{Config.RABBITMQ_HOST}:{Config.RABBITMQ_HTTP_PORT}/api/queues/{v_host}/{queue_name}',
             auth=HTTPBasicAuth(Config.RABBITMQ_USER, Config.RABBITMQ_PASSWORD)).json()
 
-        redeliver_rate = 0
-        publish_rate = 0
-        ack_rate = 0
-        total_messages = 0
-
-        try:
-            redeliver_rate = queue_details['message_stats']['redeliver_details']['rate']
-        except KeyError:
-            pass
-
-        try:
-            publish_rate = queue_details['message_stats']['publish_details']['rate']
-        except KeyError:
-            pass
-
-        try:
-            ack_rate = queue_details['message_stats']['ack_details']['rate']
-        except KeyError:
-            pass
-
-        try:
-            total_messages = queue_details['messages']
-        except KeyError:
-            pass
+        redeliver_rate = queue_details.get('message_stats', {}).get('redeliver_details', {}).get('rate', 0)
+        publish_rate = queue_details.get('message_stats', {}).get('publish_details', {}).get('rate', 0)
+        ack_rate = queue_details.get('message_stats', {}).get('ack_details', {}).get('rate', 0)
+        total_messages = queue_details.get('messages', 0)
+        consumer_count = len(queue_details.get('consumer_details', {}))
 
         json_to_log = {
             "queue_name": queue_name,
             "redeliver_rate": redeliver_rate,
             "publish_rate": publish_rate,
             "ack_rate": ack_rate,
-            "total_messages": total_messages
+            "total_messages": total_messages,
+            "consumer_count": consumer_count
         }
 
         if args.redeliver and redeliver_rate > 1 or not args.redeliver:
