@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0958dbcac55ff122514d1b8e92fcad2dc15d97c73a8695ce88b0c432af165f93"
+            "sha256": "3e1d57f4f9a585e96ebb8cb585cf639d86313fce8d20532d0462144f986c8cfb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -54,6 +54,13 @@
             ],
             "version": "==1.6.3"
         },
+        "google-cloud-core": {
+            "hashes": [
+                "sha256:0ee17abc74ff02176bee221d4896a00a3c202f3fb07125a7d814ccabd20d7eb5",
+                "sha256:10750207c1a9ad6f6e082d91dbff3920443bdaf1c344a782730489a9efa802f1"
+            ],
+            "version": "==1.0.3"
+        },
         "google-cloud-pubsub": {
             "hashes": [
                 "sha256:a052a67c3f0ae86716626ab0a3b83fdb0613df86d69aece43f905bf04672caf2",
@@ -61,6 +68,21 @@
             ],
             "index": "pypi",
             "version": "==1.0.0"
+        },
+        "google-cloud-storage": {
+            "hashes": [
+                "sha256:1e1fce811753bd2570db3d468437d44052274641c7f637c50e1c2df16497b9f7",
+                "sha256:21f94c073eb9be34ca545c4eef28ae66947386687d99cd3a82400bf1504cfbd8"
+            ],
+            "index": "pypi",
+            "version": "==1.19.0"
+        },
+        "google-resumable-media": {
+            "hashes": [
+                "sha256:46ee131e55d16e350cf9dc7de6fc0653b55314e8645e2deb0633394adcd7e9c0",
+                "sha256:d14dff24e0c6cab676f9eff0049c42b8cdae78dff723be095ef3af2c4ba06dfa"
+            ],
+            "version": "==0.4.0"
         },
         "googleapis-common-protos": {
             "extras": [

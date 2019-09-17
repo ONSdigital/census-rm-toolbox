@@ -23,9 +23,10 @@ def main(subscription_name, subscription_project_id, search_term, number_message
         print_messages(msg for msg in response if search_term.lower() in msg.message.data.decode('utf-8').lower())
     elif id_search:
         matching_id_messages = [msg for msg in response if id_search == msg.message.message_id]
+        message_id = matching_id_messages[0].message.message_id
         if action == 'DELETE':
-            print('Attempting to delete: ', id_search)
             subscriber.acknowledge(subscription_path, (msg.ack_id for msg in matching_id_messages))
+            print(colored(f'Deleted message from pubsub: {message_id}', 'red'))
         else:
             print_messages(matching_id_messages)
     else:
