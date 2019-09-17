@@ -36,6 +36,9 @@
           - name: gcp-credentials-volume
             mountPath: /gcp-credentials
           - name: cloud-sql-certs
+            mountPath: "/root/.postgresql-rw"
+            readOnly: true
+          - name: read-replica-cloud-sql-certs
             mountPath: "/root/.postgresql"
             readOnly: true
           env:
@@ -67,21 +70,41 @@
               secretKeyRef:
                 name: db-credentials
                 key: password
-          - name: DB_HOST
+          - name: DB_HOST_RW
             valueFrom:
               configMapKeyRef:
                 name: db-config
                 key: db-host
-          - name: DB_PORT
+          - name: DB_PORT_RW
             valueFrom:
               configMapKeyRef:
                 name: db-config
                 key: db-port
-          - name: DB_NAME
+          - name: DB_NAME_RW
             valueFrom:
               configMapKeyRef:
                 name: db-config
                 key: db-name
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: db-read-replica-config
+                key: db-host
+          - name: DB_PORT
+            valueFrom:
+              configMapKeyRef:
+                name: db-read-replica-config
+                key: db-port
+          - name: DB_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: db-read-replica-config
+                key: db-name
+          - name: PROJECT_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: project-config
+                key: project-name
         volumes:
         - name: gcp-credentials-volume
           secret:
@@ -89,6 +112,17 @@
         - name: cloud-sql-certs
           secret:
             secretName: cloud-sql-certs
+            defaultMode: 0400
+            items:
+            - key: "root.crt"
+              path: "root.crt"
+            - key: "postgresql.crt"
+              path: "postgresql.crt"
+            - key: "postgresql.key"
+              path: "postgresql.key"
+        - name: read-replica-cloud-sql-certs
+          secret:
+            secretName: read-replica-cloud-sql-certs
             defaultMode: 0400
             items:
             - key: "root.crt"
