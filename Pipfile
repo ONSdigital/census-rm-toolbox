@@ -11,6 +11,7 @@ termcolor = "*"
 requests = "*"
 google-cloud-pubsub = "*"
 psycopg2-binary = "*"
+google-cloud-storage = "*"
 
 [requires]
 python_version = "3.7"
