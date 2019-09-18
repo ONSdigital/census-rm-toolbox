@@ -5,7 +5,7 @@ from google.cloud import pubsub_v1, storage
 from termcolor import colored
 
 
-def main(subscription_name, project_id, number_messages, id_search, bucket_name):
+def main(subscription_name, project_id, number_messages, message_id, bucket_name):
     subscriber = pubsub_v1.SubscriberClient()
     response = []
 
@@ -19,7 +19,7 @@ def main(subscription_name, project_id, number_messages, id_search, bucket_name)
     if not response:
         print(colored('No messages on pubsub ', 'red'))
         return
-    matched_message = [msg for msg in response if id_search == msg.message.message_id]
+    matched_message = [msg for msg in response if message_id == msg.message.message_id]
     if matched_message:
         client = storage.Client()
         bucket = client.get_bucket(bucket_name)
@@ -34,11 +34,11 @@ def main(subscription_name, project_id, number_messages, id_search, bucket_name)
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Various Rabbit queue manipulation tools.')
+    parser = argparse.ArgumentParser(description='Pubsub tool to move a message to a GCS bucket')
     parser.add_argument('source_subscription_name', help='source subscription name', type=str)
     parser.add_argument('source_subscription_project_ID', help='source subscription id', type=str)
     parser.add_argument('bucket', help='bucket name', type=str)
-    parser.add_argument('message_id_search', help='message id search', type=str)
+    parser.add_argument('message_id', help='message id ', type=str)
     parser.add_argument('-l', '--limit', help='message limit', type=int, default=100, nargs='?')
 
     return parser.parse_args()
@@ -48,4 +48,4 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     main(args.source_subscription_name, args.source_subscription_project_ID, args.limit,
-         args.message_id_search, args.bucket)
+         args.message_id, args.bucket)

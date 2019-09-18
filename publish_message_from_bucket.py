@@ -22,10 +22,10 @@ def download_blob(bucket_name, source_blob_name):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Various Rabbit queue manipulation tools.')
+    parser = argparse.ArgumentParser(description='Tool to publish a message onto a pubsub topic from a GCS bucket. ')
     parser.add_argument('source_topic_name', help='source topic name', type=str)
     parser.add_argument('source_topic_project_ID', help='source topic id', type=str)
-    parser.add_argument('message_blob', help='message id search', type=str, default=None, nargs='?')
+    parser.add_argument('message_blob', help='message blob', type=str, default=None, nargs='?')
     parser.add_argument('bucket', help='bucket name', type=str, default=None, nargs='?')
 
     return parser.parse_args()
