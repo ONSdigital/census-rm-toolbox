@@ -19,30 +19,27 @@ def main(subscription_name, project_id, number_messages, id_search, bucket_name)
     if not response:
         print(colored('No messages on pubsub ', 'red'))
         return
-    if id_search:
-        matched_message = [msg for msg in response if id_search == msg.message.message_id]
-        if matched_message:
-                client = storage.Client()
-                bucket = client.get_bucket(bucket_name)
-                pubsub_dict = {'message_id': matched_message[0].message.message_id,
-                               'data': matched_message[0].message.data.decode()}
-                bucket.blob(f'{subscription_name}-{matched_message[0].message.message_id}')\
-                    .upload_from_string(json.dumps(pubsub_dict), content_type='application/json')
-                print(colored('uploaded message: ', 'red'), colored(f'{matched_message[0].message.message_id}', 'white'))
-                subscriber.acknowledge(subscription_path, (msg.ack_id for msg in matched_message))
-        else:
-            print('No messages found')
+    matched_message = [msg for msg in response if id_search == msg.message.message_id]
+    if matched_message:
+        client = storage.Client()
+        bucket = client.get_bucket(bucket_name)
+        pubsub_dict = {'message_id': matched_message[0].message.message_id,
+                       'data': json.loads(matched_message[0].message.data)}
+        bucket.blob(f'{subscription_name}-{matched_message[0].message.message_id}')\
+            .upload_from_string(json.dumps(pubsub_dict), content_type='application/json')
+        print(colored('uploaded message: ', 'red'), colored(f'{matched_message[0].message.message_id}', 'white'))
+        subscriber.acknowledge(subscription_path, (msg.ack_id for msg in matched_message))
     else:
-        print(colored('Please specify an ID ', 'red'))
+        print('No messages found')
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Various Rabbit queue manipulation tools.')
     parser.add_argument('source_subscription_name', help='source subscription name', type=str)
     parser.add_argument('source_subscription_project_ID', help='source subscription id', type=str)
-    parser.add_argument('message_id_search', help='message id search', type=str, default=None, nargs='?')
-    parser.add_argument('-l', '--limit', help='message limit', type=int, default=10, nargs='?')
-    parser.add_argument('bucket', help='bucket name', type=str, default=None, nargs='?')
+    parser.add_argument('bucket', help='bucket name', type=str)
+    parser.add_argument('message_id_search', help='message id search', type=str)
+    parser.add_argument('-l', '--limit', help='message limit', type=int, default=100, nargs='?')
 
     return parser.parse_args()
 

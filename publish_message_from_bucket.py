@@ -10,7 +10,7 @@ def main(topic_name, project_id,  blob, bucket_name):
     json_message = json.loads(string_to_publish)
     publisher = pubsub_v1.PublisherClient()
     topic_path = publisher.topic_path(project_id, topic_name)
-    future = publisher.publish(topic_path, json_message['data'].encode())
+    future = publisher.publish(topic_path, json.dumps(json_message['data']).encode('utf-8'))
     print(colored(f'Published message to {topic_name}: ', 'green'), colored(future.result(), 'white'))
 
 

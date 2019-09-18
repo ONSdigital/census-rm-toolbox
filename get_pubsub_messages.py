@@ -59,7 +59,7 @@ def parse_arguments():
     parser.add_argument('source_subscription_name', help='source subscription name', type=str)
     parser.add_argument('source_subscription_project_ID', help='source subscription id', type=str)
     parser.add_argument('-s', '--search', help='message body search', type=str, default=None, nargs='?')
-    parser.add_argument('-l', '--limit', help='message limit', type=int, default=10, nargs='?')
+    parser.add_argument('-l', '--limit', help='message limit', type=int, default=100, nargs='?')
     parser.add_argument('message_id_search', help='message id search', type=str, default=None, nargs='?')
 
     parser.add_argument('action', help='action to perform', type=str, default=None, nargs='?',
