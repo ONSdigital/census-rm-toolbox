@@ -6,7 +6,7 @@ from config import Config
 
 if __name__ == "__main__":
     sql_query = """
-select event_times.event_type, avg(event_times.timediff)
+select event_times.event_type, avg(event_times.timediff), count(*)
 from (select event_type,
              event_date,
              rm_event_processed,
@@ -39,4 +39,4 @@ from (select event_type,
     db_result = cur.fetchall()
 
     for one_result in db_result:
-        print(json.dumps({'event_type': one_result[0], 'average_time': one_result[1]}))
+        print(json.dumps({'event_type': one_result[0], 'average_time': one_result[1], 'count': one_result[2]}))
