@@ -108,7 +108,7 @@
         volumes:
         - name: gcp-credentials-volume
           secret:
-            secretName: pubsub-credentials
+            secretName: toolbox-credentials
         - name: cloud-sql-certs
           secret:
             secretName: cloud-sql-certs
