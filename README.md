@@ -5,52 +5,90 @@ The most bestestest tools for make running the census big success wow.
 ## How to use - Message Manipulator
 
 View messages on a queue (default 100 max):
-   `queuetool <queue name>`
+   ```bash
+   queuetool <queue name>
+   ```
 
 View messages on a queue with bigger limit:
-   `queuetool <queue name> -l <limit>`
+   ```bash
+   queuetool <queue name> -l <limit>
+   ```
    
    
 Search for message(s) on a queue:
-   `queuetool <queue name> -s <search text>`
+   ```bash
+   queuetool <queue name> -s <search text>
+   ```
    
    
 Delete message from a queue:
-   `queuetool <queue name> <message hash> DELETE`
+   ```bash
+    queuetool <queue name> <message hash> DELETE
+   ```
    
    
 Move message from one queue to another:
-   `queuetool <queue name> <message hash> MOVE <destination queue>`
+   ```bash
+   queuetool <queue name> <message hash> MOVE <destination queue>
+   ```
    
 ## How to use - Find Queues with Poison Messages
 
 Find queues with high redelivery rate:
-   `findbadmessages`
+   ```bash
+   findbadmessages
+   ```
    
 
 ## How to use - Find and remove messages on pubsub
 
 View messages on pubsub subscription:
-   `python get_pubsub_messages.py <subscription name> <subscription project id>`
+   ```bash
+   python get_pubsub_messages.py <subscription name> <subscription project id>
+   ```
    
 View messages on a pubsub subscription with bigger limit:
-   `python get_pubsub_messages.py <subscription name> <subscription project id> -l <limit>`
+   ```bash
+   python get_pubsub_messages.py <subscription name> <subscription project id> -l <limit>
+   ```
    
 Search for a message:
-   `python get_pubsub_messages.py <subscription name> <subscription project id> -s <search term>`
+   ```bash
+   python get_pubsub_messages.py <subscription name> <subscription project id> -s <search term>
+   ```
 
 Delete message on pubsub subscription:   
-   `python get_pubsub_messages.py <subscription name> <subscription project id> <message_id> DELETE`
+   ```bash
+   python get_pubsub_messages.py <subscription name> <subscription project id> <message_id> DELETE
+   ```
+   
+   
+## How to use - Moving messages from pubsub to bucket
+
+Moving a pubsub message to a bucket:
+```bash
+python put_message_on_bucket.py <subscription name> <subscription project id> <bucket name> <message_id>
+```
+## How to use - publishing message from GCS bucket to pubsub topic
+
+Moving a pubsub message to a bucket:
+```bash
+python publish_message_from_bucket.py <topic name> <project id> <bucket blob name> <bucket name>
+```
+
    
 
 
 ## Running in Kubernetes
-To run the toolbox in Kubernetes 
-
+To run the toolbox in a kubernetes environment, you'll have to create the deployment using `census-rm-toolbox-deployment.yml`
 ```bash
-./run_in_kubernetes.sh
+make apply-deployment
 ```
-You can also run it with a specific image rather than the default with
+Once the pod is up, you can connect to it:
 ```bash
-IMAGE=fullimagelocation ./run_in_kubernetes.sh
+make connect-to-pod
+```
+Once you're finished with the pod, you can remove it from your kubernetes environment:
+```bash
+make delete-pod
 ```
