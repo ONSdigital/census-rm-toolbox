@@ -4,6 +4,9 @@ docker_build:
 apply-deployment:
 	kubectl apply -f census-rm-toolbox-deployment.yml
 
+apply-dev-deployment:
+	kubectl apply -f census-rm-toolbox-deployment-dev.yml
+
 connect-to-pod:
 	kubectl exec -it `kubectl get pods -o name | grep -m1 census-rm-toolbox | cut -d'/' -f 2` -- /bin/bash
 
