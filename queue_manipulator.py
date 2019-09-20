@@ -76,7 +76,6 @@ def print_message(_properties, body):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Various Rabbit queue manipulation tools.')
     parser.add_argument('source_queue_name', help='source queue name', type=str)
-    parser.add_argument('-l', '--limit', help='message limit', type=int, default=100)
     parser.add_argument('-s', '--search', help='message body search', type=str, default=None, nargs='?')
     parser.add_argument('-t', '--timeout', help='Search timeout', type=int, default=30)
     parser.add_argument('message_hash_search', help='message hash search', type=str, default=None, nargs='?')
@@ -104,7 +103,7 @@ def main():
     with RabbitContext(queue_name=args.source_queue_name) as rabbit:
 
         queue_qty = rabbit.get_queue_message_qty()
-        message_limit = min(queue_qty, args.limit)
+        message_limit = min(queue_qty, 100)
 
         if queue_qty == 0:
             print(colored(f'Queue is empty', 'red'))

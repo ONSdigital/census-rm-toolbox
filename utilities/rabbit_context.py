@@ -36,8 +36,8 @@ class RabbitContext:
 
         self._channel = self._connection.channel()
 
-        # We only want to fetch one at a time
-        self._channel.basic_qos(prefetch_count=1)
+        # Limit to 100 messages to avoid rabbit 'issues'
+        self._channel.basic_qos(prefetch_count=100)
 
         self.queue_declare_result = self._channel.queue_declare(queue=self.queue_name, durable=True)
 
