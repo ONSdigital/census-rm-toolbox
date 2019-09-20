@@ -78,6 +78,7 @@ def parse_arguments():
     parser.add_argument('source_queue_name', help='source queue name', type=str)
     parser.add_argument('-l', '--limit', help='message limit', type=int, default=100)
     parser.add_argument('-s', '--search', help='message body search', type=str, default=None, nargs='?')
+    parser.add_argument('-t', '--timeout', help='Search timeout', type=int, default=30)
     parser.add_argument('message_hash_search', help='message hash search', type=str, default=None, nargs='?')
     parser.add_argument('action', help='action to perform', type=str, default=None, nargs='?',
                         choices=['DELETE', 'MOVE', 'VIEW'])
@@ -109,11 +110,10 @@ def main():
             print(colored(f'Queue is empty', 'red'))
             return
 
-        rabbit.start_listening_for_messages(args.source_queue_name,
-                                            functools.partial(message_callback_function, message_limit=message_limit,
+        rabbit.start_listening_for_messages(functools.partial(message_callback_function, message_limit=message_limit,
                                                               message_body_search=args.search, action=args.action,
                                                               destination_queue_name=args.destination_queue_name,
-                                                              message_hash_search=args.message_hash_search))
+                                                              message_hash_search=args.message_hash_search), timeout=args.timeout)
 
     global FOUND_MESSAGES
 

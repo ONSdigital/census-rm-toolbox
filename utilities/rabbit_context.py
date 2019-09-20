@@ -1,5 +1,3 @@
-import functools
-
 import pika
 
 from config import Config
@@ -66,13 +64,12 @@ class RabbitContext:
     def start_listening_for_messages(self, on_message_callback, timeout=30):
         self._connection.call_later(
             delay=timeout,
-            callback=functools.partial(_timeout_callback, self))
+            callback=self._timeout_callback)
 
         self.channel.basic_consume(
             queue=self.queue_name,
             on_message_callback=on_message_callback)
         self.channel.start_consuming()
 
-
-def _timeout_callback(rabbit_connection):
-    rabbit_connection.close_connection()
+    def _timeout_callback(self):
+        self.channel.stop_consuming()
