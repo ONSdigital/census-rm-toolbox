@@ -109,12 +109,12 @@ python put_message_on_bucket.py <subscription name> <subscription project id> <b
 ```
 ## How to use - publishing message from GCS bucket to pubsub topic
 
-Move messages from pubsub to a GCS bucket
+Publishing message from GCS bucket to pubsub topic
 ### Arguments
 
 | Name                      | Description                                                                                                         |                                                                                        
 | ---------------------     | ------------------------------------------------------------------------------------------------------------------- |
-| `topic name`              | Subscription name to look on                                                                                        |
+| `topic name`              | topic name to put message on                                                                                               |
 | `project id`              | GCP project name                                                                                                    |
 | `bucket name`             | Bucket you want to move the pubsub message to                                                                       |                                                  
 | `bucket blob name`        | Name of the blob you want to publish to a topic                                                                     |                                                  
