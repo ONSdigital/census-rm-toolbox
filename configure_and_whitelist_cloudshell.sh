@@ -1,3 +1,8 @@
+if [[ -z "$1" ]]; then
+  echo "Missing required argument: project ID"
+  exit 1
+fi
+
 TARGET_PROJECT=$1
 echo "Setting project to $TARGET_PROJECT"
 gcloud config set project "$TARGET_PROJECT"

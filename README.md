@@ -92,3 +92,28 @@ Once you're finished with the pod, you can remove it from your kubernetes enviro
 ```bash
 make delete-pod
 ```
+
+
+## Configure and Whitelist Cloud Shell Tool
+
+This repo includes scripts to configure the cloud shell to point at an RM cluster in a project and whitelist/un-whitelist itself.  
+
+### Prerequisits
+Requres [pipenv](https://github.com/pypa/pipenv)
+
+Install python dependencies in the clouds shell with `pipenv install --dev`
+
+### Usage
+#### Configure and Whitelist
+To point the cloudshell at a project and whitelist itself in the RM cluster, run
+```shell script
+./configure_and_whitelist_cloudshell.sh <PROJECT_ID>
+```
+
+This changes the `gcloud` target project, generates the `kubectl` context and adds a whitelist entry to the target projects cluster for your current cloudshell IP.
+
+#### Remove Whitelist Entry
+To delete your cloudshell whitelist entry when you are finished, run
+```shell script
+pipenv run python remove_cloudshell_ip.py <PROJECT_ID>
+```
