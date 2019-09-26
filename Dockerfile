@@ -20,11 +20,8 @@ COPY . /app
 RUN pip install pipenv
 RUN pipenv install --system --deploy
 
-RUN chmod +x /app/splashscreen.sh
-RUN chmod +x /app/watch_for_poison_messages.sh
-RUN chmod +x /app/aliases.sh
-RUN chmod +x /app/watch_for_slow_event_processing.sh
 RUN cp /app/.psqlrc /root
 RUN echo "source /app/aliases.sh" >> /root/.bashrc
 RUN echo "/app/splashscreen.sh" >> /root/.bashrc
 RUN echo 'PS1="[$PROJECT_NAME]-TOOLZ🔥> "' >> /root/.bashrc
+RUN echo "export PATH=/app:$PATH" >> /root/.bashrc
