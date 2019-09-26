@@ -98,13 +98,12 @@ make delete-pod
 
 This repo includes scripts to configure the cloud shell to point at an RM cluster in a project and whitelist/un-whitelist itself.  
 
-### Prerequisits
+### Prerequisites
+#### Install pyenv
 Requres [pipenv](https://github.com/pypa/pipenv)
 
 Install python dependencies in the clouds shell with `pipenv install --dev`
 
-### Usage
-#### Configure and Whitelist
 To be able to use these scripts, you'll need to have [pyenv](https://github.com/pyenv/pyenv#installation) installed in your cloudshell environment to be able to install a python 3 version. To do this you can use these commands:
 ```shell script
 git clone https://github.com/pyenv/pyenv.git ~/.pyenv
@@ -113,8 +112,17 @@ echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
 echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bashrc
 exec "$SHELL"
 ```
-Once this is done, you should be able to install python version 3.7 with `pyenv install 3.7.4`.
 
+#### Install python 3 and pipenv
+Once this is done, you should be able to install python 3 and pipenv using these commands:
+```shell script
+pyenv install 3.7.4
+pyenv global 3.7.4
+pip install pipenv
+```
+
+### Usage
+#### Configure and Whitelist
 To point the cloudshell at a project and whitelist itself in the RM cluster, run
 ```shell script
 cloudshell_utilities/configure_and_whitelist.sh <PROJECT_ID>
