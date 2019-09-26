@@ -112,7 +112,8 @@ def main():
         rabbit.start_listening_for_messages(functools.partial(message_callback_function, message_limit=message_limit,
                                                               message_body_search=args.search, action=args.action,
                                                               destination_queue_name=args.destination_queue_name,
-                                                              message_hash_search=args.message_hash_search), timeout=args.timeout)
+                                                              message_hash_search=args.message_hash_search),
+                                            timeout=args.timeout)
 
     global FOUND_MESSAGES
 

@@ -1,0 +1,8 @@
+.flake8
+.gitignore
+*.yml
+/cloudshell_utilities
+.idea
+.git
+.dockerignore
+__pycache__
