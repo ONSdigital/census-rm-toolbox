@@ -14,9 +14,8 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    credentials = GoogleCredentials.get_application_default()
 
-    service = discovery.build('container', 'v1', credentials=credentials)
+    service = discovery.build('container', 'v1', credentials=GoogleCredentials.get_application_default())
 
     request = service.projects().locations().clusters().get(
         name=f'projects/{args.project_id}/locations/europe-west2/clusters/rm-k8s-cluster')
@@ -35,6 +34,7 @@ def main():
                                                                       body=new_authorised_networks)
 
     update_request.execute()
+    print("Successfully Whitelisted IP ")
 
 
 if __name__ == '__main__':

@@ -4,6 +4,9 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+google-api-python-client = "*"
+oauth2client = "*"
+flake8 = "*"
 
 [packages]
 pika = "*"
@@ -12,8 +15,6 @@ requests = "*"
 google-cloud-pubsub = "*"
 psycopg2-binary = "*"
 google-cloud-storage = "*"
-google-api-python-client = "*"
-oauth2client = "*"
 
 [requires]
 python_version = "3.7"

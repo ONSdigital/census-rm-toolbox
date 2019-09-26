@@ -14,4 +14,4 @@ CLOUDSHELL_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
 echo "Whitelisting cloudshell IP: $CLOUDSHELL_IP"
 pipenv run python add_cloudshell_ip.py "$TARGET_PROJECT" "$CLOUDSHELL_IP"
 
-echo "IP Whitelisted, test it with 'kubectl get pods'"
+echo "Test cluster connection by running 'kubectl get pods'"

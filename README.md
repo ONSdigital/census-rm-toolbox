@@ -107,7 +107,7 @@ Install python dependencies in the clouds shell with `pipenv install --dev`
 #### Configure and Whitelist
 To point the cloudshell at a project and whitelist itself in the RM cluster, run
 ```shell script
-./configure_and_whitelist_cloudshell.sh <PROJECT_ID>
+cloudshell_utilities/configure_and_whitelist.sh <PROJECT_ID>
 ```
 
 This changes the `gcloud` target project, generates the `kubectl` context and adds a whitelist entry to the target projects cluster for your current cloudshell IP.
@@ -115,5 +115,5 @@ This changes the `gcloud` target project, generates the `kubectl` context and ad
 #### Remove Whitelist Entry
 To delete your cloudshell whitelist entry when you are finished, run
 ```shell script
-pipenv run python remove_cloudshell_ip.py <PROJECT_ID>
+pipenv run python cloudshell_utilities/remove_cloudshell_ip.py <PROJECT_ID>
 ```

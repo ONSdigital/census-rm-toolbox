@@ -12,3 +12,9 @@ connect-to-pod:
 
 delete-pod:
 	kubectl delete deploy census-rm-toolbox
+
+flake:
+	pipenv run flake8
+
+check:
+	pipenv check
