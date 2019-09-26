@@ -18,11 +18,11 @@ def create_refusal_message():
     refusal_type_number = input()
 
     if refusal_type_number == '1':
-        refusal_type = 'SOFT_REFUSAL';
+        refusal_type = 'SOFT_REFUSAL'
     elif refusal_type_number == '2':
-        refusal_type = 'HARD_REFUSAL';
+        refusal_type = 'HARD_REFUSAL'
     elif refusal_type_number == '3':
-        refusal_type = 'EXTRAORDINARY_REFUSAL';
+        refusal_type = 'EXTRAORDINARY_REFUSAL'
     else:
         print('Error: you must choose a valid option')
         return
@@ -76,7 +76,7 @@ def main():
     message_type = input()
 
     if message_type == '1':
-        create_refusal_message();
+        create_refusal_message()
     else:
         print('Error: you must choose a valid option')
 
