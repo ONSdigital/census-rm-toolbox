@@ -1,6 +1,7 @@
 # Python temp file
 *.py[cod]
 __pycache__
+utilities/__pycache__
 .pytest_cache
 
 # C extensions

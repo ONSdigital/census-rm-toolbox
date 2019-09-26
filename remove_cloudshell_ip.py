@@ -8,7 +8,6 @@ from oauth2client.client import GoogleCredentials
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Tool to whitelist a cloudshell IP in a projects RM cluster')
     parser.add_argument('project_id', help='Target project ID', type=str)
-    parser.add_argument('ip_address', help='IP address to whitelist', type=str)
     return parser.parse_args()
 
 
