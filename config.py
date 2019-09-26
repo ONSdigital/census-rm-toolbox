@@ -15,3 +15,5 @@ class Config:
     DB_PORT = os.getenv('DB_PORT', '6432')
     DB_NAME = os.getenv('DB_NAME', 'postgres')
     DB_USESSL = os.getenv('DB_USESSL', '')
+    CASEAPI_HOST = os.getenv('CASEAPI_HOST', 'localhost')
+    CASEAPI_PORT = os.getenv('CASEAPI_PORT', '8161')

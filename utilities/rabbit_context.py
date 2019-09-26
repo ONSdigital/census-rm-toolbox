@@ -39,7 +39,8 @@ class RabbitContext:
         # Limit to 100 messages to avoid rabbit 'issues'
         self._channel.basic_qos(prefetch_count=100)
 
-        self.queue_declare_result = self._channel.queue_declare(queue=self.queue_name, durable=True)
+        if self.queue_name:
+            self.queue_declare_result = self._channel.queue_declare(queue=self.queue_name, durable=True)
 
         return self._connection
 
