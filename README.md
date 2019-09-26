@@ -100,9 +100,8 @@ This repo includes scripts to configure the cloud shell to point at an RM cluste
 
 ### Prerequisites
 #### Install pyenv
-Requres [pipenv](https://github.com/pypa/pipenv)
+Requres [pipenv](https://github.com/pypa/pipenv) and [pyenv](https://github.com/pyenv/pyenv)
 
-Install python dependencies in the clouds shell with `pipenv install --dev`
 
 To be able to use these scripts, you'll need to have [pyenv](https://github.com/pyenv/pyenv#installation) installed in your cloudshell environment to be able to install a python 3 version. To do this you can use these commands:
 ```shell script
@@ -114,18 +113,36 @@ exec "$SHELL"
 ```
 
 #### Install python 3 and pipenv
-Once this is done, you should be able to install python 3 and pipenv using these commands:
+Once this is done, you should be able to install python 3 and pipenv dependencies using these commands:
 ```shell script
 pyenv install 3.7.4
 pyenv global 3.7.4
 pip install pipenv
+pipenv install --dev
 ```
+
+### Set Up Aliases and Shortcuts
+If you're going to be running these commands regularly it may be helpful to have the scripts on your `PATH` and set up some alias in your cloudshell bash.
+Add these lines to your `~/.bashrc` file in the cloudshell
+```shell script
+export PATH="<PATH_TO_CENSUS_RM_TOOLBOX>/cloudshell_utilities:$PATH"
+alias prod-configure="configure_and_whitelist.sh census-rm-prod"
+alias prod-exit="remove_from_whitelist.sh census-rm-prod"
+
+function prod-toolbox {
+    prod-configure
+    kubectl exec -it $(kubectl get pods --selector=app=census-rm-toolbox -o jsonpath='{.items[*].metadata.name}') -- /bin/bash || true
+    prod-exit
+}
+```
+
+The `prod-toolbox` function then gives you a single command to get into a toolbox pod and de-whitelist your cloudshell when it's finished.
 
 ### Usage
 #### Configure and Whitelist
 To point the cloudshell at a project and whitelist itself in the RM cluster, run
 ```shell script
-cloudshell_utilities/configure_and_whitelist.sh <PROJECT_ID>
+configure_and_whitelist.sh <PROJECT_ID>
 ```
 
 This changes the `gcloud` target project, generates the `kubectl` context and adds a whitelist entry to the target projects cluster for your current cloudshell IP.
@@ -133,5 +150,6 @@ This changes the `gcloud` target project, generates the `kubectl` context and ad
 #### Remove Whitelist Entry
 To delete your cloudshell whitelist entry when you are finished, run
 ```shell script
-pipenv run python cloudshell_utilities/remove_cloudshell_ip.py <PROJECT_ID>
+remove_from_whitelist.sh <PROJECT_ID>
 ```
+
