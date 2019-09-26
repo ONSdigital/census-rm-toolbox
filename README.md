@@ -119,7 +119,7 @@ Publishing message from GCS bucket to pubsub topic
 | `bucket name`             | Bucket you want to move the pubsub message to                                                                       |                                                  
 | `bucket blob name`        | Name of the blob you want to publish to a topic                                                                     |                                                  
 
-Moving a pubsub message to a bucket:
+Publishing message from GCS bucket to pubsub topic:
 ```bash
 python publish_message_from_bucket.py <topic name> <project id> <bucket blob name> <bucket name>
 ```
