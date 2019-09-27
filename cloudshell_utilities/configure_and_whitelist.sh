@@ -13,9 +13,6 @@ gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 -
 
 CLOUDSHELL_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
 
-echo "Cleaning whitelist"
-./remove_from_whitelist.sh "$TARGET_PROJECT"
-
 echo "Whitelisting cloudshell IP: $CLOUDSHELL_IP with name ${USER}_cloudshell"
 pipenv run python add_cloudshell_ip.py "$TARGET_PROJECT" "$CLOUDSHELL_IP" || exit 1
 

@@ -2,9 +2,9 @@ import argparse
 import os
 
 from googleapiclient import discovery
-from googleapiclient.errors import HttpError
 from oauth2client.client import GoogleCredentials
-from retrying import retry
+
+from cloudshell_utilities.remove_cloudshell_ip import remove_cloudshell_whitelist_entries
 
 
 def parse_arguments():
@@ -14,31 +14,20 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def retry_if_http_error(exception):
-    return isinstance(exception, HttpError)
-
-
-@retry(retry_on_exception=retry_if_http_error, wait_exponential_multiplier=1000, wait_exponential_max=10000,
-       stop_max_attempt_number=10)
-def execute_request(request):
-    response = request.execute()
-    return response
-
-
 def main():
     args = parse_arguments()
 
     service = discovery.build('container', 'v1', credentials=GoogleCredentials.get_application_default())
 
-    request = service.projects().locations().clusters().get(
+    get_current_whitelist_request = service.projects().locations().clusters().get(
         name=f'projects/{args.project_id}/locations/europe-west2/clusters/rm-k8s-cluster')
-    response = execute_request(request)
+    response = get_current_whitelist_request.execute()
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
+
+    new_authorised_networks = remove_cloudshell_whitelist_entries(current_authorised_networks)
     new_ip = {'displayName': f'{os.getenv("USER")}_cloudshell',
               'cidrBlock': f'{args.ip_address}/32'}
-
-    new_authorised_networks = {'update': {'desiredMasterAuthorizedNetworksConfig': current_authorised_networks}}
 
     new_authorised_networks['update']['desiredMasterAuthorizedNetworksConfig']['cidrBlocks'].append(new_ip)
 
@@ -46,7 +35,7 @@ def main():
                                                                            f'/europe-west2/clusters/rm-k8s-cluster',
                                                                       body=new_authorised_networks)
 
-    execute_request(update_request)
+    update_request.execute()
     print("Successfully Whitelisted IP ")
 
 
