@@ -22,11 +22,13 @@ def main():
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
 
-    for index, network in enumerate(current_authorised_networks['cidrBlocks']):
-        if network['displayName'] == f'{os.getenv("USER")}_cloudshell':
-            current_authorised_networks['cidrBlocks'].pop(index)
+    authorised_networks = []
 
-    new_authorised_networks = {'update': {'desiredMasterAuthorizedNetworksConfig': current_authorised_networks}}
+    for index, network in enumerate(current_authorised_networks['cidrBlocks']):
+        if network['displayName'] != f'{os.getenv("USER")}_cloudshell':
+            authorised_networks.append(network)
+
+    new_authorised_networks = {'update': {'desiredMasterAuthorizedNetworksConfig': authorised_networks}}
 
     update_request = service.projects().locations().clusters().update(name=f'projects/{args.project_id}/locations'
                                                                            f'/europe-west2/clusters/rm-k8s-cluster',
