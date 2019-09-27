@@ -2,7 +2,9 @@ import argparse
 import os
 
 from googleapiclient import discovery
+from googleapiclient.errors import HttpError
 from oauth2client.client import GoogleCredentials
+from retrying import retry
 
 
 def parse_arguments():
@@ -12,6 +14,17 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def retry_if_http_error(exception):
+    return isinstance(exception, HttpError)
+
+
+@retry(retry_on_exception=retry_if_http_error, wait_exponential_multiplier=1000, wait_exponential_max=10000,
+       stop_max_attempt_number=10)
+def execute_request(request):
+    response = request.execute()
+    return response
+
+
 def main():
     args = parse_arguments()
 
@@ -19,7 +32,7 @@ def main():
 
     request = service.projects().locations().clusters().get(
         name=f'projects/{args.project_id}/locations/europe-west2/clusters/rm-k8s-cluster')
-    response = request.execute()
+    response = execute_request(request)
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
     new_ip = {'displayName': f'{os.getenv("USER")}_cloudshell',
@@ -33,7 +46,7 @@ def main():
                                                                            f'/europe-west2/clusters/rm-k8s-cluster',
                                                                       body=new_authorised_networks)
 
-    update_request.execute()
+    execute_request(update_request)
     print("Successfully Whitelisted IP ")
 
 
