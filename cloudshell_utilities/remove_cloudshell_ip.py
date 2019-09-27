@@ -25,10 +25,6 @@ def main():
     for index, network in enumerate(current_authorised_networks['cidrBlocks']):
         if network['displayName'] == f'{os.getenv("USER")}_cloudshell':
             current_authorised_networks['cidrBlocks'].pop(index)
-            break
-    else:
-        print('Cannot find matching whitelist entry')
-        return
 
     new_authorised_networks = {'update': {'desiredMasterAuthorizedNetworksConfig': current_authorised_networks}}
 
