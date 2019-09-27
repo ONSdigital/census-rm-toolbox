@@ -22,15 +22,7 @@ def main():
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
 
-    for index, network in enumerate(current_authorised_networks['cidrBlocks']):
-        if network['displayName'] == f'{os.getenv("USER")}_cloudshell':
-            current_authorised_networks['cidrBlocks'].pop(index)
-            break
-    else:
-        print('Cannot find matching whitelist entry')
-        return
-
-    new_authorised_networks = {'update': {'desiredMasterAuthorizedNetworksConfig': current_authorised_networks}}
+    new_authorised_networks = remove_cloudshell_whitelist_entries(current_authorised_networks)
 
     update_request = service.projects().locations().clusters().update(name=f'projects/{args.project_id}/locations'
                                                                            f'/europe-west2/clusters/rm-k8s-cluster',
@@ -38,6 +30,22 @@ def main():
 
     update_request.execute()
     print(f'Successfully removed whitelist entry in {args.project_id}')
+
+
+def remove_cloudshell_whitelist_entries(current_authorised_networks):
+    authorised_networks = []
+    for index, network in enumerate(current_authorised_networks['cidrBlocks']):
+        if network['displayName'] != f'{os.getenv("USER")}_cloudshell':
+            authorised_networks.append(network)
+    new_authorised_networks = {
+        'update': {
+            'desiredMasterAuthorizedNetworksConfig': {
+                'enabled': True,
+                'cidrBlocks': authorised_networks
+            }
+        }
+    }
+    return new_authorised_networks
 
 
 if __name__ == '__main__':

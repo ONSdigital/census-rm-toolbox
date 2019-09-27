@@ -4,6 +4,8 @@ import os
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
+from remove_cloudshell_ip import remove_cloudshell_whitelist_entries
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Tool to whitelist a cloudshell IP in a projects RM cluster')
@@ -17,15 +19,15 @@ def main():
 
     service = discovery.build('container', 'v1', credentials=GoogleCredentials.get_application_default())
 
-    request = service.projects().locations().clusters().get(
+    get_current_whitelist_request = service.projects().locations().clusters().get(
         name=f'projects/{args.project_id}/locations/europe-west2/clusters/rm-k8s-cluster')
-    response = request.execute()
+    response = get_current_whitelist_request.execute()
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
+
+    new_authorised_networks = remove_cloudshell_whitelist_entries(current_authorised_networks)
     new_ip = {'displayName': f'{os.getenv("USER")}_cloudshell',
               'cidrBlock': f'{args.ip_address}/32'}
-
-    new_authorised_networks = {'update': {'desiredMasterAuthorizedNetworksConfig': current_authorised_networks}}
 
     new_authorised_networks['update']['desiredMasterAuthorizedNetworksConfig']['cidrBlocks'].append(new_ip)
 
