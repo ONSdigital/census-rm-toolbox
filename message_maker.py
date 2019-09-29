@@ -63,11 +63,13 @@ def create_refusal_message():
     do_publish = input()
 
     if do_publish != 'yes':
+        print('Not publishing')
         return
 
     with RabbitContext() as rabbit:
         rabbit.publish_message(json.dumps(message), 'application/json', None, exchange='events',
                                routing_key='event.respondent.refusal')
+        print('Successfully published')
 
 
 def main():
