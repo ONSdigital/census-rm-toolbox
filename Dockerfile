@@ -12,6 +12,7 @@ RUN apt-get -yq install curl
 RUN apt-get -yq install jq
 RUN apt-get -yq install vim-tiny
 RUN apt-get -yq install postgresql-client || true
+RUN apt-get -yq install openssh-client
 RUN apt-get -yq clean
 
 WORKDIR /app
