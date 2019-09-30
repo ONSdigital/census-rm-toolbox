@@ -6,8 +6,9 @@ from config import Config
 
 if __name__ == "__main__":
     sql_query = """
-select event_times.event_type, avg(event_times.timediff), count(*)
+select event_times.event_type, event_times.event_channel, avg(event_times.timediff), count(*)
 from (select event_type,
+             event_channel,
              event_date,
              rm_event_processed,
              ((DATE_PART('day', rm_event_processed::timestamp - event_date::timestamp) * 24 +
@@ -28,7 +29,7 @@ from (select event_type,
                            'RESPONDENT_AUTHENTICATED',
                            'UNDELIVERED_MAIL_REPORTED')
         and rm_event_processed between now() - interval '1 minutes' and now()) as event_times
-      group by event_times.event_type;
+      group by event_times.event_type, event_times.event_channel;
         """
 
     conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
@@ -39,4 +40,5 @@ from (select event_type,
     db_result = cur.fetchall()
 
     for one_result in db_result:
-        print(json.dumps({'event_type': one_result[0], 'average_time': one_result[1], 'count': one_result[2]}))
+        print(json.dumps({'event_type': one_result[0], 'event_channel': one_result[1], 'average_time': one_result[2],
+                          'count': one_result[3]}))
