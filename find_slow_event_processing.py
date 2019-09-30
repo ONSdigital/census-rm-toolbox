@@ -40,4 +40,5 @@ from (select event_type,
     db_result = cur.fetchall()
 
     for one_result in db_result:
-        print(json.dumps({'event_type': one_result[0], 'event_channel': one_result[1], 'average_time': one_result[2], 'count': one_result[3]}))
+        print(json.dumps({'event_type': one_result[0], 'event_channel': one_result[1], 'average_time': one_result[2],
+                          'count': one_result[3]}))
