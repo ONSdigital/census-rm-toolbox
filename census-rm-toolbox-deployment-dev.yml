@@ -82,6 +82,10 @@ spec:
             configMapKeyRef:
               name: db-config
               key: db-name
+        - name: CASEAPI_HOST
+          value: "case-api"
+        - name: CASEAPI_PORT
+          value: "80"
       volumes:
       - name: gcp-credentials-volume
         secret:
