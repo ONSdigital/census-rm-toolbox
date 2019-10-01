@@ -35,7 +35,12 @@ class RabbitContext:
                                       pika.PlainCredentials(self._user, self._password)))
 
         self._channel = self._connection.channel()
-        self.queue_declare_result = self._channel.queue_declare(queue=self.queue_name, durable=True)
+
+        # Limit to 100 messages to avoid rabbit 'issues'
+        self._channel.basic_qos(prefetch_count=100)
+
+        if self.queue_name:
+            self.queue_declare_result = self._channel.queue_declare(queue=self.queue_name, durable=True)
 
         return self._connection
 
@@ -56,3 +61,16 @@ class RabbitContext:
 
     def get_queue_message_qty(self):
         return self.queue_declare_result.method.message_count
+
+    def start_listening_for_messages(self, on_message_callback, timeout=30):
+        self._connection.call_later(
+            delay=timeout,
+            callback=self._timeout_callback)
+
+        self.channel.basic_consume(
+            queue=self.queue_name,
+            on_message_callback=on_message_callback)
+        self.channel.start_consuming()
+
+    def _timeout_callback(self):
+        self.channel.stop_consuming()

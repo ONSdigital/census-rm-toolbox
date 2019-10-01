@@ -60,16 +60,6 @@
                 key: rabbitmq-password
           - name: GOOGLE_APPLICATION_CREDENTIALS
             value: "/gcp-credentials/service-account-key.json"
-          - name: DB_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials
-                key: username
-          - name: DB_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: db-credentials
-                key: password
           - name: DB_HOST_RW
             valueFrom:
               configMapKeyRef:
