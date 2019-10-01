@@ -27,7 +27,6 @@ echo '╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚�
 echo "You better know what you're doing, buddy."
 echo 'Godspeed...'
 echo
-tput sgr0
 
 if [[ -z "$2" ]]; then
   read -p "Username: " -r username
@@ -36,3 +35,4 @@ else
 fi
 
 psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=$username dbname=$DB_NAME_RW"
+tput sgr0
