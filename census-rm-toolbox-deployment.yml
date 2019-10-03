@@ -95,6 +95,10 @@
               configMapKeyRef:
                 name: project-config
                 key: project-name
+          - name: CASEAPI_HOST
+            value: "case-api"
+          - name: CASEAPI_PORT
+            value: "80"
         volumes:
         - name: gcp-credentials-volume
           secret:
