@@ -38,6 +38,9 @@ def create_refusal_message():
         print('Error: invalid or non-existent Case ID')
         return
 
+    print('What is the reason for this refusal?')
+    reason = input()
+
     message = {
         "event": {
             "type": "REFUSAL_RECEIVED",
@@ -49,7 +52,7 @@ def create_refusal_message():
         "payload": {
             "refusal": {
                 "type": refusal_type,
-                "report": "Operational manual refusal",
+                "report": reason,
                 "collectionCase": {
                     "id": case_id
                 }

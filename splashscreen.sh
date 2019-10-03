@@ -13,5 +13,5 @@ echo "╚═╝  ╚═╝╚═╝     ╚═╝       ╚═╝    ╚══�
 echo
 echo Give me commands I and I will do thy bidding. With great power comes great responsibility.
 echo
-echo Commands: helpme, findbadmessages, queuetool [-h], vi, curl, dosql, dumpfilestoqueue, dumpqueuetofiles, listqueues, findpubsubmessages, sftp
+echo Commands: helpme, findbadmessages, queuetool [-h], vi, curl, dosql, dumpfilestoqueue, dumpqueuetofiles, listqueues, findpubsubmessages, sftp, makemessage
 echo
