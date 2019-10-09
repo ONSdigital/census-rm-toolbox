@@ -3,9 +3,9 @@ import random
 NAMES = ['Adam', 'Ade', 'Dan', 'David', 'Gav', 'Hugh', 'Itchy', 'Jamie', 'Jen', 'Leo', 'Liam', 'Luke', 'Richard',
          'Ryan', 'Scratchy', 'Vicki', 'Yogi']
 CLASSES = ['barbarian', 'fighter', 'paladin', 'bard', 'sorcerer', 'warlock', 'cleric', 'druid', 'monk', 'ranger',
-           'rogue', 'wizard', 'hacker', 'programmer']
+           'rogue', 'wizard', 'hacker', 'programmer', 'delivery manager', 'scrum master', 'business analyst', 'tester']
 CHARACTER_ADJECTIVES = ['awesome', 'phenomenal', 'stupendous', 'mighty', 'magnificent', 'incredible', 'remarkable',
-                        'sensational', 'astounding', 'wondrous']
+                        'sensational', 'astounding', 'wondrous', 'epic', 'brilliant']
 CHARACTER_VERBS = ['slayer', 'destroyer', 'crusher', 'exterminator', 'slaughterer', 'wrecker', 'demolisher',
                    'executioner', 'killer', 'smasher', 'basher', 'masher', 'thrasher']
 CHARACTER_ENEMIES = ['hippies', 'hipsters', 'people who walk too slowly', 'worlds', 'universes', 'nations', 'vermin',
@@ -32,13 +32,13 @@ ADJECTIVES = ['ominous', 'frumpy', 'idle', 'rusty', 'sharp', 'blunt', 'shiny', '
               'incomplete', 'disappointing', 'regrettable', 'fragile', 'thin', 'fat', 'big', 'little', 'heavy', 'light',
               'spiky', 'smooth', 'hairy', 'tangled', 'simple', 'complicated', 'intelligent', 'dumb']
 NOUNS = ['biscuit', 'potted plant', 'lawnmower', 'dinner plate', 'hi-fi', 'car', 'table', 'chair', 'lamp', 'ornament',
-         'sofa', 'bookcase', 'exercise bike', 'dog kennel', 'trophy', 'cattle prod']
+         'sofa', 'bookcase', 'exercise bike', 'dog kennel', 'trophy', 'cattle prod', 'washing machine', 'dustbin']
 COLOURS = ['red', 'green', 'blue', 'yellow', 'pink', 'purple', 'orange', 'brown', 'violet', 'ultraviolet', 'infrared',
            'aquamarine', 'turquoise', 'grey', 'white', 'black']
 WEATHER = ['raining', 'sunny', 'windy', 'snowing', 'really really cold', 'foggy', 'scorching hot', 'drizzling',
            'cloudy', 'overcast', 'looking ominous', 'balmy', 'not bad for this time of year',
            'terrible for this time of year']
-SIZES = ['huge', 'enormous', 'little', 'minuscule', 'tiny', 'big', 'small', 'microscopic', 'planetary scale']
+SIZES = ['huge', 'enormous', 'little', 'minuscule', 'tiny', 'big', 'small', 'microscopic', 'planetary scale', 'average']
 VOWELS = "aeiouAEIOU"
 
 
@@ -97,12 +97,13 @@ def describe_option(compass_direction, location):
 
 if __name__ == "__main__":
     current_location = generate_location()
-    objective_object = f"{r(ADJECTIVES)} {r(COLOURS)} {r(NOUNS)}"
+    objective_object = f'{r(ADJECTIVES)} {r(COLOURS)} {r(NOUNS)}'
+    objective_location = f'{r(SIZES)} {r(ALL_LOCATIONS)}'
     sworn_enemy = f'{r(SIZES)} {r(ADJECTIVES)} {r(COLOURS)} {r(ENEMIES)}'
 
     print(f'Your name is {rt(CHARACTER_ADJECTIVES)} {rt(NAMES)} the {rt(CLASSES)}, {rt(CHARACTER_VERBS)} '
           f'of {rt(CHARACTER_ENEMIES)} and it is your mission to seek out the {objective_object}, '
-          f'which can only be found in the {r(ADJECTIVES)} {r(ALL_LOCATIONS)}. You must also defeat the '
+          f'which can only be found in the {objective_location}. You must also defeat the '
           f'{sworn_enemy}, which is your sworn deadly enemy and will attempt to kill you if it sees you.')
 
     while True:
@@ -117,7 +118,8 @@ if __name__ == "__main__":
                   f'beginning, so you only have yourself to blame. Game over.')
             exit()
 
-        if objective_object == current_location['object']:
+        if objective_object == current_location['object'] and objective_location == (f'{an(current_location["size"])} '
+                                                                                     f'{current_location["type"]}'):
             print(f'Congratulations you have found the {objective_object}. You have completed the game')
             exit()
 
