@@ -55,12 +55,39 @@ def random_bool():
     return random.randint(0, 1) == 1
 
 
-def attacked():
-    return random.randint(0, 100) == 42
+def check_if_attacked(current_enemy, sworn_enemy):
+    if random.randint(0, 100) == 42:
+        print(f'You have been attacked and killed by a malevolent {current_enemy}. Game over.')
+        exit()
+
+    if random.randint(0, 100) == 42:
+        print(f'You have been attacked and killed by a wild {sworn_enemy} which you were warned about at the '
+              f'beginning, so you only have yourself to blame. Game over.')
+        exit()
+
+
+def check_if_game_won(objective_object, objective_location, current_location):
+    if objective_object == current_location['object'] and objective_location == (f'{an(current_location["size"])} '
+                                                                                 f'{current_location["type"]}'):
+        print(f'Congratulations you have found the {objective_object}. You have completed the game')
+        exit()
+
+
+def display_current_location(current_location):
+    if current_location['is_indoors']:
+        print(f'You are in {an(current_location["size"])} {current_location["type"]} inside '
+              f'{an(current_location["building_type"])}. There is {an(current_location["object"])} lying nearby. '
+              f'This is not the object you are looking for. There is a harmless {current_location["enemy"]} '
+              f'hanging around.')
+    else:
+        print(f'You are in {an(current_location["size"])} {current_location["type"]}. There is '
+              f'{an(current_location["object"])} lying nearby. This is not the object you are looking for. There '
+              f'is a harmless {current_location["enemy"]} hanging around. The weather is currently '
+              f'{current_location["weather"]}.')
 
 
 def sworn_enemy_appears():
-    return random.randint(0, 1000) == 42
+    return random.randint(0, 100) == 42
 
 
 def an(following_word):
@@ -88,6 +115,13 @@ def generate_location():
     return new_location
 
 
+def create_and_describe_options(current_location):
+    for compass_direction in ['north', 'south', 'east', 'west']:
+        if not current_location.get(compass_direction):
+            current_location[compass_direction] = generate_location()
+        describe_option(compass_direction, current_location)
+
+
 def describe_option(compass_direction, location):
     if location[compass_direction]['is_indoors']:
         print(f'To the {compass_direction} there is {an(location[compass_direction]["building_type"])}.')
@@ -95,7 +129,38 @@ def describe_option(compass_direction, location):
         print(f'To the {compass_direction} there is {an(location[compass_direction]["type"])}.')
 
 
-if __name__ == "__main__":
+def handle_input(current_location):
+    new_location = None
+
+    while not new_location:
+        print()
+        response = input('What do you want to do?  >>>> ')
+        print()
+
+        if response.lower() == 'go north':
+            current_location['north']['south'] = current_location
+            new_location =  current_location['north']
+        elif response.lower() == 'go south':
+            current_location['south']['north'] = current_location
+            new_location = current_location['south']
+        elif response.lower() == 'go east':
+            current_location['east']['west'] = current_location
+            new_location = current_location['east']
+        elif response.lower() == 'go west':
+            current_location['west']['east'] = current_location
+            new_location = current_location['west']
+        elif response.lower() == f'go {chr(102)}{chr(117)}{chr(99)}{chr(107)} yourself':
+            print("That's not very nice!!")
+        elif response.lower() == 'quit':
+            print("Thanks for playing. Goodbye")
+            exit()
+        else:
+            print("I do not understand your instructions. Try something like 'go west'")
+
+    return new_location
+
+
+def main():
     current_location = generate_location()
     objective_object = f'{r(ADJECTIVES)} {r(COLOURS)} {r(NOUNS)}'
     objective_location = f'{r(SIZES)} {r(ALL_LOCATIONS)}'
@@ -109,59 +174,15 @@ if __name__ == "__main__":
     while True:
         print()
 
-        if attacked():
-            print(f'You have been attacked and killed by a malevolent {current_location["enemy"]}. Game over.')
-            exit()
-
-        if sworn_enemy_appears():
-            print(f'You have been attacked and killed by a wild {sworn_enemy} which you were warned about at the '
-                  f'beginning, so you only have yourself to blame. Game over.')
-            exit()
-
-        if objective_object == current_location['object'] and objective_location == (f'{an(current_location["size"])} '
-                                                                                     f'{current_location["type"]}'):
-            print(f'Congratulations you have found the {objective_object}. You have completed the game')
-            exit()
-
-        if current_location['is_indoors']:
-            print(f'You are in {an(current_location["size"])} {current_location["type"]} inside '
-                  f'{an(current_location["building_type"])}. There is {an(current_location["object"])} lying nearby. '
-                  f'This is not the object you are looking for. There is a harmless {current_location["enemy"]} '
-                  f'hanging around.')
-        else:
-            print(f'You are in {an(current_location["size"])} {current_location["type"]}. There is '
-                  f'{an(current_location["object"])} lying nearby. This is not the object you are looking for. There '
-                  f'is a harmless {current_location["enemy"]} hanging around. The weather is currently '
-                  f'{current_location["weather"]}.')
+        check_if_attacked(current_location["enemy"], sworn_enemy)
+        check_if_game_won(objective_object, objective_location, current_location)
+        display_current_location(current_location)
 
         print()
 
-        for compass_direction in ['north', 'south', 'east', 'west']:
-            if not current_location.get(compass_direction):
-                current_location[compass_direction] = generate_location()
-            describe_option(compass_direction, current_location)
+        create_and_describe_options(current_location)
+        current_location = handle_input(current_location)
 
-        print()
 
-        response = input('What do you want to do?  >>>> ')
-        print()
-
-        if response.lower() == 'go north':
-            current_location['north']['south'] = current_location
-            current_location = current_location['north']
-        elif response.lower() == 'go south':
-            current_location['south']['north'] = current_location
-            current_location = current_location['south']
-        elif response.lower() == 'go east':
-            current_location['east']['west'] = current_location
-            current_location = current_location['east']
-        elif response.lower() == 'go west':
-            current_location['west']['east'] = current_location
-            current_location = current_location['west']
-        elif response.lower() == f'go {chr(102)}{chr(117)}{chr(99)}{chr(107)} yourself':
-            print("That's not very nice!!")
-        elif response.lower() == 'quit':
-            print("Thanks for playing. Goodbye")
-            exit()
-        else:
-            print("I do not understand your instructions. Try something like 'go west'")
+if __name__ == "__main__":
+    main()
