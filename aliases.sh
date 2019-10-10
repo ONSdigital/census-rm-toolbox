@@ -20,7 +20,11 @@ badmessagedetails() {
 }
 
 peekmessage() {
+    echo "----PEEK START----"
+    echo
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/peekmessage/$1
+    echo
+    echo "-----PEEK END-----"
 }
 
 skipmessage() {
