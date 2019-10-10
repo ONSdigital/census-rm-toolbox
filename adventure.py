@@ -1,7 +1,7 @@
 import random
 
 NAMES = ['Adam', 'Ade', 'Dan', 'David', 'Gav', 'Hugh', 'Itchy', 'Jamie', 'Jen', 'Leo', 'Liam', 'Luke', 'Richard',
-         'Ryan', 'Scratchy', 'Vicki', 'Yogi']
+         'Ryan', 'Scratchy', 'Vicki', 'Yogi', 'Nick']
 CLASSES = ['barbarian', 'fighter', 'paladin', 'bard', 'sorcerer', 'warlock', 'cleric', 'druid', 'monk', 'ranger',
            'rogue', 'wizard', 'hacker', 'programmer', 'delivery manager', 'scrum master', 'business analyst', 'tester']
 CHARACTER_ADJECTIVES = ['awesome', 'phenomenal', 'stupendous', 'mighty', 'magnificent', 'incredible', 'remarkable',
