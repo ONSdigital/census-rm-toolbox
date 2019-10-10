@@ -40,7 +40,7 @@ WEATHER = ['raining', 'sunny', 'windy', 'snowing', 'really really cold', 'foggy'
            'terrible for this time of year']
 SIZES = ['huge', 'enormous', 'little', 'minuscule', 'tiny', 'big', 'small', 'microscopic', 'planetary scale', 'average']
 COMPASS_POINTS = ['north', 'south', 'east', 'west']
-OPPOSITE_DIRECTIONS = {'north':'south', 'south':'north', 'east':'west', 'west':'east'}
+OPPOSITE_DIRECTIONS = {'north': 'south', 'south': 'north', 'east': 'west', 'west': 'east'}
 VOWELS = "aeiouAEIOU"
 
 
