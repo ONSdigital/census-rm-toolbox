@@ -60,7 +60,7 @@ def check_if_attacked(current_enemy, sworn_enemy):
         print(f'You have been attacked and killed by a malevolent {current_enemy}. Game over.')
         exit()
 
-    if random.randint(0, 100) == 42:
+    if random.randint(0, 1000) == 42:
         print(f'You have been attacked and killed by a wild {sworn_enemy} which you were warned about at the '
               f'beginning, so you only have yourself to blame. Game over.')
         exit()
