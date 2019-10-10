@@ -11,12 +11,12 @@ alias dumpfilestoqueue='python dump_files_to_queue.py'
 alias dumpqueuetofiles='python dump_queue_to_files.py'
 alias listqueues='python poison_message_queue_finder.py'
 alias makemessage='python message_maker.py'
-alias findbadmessages='curl http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessages | jq'
-alias peekmessage='curl http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/peekmessage'
-alias skipmessage='curl http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skipmessage'
-alias viewskipped='curl http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skippedmessages | jq'
-alias resetexceptionmanager='curl http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/reset'
+alias findbadmessages='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessages | jq'
+alias peekmessage='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/peekmessage'
+alias skipmessage='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skipmessage'
+alias viewskipped='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skippedmessages | jq'
+alias resetexceptionmanager='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/reset'
 
 badmessagedetails() {
-    curl http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq
+    curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq
 }
