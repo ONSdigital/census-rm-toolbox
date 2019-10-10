@@ -39,6 +39,8 @@ WEATHER = ['raining', 'sunny', 'windy', 'snowing', 'really really cold', 'foggy'
            'cloudy', 'overcast', 'looking ominous', 'balmy', 'not bad for this time of year',
            'terrible for this time of year']
 SIZES = ['huge', 'enormous', 'little', 'minuscule', 'tiny', 'big', 'small', 'microscopic', 'planetary scale', 'average']
+COMPASS_POINTS = ['north', 'south', 'east', 'west']
+OPPOSITE_DIRECTIONS = {'north':'south', 'south':'north', 'east':'west', 'west':'east'}
 VOWELS = "aeiouAEIOU"
 
 
@@ -123,7 +125,7 @@ def generate_location():
 
 
 def create_and_describe_options(current_location):
-    for compass_direction in ['north', 'south', 'east', 'west']:
+    for compass_direction in COMPASS_POINTS:
         if not current_location.get(compass_direction):
             current_location[compass_direction] = generate_location()
         describe_option(compass_direction, current_location)
@@ -136,6 +138,15 @@ def describe_option(compass_direction, location):
         print(f'To the {compass_direction} there is {an(location[compass_direction]["type"])}.')
 
 
+def go_direction(direction, current_location):
+    if direction not in COMPASS_POINTS:
+        print(f"Don't know how to go {direction}. You can only go north, south, east or west")
+        return None
+
+    current_location[direction][OPPOSITE_DIRECTIONS[direction]] = current_location
+    return current_location[direction]
+
+
 def handle_input(current_location):
     new_location = None
 
@@ -144,18 +155,9 @@ def handle_input(current_location):
         response = input('What do you want to do?  >>>> ')
         print()
 
-        if response.lower() == 'go north':
-            current_location['north']['south'] = current_location
-            new_location = current_location['north']
-        elif response.lower() == 'go south':
-            current_location['south']['north'] = current_location
-            new_location = current_location['south']
-        elif response.lower() == 'go east':
-            current_location['east']['west'] = current_location
-            new_location = current_location['east']
-        elif response.lower() == 'go west':
-            current_location['west']['east'] = current_location
-            new_location = current_location['west']
+        if response.lower().startswith('go'):
+            direction = response.lower().replace("go", "").lstrip()
+            new_location = go_direction(direction, current_location)
         elif response.lower() == f'attack {current_location["enemy"]}':
             attack_enemy(current_location)
             new_location = current_location
