@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     print(f'Your name is {rt(CHARACTER_ADJECTIVES)} {rt(NAMES)} the {rt(CLASSES)}, {rt(CHARACTER_VERBS)} '
           f'of {rt(CHARACTER_ENEMIES)} and it is your mission to seek out the {objective_object}, '
-          f'which can only be found in the {objective_location}. You must also defeat the '
+          f'which can only be found in the {objective_location}. You must also evade the '
           f'{sworn_enemy}, which is your sworn deadly enemy and will attempt to kill you if it sees you.')
 
     while True:
