@@ -28,13 +28,13 @@ INDOOR_LOCATION_TYPES = ['room', 'cavern', 'bathroom', 'dining room', 'lounge', 
 ALL_LOCATIONS = OUTDOOR_LOCATION_TYPES + INDOOR_LOCATION_TYPES
 BUILDING_TYPES = ['house', 'derelict house', 'haunted house', 'castle', 'ruined castle', 'citadel', 'office block',
                   'shop', 'shopping centre', 'airport terminal', 'den of iniquity', 'tower block', 'bowling alley']
-ADJECTIVES = ['ominous', 'frumpy', 'idle', 'rusty', 'sharp', 'blunt', 'shiny', 'untrustworthy', 'imperfect',
-              'incomplete', 'disappointing', 'regrettable', 'fragile', 'thin', 'fat', 'big', 'little', 'heavy', 'light',
+ADJECTIVES = ['ambivalent', 'frumpy', 'idle', 'rusty', 'sharp', 'blunt', 'shiny', 'untrustworthy', 'imperfect',
+              'incomplete', 'disappointing', 'regrettable', 'fragile', 'thin', 'fat', 'delicious', 'heavy', 'light',
               'spiky', 'smooth', 'hairy', 'tangled', 'simple', 'complicated', 'intelligent', 'dumb']
 NOUNS = ['biscuit', 'potted plant', 'lawnmower', 'dinner plate', 'hi-fi', 'car', 'table', 'chair', 'lamp', 'ornament',
          'sofa', 'bookcase', 'exercise bike', 'dog kennel', 'trophy', 'cattle prod', 'washing machine', 'dustbin']
 COLOURS = ['red', 'green', 'blue', 'yellow', 'pink', 'purple', 'orange', 'brown', 'violet', 'ultraviolet', 'infrared',
-           'aquamarine', 'turquoise', 'grey', 'white', 'black']
+           'aquamarine', 'turquoise', 'grey', 'beige', 'silver', 'gold']
 WEATHER = ['raining', 'sunny', 'windy', 'snowing', 'really really cold', 'foggy', 'scorching hot', 'drizzling',
            'cloudy', 'overcast', 'looking ominous', 'balmy', 'not bad for this time of year',
            'terrible for this time of year']
@@ -74,15 +74,21 @@ def check_if_game_won(objective_object, objective_location, current_location):
 
 
 def display_current_location(current_location):
+    if current_location['enemy_alive']:
+        enemy_description = f'There is a harmless {current_location["enemy"]} hanging around.'
+    else:
+        enemy_description = (f'There is a dead {current_location["enemy"]} lying in a pool of its own blood, '
+                             f'where you brutally and needlessly killed it to death in a senseless murder.')
+
+    object_description = (f'There is {an(current_location["object"])} lying nearby. This is not the object you are '
+                          f'looking for.')
+
     if current_location['is_indoors']:
         print(f'You are in {an(current_location["size"])} {current_location["type"]} inside '
-              f'{an(current_location["building_type"])}. There is {an(current_location["object"])} lying nearby. '
-              f'This is not the object you are looking for. There is a harmless {current_location["enemy"]} '
-              f'hanging around.')
+              f'{an(current_location["building_type"])}. {object_description} {enemy_description}')
     else:
-        print(f'You are in {an(current_location["size"])} {current_location["type"]}. There is '
-              f'{an(current_location["object"])} lying nearby. This is not the object you are looking for. There '
-              f'is a harmless {current_location["enemy"]} hanging around. The weather is currently '
+        print(f'You are in {an(current_location["size"])} {current_location["type"]}. {object_description} '
+              f'{enemy_description} The weather is currently '
               f'{current_location["weather"]}.')
 
 
@@ -103,6 +109,7 @@ def generate_location():
         "size": r(SIZES),
         "object": f'{r(ADJECTIVES)} {r(COLOURS)} {r(NOUNS)}',
         "enemy": f'{r(SIZES)} {r(ADJECTIVES)} {r(COLOURS)} {r(ENEMIES)}',
+        "enemy_alive": True
     }
 
     if new_location["is_indoors"]:
@@ -139,7 +146,7 @@ def handle_input(current_location):
 
         if response.lower() == 'go north':
             current_location['north']['south'] = current_location
-            new_location =  current_location['north']
+            new_location = current_location['north']
         elif response.lower() == 'go south':
             current_location['south']['north'] = current_location
             new_location = current_location['south']
@@ -149,15 +156,34 @@ def handle_input(current_location):
         elif response.lower() == 'go west':
             current_location['west']['east'] = current_location
             new_location = current_location['west']
+        elif response.lower() == f'attack {current_location["enemy"]}':
+            attack_enemy(current_location)
+            new_location = current_location
+        elif response.lower() == 'attack':
+            print("Attack what?")
+        elif response.lower().startswith('attack'):
+            print(f'Tried to attack the {response.lower().replace("attack", "").lstrip()} but the description was a '
+                  f'bit vague. Did you mean to attack the {current_location["enemy"]}?')
         elif response.lower() == f'go {chr(102)}{chr(117)}{chr(99)}{chr(107)} yourself':
             print("That's not very nice!!")
         elif response.lower() == 'quit':
             print("Thanks for playing. Goodbye")
             exit()
         else:
-            print("I do not understand your instructions. Try something like 'go west'")
+            print("I do not understand your instructions. Try something like 'go west' or 'attack'")
 
     return new_location
+
+
+def attack_enemy(current_location):
+    if random.randint(0, 6) == 3:
+        print(f'During your vicious attempted murder you were killed by the {current_location["enemy"]}, which you '
+              f'needlessly provoked, so you only have yourself to blame. Game over.')
+        exit()
+    else:
+        print(f'You have attacked and killed the {current_location["enemy"]} which was harmlessly minding its own '
+              f'business, in an immoral violent murderous act of unforgivable wickedness.')
+        current_location['enemy_alive'] = False
 
 
 def main():
