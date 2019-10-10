@@ -21,7 +21,7 @@ ENEMIES = ['hippy', 'hipster', 'person who walks too slowly', 'world', 'universe
 OUTDOOR_LOCATION_TYPES = ['field of corn', 'field of wheat', 'field of barley', 'field of hops', 'field of dreams',
                           'heath', 'scrubland', 'muddy wasteland', 'industrial wasteland', 'garden', 'courtyard',
                           'forest', 'wood', 'thicket', 'valley', 'clearing', 'golf course', 'park', 'car park',
-                          'botanical garden']
+                          'botanical garden', 'football pitch', 'frozen lake', 'school playground']
 INDOOR_LOCATION_TYPES = ['room', 'cavern', 'bathroom', 'dining room', 'lounge', 'hallway', 'passage', 'cave',
                          'banqueting hall', 'dungeon', 'prison cell', 'cupboard', 'bedroom', 'trophy room', 'pool hall',
                          'bar', 'office', 'meeting room']
@@ -139,7 +139,13 @@ def describe_option(compass_direction, location):
 
 
 def go_direction(direction, current_location):
-    if direction not in COMPASS_POINTS:
+    if direction.lstrip() == "":
+        print("Go where?")
+        return None
+    elif direction == f'{chr(102)}{chr(117)}{chr(99)}{chr(107)} yourself':
+        print("That's not very nice!!")
+        return None
+    elif direction not in COMPASS_POINTS:
         print(f"Don't know how to go {direction}. You can only go north, south, east or west")
         return None
 
@@ -164,10 +170,8 @@ def handle_input(current_location):
         elif response.lower() == 'attack':
             print("Attack what?")
         elif response.lower().startswith('attack'):
-            print(f'Tried to attack the {response.lower().replace("attack", "").lstrip()} but the description was a '
+            print(f'Tried to attack {an(response.lower().replace("attack", "").lstrip())} but the instructions were a '
                   f'bit vague. Did you mean to attack the {current_location["enemy"]}?')
-        elif response.lower() == f'go {chr(102)}{chr(117)}{chr(99)}{chr(107)} yourself':
-            print("That's not very nice!!")
         elif response.lower() == 'quit':
             print("Thanks for playing. Goodbye")
             exit()
