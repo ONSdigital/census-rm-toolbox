@@ -130,7 +130,7 @@ def show_quarantine_all_bad_messages():
 
 
 def confirm_quarantine_bad_message(message_hash):
-    confirmation = input(colored('Confirm you want to quarantine the message by responding "yes"', 'white'))
+    confirmation = input(colored('Confirm you want to quarantine the message by responding "yes": ', 'white'))
     if confirmation == 'yes':
         print(colored(f'Quarantining message {message_hash}', 'yellow'))
         quarantine_bad_message(message_hash)
