@@ -54,8 +54,7 @@ def pretty_print_quarantined_message(message_hash, metadata, formatted_payload):
         print(f"  {colored(index + 1, 'green')}: ")
         for k, v in report.items():
             print(colored(f'    {k}:', 'green'), colored(v, 'white'))
-    print(colored('Message Payload: ', 'green'))
-    print(colored(formatted_payload, 'white'))
+    print(colored('Message Payload:', 'green'), colored(formatted_payload, 'white'))
     print(colored('-------------------------------------------------------------------------------------', 'green'))
 
 
@@ -190,7 +189,7 @@ def pretty_print_bad_message(message_hash, body, format):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash: ', 'green'), colored(message_hash, 'white'))
     print(colored('Detected Format: ', 'green'), colored(format, 'white'))
-    print(f"{colored('Body: ', 'green')}\n{colored(body, 'white')}")
+    print(f"{colored('Body:', 'green')} {colored(body, 'white')}")
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
 
