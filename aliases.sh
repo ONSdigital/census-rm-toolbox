@@ -14,6 +14,7 @@ alias makemessage='python message_maker.py'
 alias findbad='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessages | jq'
 alias viewskipped='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skippedmessages | jq'
 alias resetexceptionmanager='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/reset'
+alias msgwizard='python bad_message_wizard.py'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq

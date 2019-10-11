@@ -2,6 +2,14 @@
 
 The most bestestest tools for make running the census big success wow.
 
+## Bad Message Wizard
+On the pod run
+```bash
+msgwizard
+```
+
+This should start a terminal wizard for dealing with bad messages through the exception manager service
+
 ## How to use - Message Manipulator
 
 The message manipulator will allow you to look at rabbit messages inside a queue you specify.
