@@ -109,7 +109,8 @@ def show_quarantine_all_bad_messages():
     if not bad_messages:
         show_no_bad_messages()
         return
-    print(colored(f'There are currently {len(bad_messages)} bad messages, continuing will quarantine them all', 'yellow'))
+    print(colored(
+        f'There are currently {len(bad_messages)} bad messages, continuing will quarantine them all', 'yellow'))
     print('')
     print(colored('1.', 'white'), 'Continue')
     print(colored('2.', 'white'), 'Cancel')
