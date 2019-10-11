@@ -25,7 +25,7 @@ def main():
 
         input(f'press {colored("ENTER", "white")} to continue')
         print('')
-        print(colored('Actions:', attrs=['underline']))
+        print(colored('Actions:', 'white', attrs=['underline']))
         for index, action in enumerate(actions):
             print(f'  {colored(f"{index + 1}.", "white")} {action["description"]}')
         print('')
@@ -88,7 +88,6 @@ def show_quarantined_messages():
 
 def confirm_quarantine_all_bad_messages(bad_messages):
     print('')
-    print(f'Confirm you wish to quarantine all {len(bad_messages)}')
     confirmation = input(colored("Confirm by responding with '", 'white') +
                          colored(f"I confirm I wish to quarantine all {len(bad_messages)} bad messages", 'red') +
                          colored("' exactly: ", 'white'))
@@ -110,7 +109,7 @@ def show_quarantine_all_bad_messages():
     if not bad_messages:
         show_no_bad_messages()
         return
-    print(f'There are currently {len(bad_messages)} bad messages, continuing will quarantine them all')
+    print(colored(f'There are currently {len(bad_messages)} bad messages, continuing will quarantine them all', 'yellow'))
     print('')
     print(colored('1.', 'white'), 'Continue')
     print(colored('2.', 'white'), 'Cancel')
@@ -219,8 +218,12 @@ def show_bad_message_metadata():
 
 def show_bad_message_metadata_for_hash(message_hash):
     selected_bad_message_metadata = get_bad_message_metadata(message_hash)
+    if not selected_bad_message_metadata:
+        print(colored(f'Message not found', 'red'))
+        print('')
+        return
     pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata)
-    print(colored('Actions:', attrs=['underline']))
+    print(colored('Actions:', 'white', attrs=['underline']))
     print(colored('1.', 'white'), 'View message')
     print(colored('2.', 'white'), 'Quarantine message')
     print('')
@@ -243,7 +246,6 @@ def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadat
     print(colored('Stats:', 'green'))
     for k, v in selected_bad_message_metadata['exceptionStats'].items():
         print(f'  {colored(k, "green")}: {colored(v, "white")}')
-    print('')
     print(colored('Exception Reports:', 'green'))
     for index, report in enumerate(selected_bad_message_metadata['exceptionReports']):
         print(colored(f'  {index + 1}:', 'green'))
@@ -261,8 +263,13 @@ def list_bad_messages():
 
 def get_bad_message_metadata(message_hash):
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessage/{message_hash}')
+    if response.status_code == 404:
+        return None
     response.raise_for_status()
-    return response.json()
+    response_json = response.json()
+    if not response_json['exceptionStats']:
+        return None
+    return response_json
 
 
 def validate_integer_input_range(selection, minimum, maximum):
