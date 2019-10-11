@@ -17,4 +17,6 @@ class Config:
     DB_USESSL = os.getenv('DB_USESSL', '')
     CASEAPI_HOST = os.getenv('CASEAPI_HOST', 'localhost')
     CASEAPI_PORT = os.getenv('CASEAPI_PORT', '8161')
-    MESSAGE_EXCEPTION_URL = os.getenv('MESSAGE_EXCEPTION_URL', 'http://localhost:8666')
+    EXCEPTIONMANAGER_HOST = os.getenv('EXCEPTIONMANAGER_HOST', 'localhost')
+    EXCEPTIONMANAGER_PORT = os.getenv('EXCEPTIONMANAGER_PORT', '8666')
+    EXCEPTIONMANAGER_URL = f'http://{EXCEPTIONMANAGER_HOST}:{EXCEPTIONMANAGER_PORT}'
