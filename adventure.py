@@ -240,7 +240,7 @@ def main():
 
     print(f'Your name is {rt(CHARACTER_SUPERLATIVES)} {rt(NAMES)} the {rt(CLASSES)}, {rt(CHARACTER_ADVERBS)} '
           f'of {rt(CHARACTER_ENEMIES)}, and it is your mission to seek out the {objective_object}, '
-          f'which can only be found in a {objective_location}. You must also evade the '
+          f'which can only be found in {an(objective_location)}. You must also evade the '
           f'{sworn_enemy}, which is your sworn deadly enemy and will attempt to kill you if it sees you.')
 
     while True:
