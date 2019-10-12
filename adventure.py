@@ -53,6 +53,13 @@ def rt(source_words):
     return r(source_words).title()
 
 
+def an(following_word):
+    if following_word[0] in VOWELS:
+        return f'an {following_word}'
+    else:
+        return f'a {following_word}'
+
+
 def check_if_attacked(current_enemy, sworn_enemy):
     if random.randint(0, 100) == 42:
         print(f'You have been attacked and killed by a malevolent {current_enemy}. Game over.')
@@ -96,13 +103,6 @@ def display_current_location(current_location, inventory):
         print(f'You are in {an(current_location["size"])} {current_location["type"]}. {object_description} '
               f'{enemy_description} The weather is currently '
               f'{current_location["weather"]}. {knapsack_contents}')
-
-
-def an(following_word):
-    if following_word[0] in VOWELS:
-        return f'an {following_word}'
-    else:
-        return f'a {following_word}'
 
 
 def generate_location():
@@ -153,6 +153,60 @@ def go_direction(direction, current_location):
     return current_location[direction]
 
 
+def handle_pick_up(current_location, inventory, response):
+    new_location = None
+
+    item_to_pick_up = response.lower().replace("pick up", "").lstrip()
+    if current_location["object"] is None:
+        print("There's nothing here for you to pick up. You already picked up anything of any use.")
+    elif item_to_pick_up.lstrip() == "":
+        print("Pick up what?")
+    elif item_to_pick_up == current_location["object"]:
+        inventory.append(an(item_to_pick_up))
+        current_location["object"] = None
+        print(f'You have picked up the {item_to_pick_up} and put it in your knapsack for safekeeping.')
+        new_location = current_location
+    else:
+        print(f'Tried to pick up the {item_to_pick_up} but the instructions were a bit vague. Did you mean '
+              f'to pick up the {current_location["object"]}?')
+
+    return new_location
+
+
+def handle_attack(current_location, response):
+    new_location = None
+
+    if response.lower() == f'attack {current_location["enemy"]}':
+        attack_enemy(current_location)
+        new_location = current_location
+    elif response.lower() == 'attack':
+        print("Attack what?")
+    elif response.lower().startswith('attack'):
+        print(f'Tried to attack {an(response.lower().replace("attack", "").lstrip())} but the instructions were a '
+              f'bit vague. Did you mean to attack the {current_location["enemy"]}?')
+
+    return new_location
+
+
+def handle_response(current_location, inventory, response):
+    new_location = None
+
+    if response.lower().startswith('go'):
+        direction = response.lower().replace("go", "").lstrip()
+        new_location = go_direction(direction, current_location)
+    elif response.lower().startswith('pick up'):
+        new_location = handle_pick_up(current_location, inventory, response)
+    elif response.lower().startswith('attack'):
+        new_location = handle_attack(current_location, response)
+    elif response.lower() == 'quit':
+        print("Thanks for playing. Goodbye")
+        exit()
+    else:
+        print("I do not understand your instructions. Try something like 'go', 'attack' or 'pick up'")
+
+    return new_location
+
+
 def handle_input(current_location, inventory):
     new_location = None
 
@@ -161,36 +215,7 @@ def handle_input(current_location, inventory):
         response = input('What do you want to do?  >>>> ')
         print()
 
-        if response.lower().startswith('go'):
-            direction = response.lower().replace("go", "").lstrip()
-            new_location = go_direction(direction, current_location)
-        elif response.lower().startswith('pick up'):
-            item_to_pick_up = response.lower().replace("pick up", "").lstrip()
-            if current_location["object"] is None:
-                print("There's nothing here for you to pick up. You already picked up anything of any use.")
-            elif item_to_pick_up.lstrip() == "":
-                print("Pick up what?")
-            elif item_to_pick_up == current_location["object"]:
-                inventory.append(an(item_to_pick_up))
-                current_location["object"] = None
-                print(f'You have picked up the {item_to_pick_up} and put it in your knapsack for safekeeping.')
-                new_location = current_location
-            else:
-                print(f'Tried to pick up the {item_to_pick_up} but the instructions were a bit vague. Did you mean '
-                      f'to pick up the {current_location["object"]}?')
-        elif response.lower() == f'attack {current_location["enemy"]}':
-            attack_enemy(current_location)
-            new_location = current_location
-        elif response.lower() == 'attack':
-            print("Attack what?")
-        elif response.lower().startswith('attack'):
-            print(f'Tried to attack {an(response.lower().replace("attack", "").lstrip())} but the instructions were a '
-                  f'bit vague. Did you mean to attack the {current_location["enemy"]}?')
-        elif response.lower() == 'quit':
-            print("Thanks for playing. Goodbye")
-            exit()
-        else:
-            print("I do not understand your instructions. Try something like 'go', 'attack' or 'pick up'")
+        new_location = handle_response(current_location, inventory, response)
 
     return new_location
 
