@@ -4,16 +4,16 @@ NAMES = ['Adam', 'Ade', 'Dan', 'David', 'Gav', 'Hugh', 'Itchy', 'Jamie', 'Jen', 
          'Ryan', 'Scratchy', 'Vicki', 'Yogi', 'Nick']
 CLASSES = ['barbarian', 'fighter', 'paladin', 'bard', 'sorcerer', 'warlock', 'cleric', 'druid', 'monk', 'ranger',
            'rogue', 'wizard', 'hacker', 'programmer', 'delivery manager', 'scrum master', 'business analyst', 'tester']
-CHARACTER_ADJECTIVES = ['awesome', 'phenomenal', 'stupendous', 'mighty', 'magnificent', 'incredible', 'remarkable',
-                        'sensational', 'astounding', 'wondrous', 'epic', 'brilliant']
-CHARACTER_VERBS = ['slayer', 'destroyer', 'crusher', 'exterminator', 'slaughterer', 'wrecker', 'demolisher',
-                   'executioner', 'killer', 'smasher', 'basher', 'masher', 'thrasher']
+CHARACTER_SUPERLATIVES = ['awesome', 'phenomenal', 'stupendous', 'mighty', 'magnificent', 'incredible', 'remarkable',
+                          'sensational', 'astounding', 'wondrous', 'epic', 'brilliant']
+CHARACTER_ADVERBS = ['slayer', 'destroyer', 'crusher', 'exterminator', 'slaughterer', 'wrecker', 'demolisher',
+                     'executioner', 'killer', 'smasher', 'basher', 'masher', 'thrasher']
 CHARACTER_ENEMIES = ['hippies', 'hipsters', 'people who walk too slowly', 'worlds', 'universes', 'nations', 'vermin',
                      'orcs', 'goblins', 'trolls', 'barbie dolls', 'my little ponies', 'pineapple pizza', 'ghosts',
                      'ghouls', 'skulls', 'evil', 'aliens', 'unvaccinated children', 'the mafia',
                      'people who hog the middle lane on the motorway', 'dragons', 'bacteria', 'viruses',
                      'the common cold', 'trees', 'giants', 'the kraken', 'sharks', 'sharks with lasers']
-ENEMIES = ['hippy', 'hipster', 'person who walks too slowly', 'world', 'universe', 'nation', 'vermin',
+ENEMIES = ['hippie', 'hipster', 'person who walks too slowly', 'world', 'universe', 'nation', 'vermin',
            'orc', 'goblin', 'troll', 'barbie doll', 'my little pony', 'pineapple pizza slice', 'ghost',
            'ghoul', 'skull', 'evil thing', 'alien', 'unvaccinated child', 'mafia boss',
            'person who hogs the middle lane on the motorway', 'dragon', 'bacterium', 'virus', 'common cold', 'tree',
@@ -69,7 +69,7 @@ def check_if_attacked(current_enemy, sworn_enemy):
 
 
 def check_if_game_won(objective_object, objective_location, current_location):
-    if objective_object == current_location['object'] and objective_location == (f'{an(current_location["size"])} '
+    if objective_object == current_location['object'] and objective_location == (f'{current_location["size"]} '
                                                                                  f'{current_location["type"]}'):
         print(f'Congratulations you have found the {objective_object}. You have completed the game')
         exit()
@@ -92,10 +92,6 @@ def display_current_location(current_location):
         print(f'You are in {an(current_location["size"])} {current_location["type"]}. {object_description} '
               f'{enemy_description} The weather is currently '
               f'{current_location["weather"]}.')
-
-
-def sworn_enemy_appears():
-    return random.randint(0, 100) == 42
 
 
 def an(following_word):
@@ -198,9 +194,9 @@ def main():
     objective_location = f'{r(SIZES)} {r(ALL_LOCATIONS)}'
     sworn_enemy = f'{r(SIZES)} {r(ADJECTIVES)} {r(COLOURS)} {r(ENEMIES)}'
 
-    print(f'Your name is {rt(CHARACTER_ADJECTIVES)} {rt(NAMES)} the {rt(CLASSES)}, {rt(CHARACTER_VERBS)} '
-          f'of {rt(CHARACTER_ENEMIES)} and it is your mission to seek out the {objective_object}, '
-          f'which can only be found in the {objective_location}. You must also evade the '
+    print(f'Your name is {rt(CHARACTER_SUPERLATIVES)} {rt(NAMES)} the {rt(CLASSES)}, {rt(CHARACTER_ADVERBS)} '
+          f'of {rt(CHARACTER_ENEMIES)}, and it is your mission to seek out the {objective_object}, '
+          f'which can only be found in a {objective_location}. You must also evade the '
           f'{sworn_enemy}, which is your sworn deadly enemy and will attempt to kill you if it sees you.')
 
     while True:
