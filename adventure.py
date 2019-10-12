@@ -53,10 +53,6 @@ def rt(source_words):
     return r(source_words).title()
 
 
-def random_bool():
-    return random.randint(0, 1) == 1
-
-
 def check_if_attacked(current_enemy, sworn_enemy):
     if random.randint(0, 100) == 42:
         print(f'You have been attacked and killed by a malevolent {current_enemy}. Game over.')
@@ -75,23 +71,31 @@ def check_if_game_won(objective_object, objective_location, current_location):
         exit()
 
 
-def display_current_location(current_location):
+def display_current_location(current_location, inventory):
     if current_location['enemy_alive']:
         enemy_description = f'There is a harmless {current_location["enemy"]} hanging around.'
     else:
         enemy_description = (f'There is a dead {current_location["enemy"]} lying in a pool of its own blood, '
                              f'where you brutally and needlessly killed it to death in a senseless murder.')
 
-    object_description = (f'There is {an(current_location["object"])} lying nearby. This is not the object you are '
-                          f'looking for.')
+    if current_location["object"]:
+        object_description = (f'There is {an(current_location["object"])} lying nearby. This is not the object you are '
+                              f'looking for.')
+    else:
+        object_description = f'There is nothing here worth picking up. You already have a pretty full knapsack anyway.'
+
+    if len(inventory) > 0:
+        knapsack_contents = f'Your knapsack contains {", ".join(inventory)}.'
+    else:
+        knapsack_contents = 'Your knapsack is empty. You should pick stuff up. It might come in handy in future.'
 
     if current_location['is_indoors']:
         print(f'You are in {an(current_location["size"])} {current_location["type"]} inside '
-              f'{an(current_location["building_type"])}. {object_description} {enemy_description}')
+              f'{an(current_location["building_type"])}. {object_description} {enemy_description} {knapsack_contents}')
     else:
         print(f'You are in {an(current_location["size"])} {current_location["type"]}. {object_description} '
               f'{enemy_description} The weather is currently '
-              f'{current_location["weather"]}.')
+              f'{current_location["weather"]}. {knapsack_contents}')
 
 
 def an(following_word):
@@ -103,7 +107,7 @@ def an(following_word):
 
 def generate_location():
     new_location = {
-        "is_indoors": random_bool(),
+        "is_indoors": random.randint(0, 1) == 1,
         "size": r(SIZES),
         "object": f'{r(ADJECTIVES)} {r(COLOURS)} {r(NOUNS)}',
         "enemy": f'{r(SIZES)} {r(ADJECTIVES)} {r(COLOURS)} {r(ENEMIES)}',
@@ -149,7 +153,7 @@ def go_direction(direction, current_location):
     return current_location[direction]
 
 
-def handle_input(current_location):
+def handle_input(current_location, inventory):
     new_location = None
 
     while not new_location:
@@ -160,6 +164,20 @@ def handle_input(current_location):
         if response.lower().startswith('go'):
             direction = response.lower().replace("go", "").lstrip()
             new_location = go_direction(direction, current_location)
+        elif response.lower().startswith('pick up'):
+            item_to_pick_up = response.lower().replace("pick up", "").lstrip()
+            if current_location["object"] is None:
+                print("There's nothing here for you to pick up. You already picked up anything of any use.")
+            elif item_to_pick_up.lstrip() == "":
+                print("Pick up what?")
+            elif item_to_pick_up == current_location["object"]:
+                inventory.append(an(item_to_pick_up))
+                current_location["object"] = None
+                print(f'You have picked up the {item_to_pick_up} and put it in your knapsack for safekeeping.')
+                new_location = current_location
+            else:
+                print(f'Tried to pick up the {item_to_pick_up} but the instructions were a bit vague. Did you mean '
+                      f'to pick up the {current_location["object"]}?')
         elif response.lower() == f'attack {current_location["enemy"]}':
             attack_enemy(current_location)
             new_location = current_location
@@ -172,7 +190,7 @@ def handle_input(current_location):
             print("Thanks for playing. Goodbye")
             exit()
         else:
-            print("I do not understand your instructions. Try something like 'go west' or 'attack'")
+            print("I do not understand your instructions. Try something like 'go', 'attack' or 'pick up'")
 
     return new_location
 
@@ -193,6 +211,7 @@ def main():
     objective_object = f'{r(ADJECTIVES)} {r(COLOURS)} {r(NOUNS)}'
     objective_location = f'{r(SIZES)} {r(ALL_LOCATIONS)}'
     sworn_enemy = f'{r(SIZES)} {r(ADJECTIVES)} {r(COLOURS)} {r(ENEMIES)}'
+    inventory = []
 
     print(f'Your name is {rt(CHARACTER_SUPERLATIVES)} {rt(NAMES)} the {rt(CLASSES)}, {rt(CHARACTER_ADVERBS)} '
           f'of {rt(CHARACTER_ENEMIES)}, and it is your mission to seek out the {objective_object}, '
@@ -204,12 +223,12 @@ def main():
 
         check_if_attacked(current_location["enemy"], sworn_enemy)
         check_if_game_won(objective_object, objective_location, current_location)
-        display_current_location(current_location)
+        display_current_location(current_location, inventory)
 
         print()
 
         create_and_describe_options(current_location)
-        current_location = handle_input(current_location)
+        current_location = handle_input(current_location, inventory)
 
 
 if __name__ == "__main__":
