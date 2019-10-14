@@ -1,6 +1,5 @@
 import base64
 import json
-import xml
 from contextlib import suppress
 from json import JSONDecodeError
 
@@ -64,13 +63,10 @@ def show_all_quarantined_messages(quarantined_messages):
         for report in metadata:
             report.pop('messagePayload')
         print(colored(f'Message {index + 1}', 'white') + ':')
+
+        # Try to JSON decode it, otherwise default to bare un-formatted text
         with suppress(JSONDecodeError):
             pretty_print_quarantined_message(message_hash, metadata, json.dumps(json.loads(message_payload), indent=2))
-            print('')
-            continue
-        with suppress(Exception):
-            pretty_print_quarantined_message(
-                message_hash, metadata, xml.dom.minidom.parseString(message_payload).toprettyxml())
             print('')
             continue
         pretty_print_quarantined_message(message_hash, metadata, message_payload)
@@ -166,6 +162,7 @@ def show_bad_message_list():
 
     for index, bad_message in enumerate(bad_messages):
         print(f'  {colored(f"{index + 1}.", "white")} {bad_message}')
+    print('  ')
     print('')
 
     raw_selection = input(colored(f'Select a message (1 to {len(bad_messages)}) for more options: ', 'white'))
@@ -189,23 +186,20 @@ def pretty_print_bad_message(message_hash, body, message_format):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash: ', 'green'), colored(message_hash, 'white'))
     print(colored('Detected Format: ', 'green'), colored(message_format, 'white'))
-    print(f"{colored('Body:', 'green')} {colored(body, 'white')}")
+    print(colored('Body: ', 'green'), colored(body, 'white'))
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
 
 
 def show_bad_message_body(message_hash):
+    print(colored(f'Fetching bad message {message_hash}', 'yellow'))
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/peekmessage/{message_hash}')
     response.raise_for_status()
 
+    # Try to JSON decode it, otherwise default to bare un-formatted text
     with suppress(JSONDecodeError):
         pretty_print_bad_message(message_hash, json.dumps(response.json(), indent=2), 'json')
         return
-
-    with suppress(Exception):
-        pretty_print_bad_message(message_hash, xml.dom.minidom.parseString(response.text).toprettyxml(), 'xml')
-        return
-
     pretty_print_bad_message(message_hash, response.text, 'text')
 
 
