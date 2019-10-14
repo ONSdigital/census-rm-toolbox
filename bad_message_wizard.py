@@ -184,11 +184,11 @@ def show_no_bad_messages():
     print('')
 
 
-def pretty_print_bad_message(message_hash, body, format):
+def pretty_print_bad_message(message_hash, body, message_format):
     print('')
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash: ', 'green'), colored(message_hash, 'white'))
-    print(colored('Detected Format: ', 'green'), colored(format, 'white'))
+    print(colored('Detected Format: ', 'green'), colored(message_format, 'white'))
     print(f"{colored('Body:', 'green')} {colored(body, 'white')}")
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
@@ -243,13 +243,15 @@ def show_bad_message_metadata_for_hash(message_hash):
 def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash:', 'green'), colored(message_hash, 'white'))
-    print(colored('Stats:', 'green'))
-    for k, v in selected_bad_message_metadata['exceptionStats'].items():
-        print(f'  {colored(k, "green")}: {colored(v, "white")}')
-    print(colored('Exception Reports:', 'green'))
-    for index, report in enumerate(selected_bad_message_metadata['exceptionReports']):
-        print(colored(f'  {index + 1}:', 'green'))
-        for k, v in report.items():
+    print(colored('Reports: ', 'green'))
+    for index, report in enumerate(selected_bad_message_metadata):
+        if index > 0:
+            print('')
+        print(f"{colored('  Exception Report', 'green')}:")
+        for k, v in report['exceptionReport'].items():
+            print(f'    {colored(k, "green")}: {colored(v, "white")}')
+        print(f"{colored('  Stats', 'green')}:")
+        for k, v in report['stats'].items():
             print(f'    {colored(k, "green")}: {colored(v, "white")}')
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
@@ -267,7 +269,7 @@ def get_bad_message_metadata(message_hash):
         return None
     response.raise_for_status()
     response_json = response.json()
-    if not response_json['exceptionStats']:
+    if not response_json:
         return None
     return response_json
 
