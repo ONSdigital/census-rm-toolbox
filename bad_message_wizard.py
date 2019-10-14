@@ -48,12 +48,12 @@ def get_quarantined_message_list():
 def pretty_print_quarantined_message(message_hash, metadata, formatted_payload):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash: ', 'green'), colored(message_hash, 'white'))
-    print(colored('Reports:', 'green'))
+    print(colored('Reports: ', 'green'))
     for index, report in enumerate(metadata):
-        print(f"  {colored(index + 1, 'green')}: ")
+        print(f"  {colored(index + 1, 'green')}:  ")
         for k, v in report.items():
-            print(colored(f'    {k}:', 'green'), colored(v, 'white'))
-    print(colored('Message Payload:', 'green'), colored(formatted_payload, 'white'))
+            print(colored(f'    {k}: ', 'green'), colored(v, 'white'))
+    print(colored('Message Payload: ', 'green'), colored(formatted_payload, 'white'))
     print(colored('-------------------------------------------------------------------------------------', 'green'))
 
 
@@ -162,10 +162,9 @@ def show_bad_message_list():
 
     for index, bad_message in enumerate(bad_messages):
         print(f'  {colored(f"{index + 1}.", "white")} {bad_message}')
-    print('  ')
     print('')
 
-    raw_selection = input(colored(f'Select a message (1 to {len(bad_messages)}) for more options: ', 'white'))
+    raw_selection = input(colored(f'Select a message (1 to {len(bad_messages)}) or cancel with ENTER): ', 'white'))
     print('')
 
     valid_selection = validate_integer_input_range(raw_selection, 1, len(bad_messages))
@@ -274,8 +273,6 @@ def validate_integer_input_range(selection, minimum, maximum):
     except ValueError:
         if selection:
             print(colored(f'{selection} is not a valid integer', 'red'))
-        else:
-            print(colored(f"'' is not a valid integer", 'red'))
         return
 
     if not minimum <= int_selection <= maximum:
