@@ -8,6 +8,7 @@ from requests import HTTPError
 from utilities.rabbit_context import RabbitContext
 from config import Config
 
+
 def create_questionnaire_linked_message():
     print('Ok, Im gonna link a questionnaire')
     print('Whats the QID?')
@@ -15,7 +16,6 @@ def create_questionnaire_linked_message():
 
     print('Whats the CaseID?')
     case_id = input()
-
 
     message = {
         "event": {
