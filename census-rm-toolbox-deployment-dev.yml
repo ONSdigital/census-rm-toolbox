@@ -57,6 +57,10 @@ spec:
               key: rabbitmq-password
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: "/gcp-credentials/service-account-key.json"
+        - name: EXCEPTIONMANAGER_HOST
+          value: "exception-manager"
+        - name: EXCEPTIONMANAGER_PORT
+          value: "80"
         - name: DB_USERNAME
           valueFrom:
             secretKeyRef:
