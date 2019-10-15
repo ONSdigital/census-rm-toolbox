@@ -50,7 +50,7 @@ def pretty_print_quarantined_message(message_hash, metadata, formatted_payload):
     print(colored('Message Hash: ', 'green'), colored(message_hash, 'white'))
     print(colored('Reports: ', 'green'))
     for index, report in enumerate(metadata):
-        print(f"  {colored(index + 1, 'green')}:  ")
+        print(f"  {colored(index + 1, 'blue')}:  ")
         for k, v in report.items():
             print(colored(f'    {k}: ', 'green'), colored(v, 'white'))
     print(colored('Message Payload: ', 'green'), colored(formatted_payload, 'white'))
@@ -62,8 +62,8 @@ def show_all_quarantined_messages(quarantined_messages):
         message_payload = base64.b64decode(metadata[0]['messagePayload']).decode()
         for report in metadata:
             report.pop('messagePayload')
-        print(colored(f'Message {index + 1}', 'white') + ':')
-
+        if len(quarantined_messages) > 1:
+            print(f'  {colored(index + 1, "blue")}:')
         # Try to JSON decode it, otherwise default to bare un-formatted text
         with suppress(JSONDecodeError):
             pretty_print_quarantined_message(message_hash, metadata, json.dumps(json.loads(message_payload), indent=2))
@@ -127,9 +127,9 @@ def show_quarantine_all_bad_messages():
 def confirm_quarantine_bad_message(message_hash):
     confirmation = input(colored('Confirm you want to quarantine the message by responding "yes": ', 'white'))
     if confirmation == 'yes':
-        print(colored(f'Quarantining message {message_hash}', 'yellow'))
         quarantine_bad_message(message_hash)
-        print(colored(f'Successfully quarantined {message_hash}', 'green'))
+        print('')
+        print(colored(f'Quarantining {message_hash}', 'green'))
         print('')
     else:
         print(colored('Aborted', 'red'))
@@ -238,14 +238,14 @@ def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadat
     print(colored('Message Hash:', 'green'), colored(message_hash, 'white'))
     print(colored('Reports: ', 'green'))
     for index, report in enumerate(selected_bad_message_metadata):
-        if index > 0:
-            print('')
-        print(f"{colored('  Exception Report', 'green')}:")
+        if len(report) > 1:
+            print(f'  {colored(index + 1, "blue")}:')
+        print(f"{colored('    Exception Report', 'green')}:")
         for k, v in report['exceptionReport'].items():
-            print(f'    {colored(k, "green")}: {colored(v, "white")}')
-        print(f"{colored('  Stats', 'green')}:")
+            print(f'      {colored(k, "green")}: {colored(v, "white")}')
+        print(f"{colored('    Stats', 'green')}:")
         for k, v in report['stats'].items():
-            print(f'    {colored(k, "green")}: {colored(v, "white")}')
+            print(f'      {colored(k, "green")}: {colored(v, "white")}')
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
 
