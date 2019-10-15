@@ -61,6 +61,13 @@ Find queues with high redelivery rate:
    findbadmessages
    ```
    
+## How to use - Loss of Concentration or Boredom
+
+Go on an adventure:
+   ```bash
+   adventure
+   ```
+Use commands like 'go north' and 'kill enemy' to go on an entertaining adventure.
 
 ## How to use - Find and remove messages on pubsub
 
