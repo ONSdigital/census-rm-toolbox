@@ -99,7 +99,11 @@
             value: "case-api"
           - name: CASEAPI_PORT
             value: "80"
-        volumes:
+          - name: EXCEPTIONMANAGER_HOST
+            value: "exception-manager"
+          - name: EXCEPTIONMANAGER_PORT
+            value: "80"
+         volumes:
         - name: gcp-credentials-volume
           secret:
             secretName: toolbox-credentials
