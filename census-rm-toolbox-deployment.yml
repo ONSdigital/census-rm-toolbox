@@ -103,7 +103,7 @@
             value: "exception-manager"
           - name: EXCEPTIONMANAGER_PORT
             value: "80"
-         volumes:
+        volumes:
         - name: gcp-credentials-volume
           secret:
             secretName: toolbox-credentials
