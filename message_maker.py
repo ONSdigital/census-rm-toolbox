@@ -8,6 +8,45 @@ from requests import HTTPError
 from utilities.rabbit_context import RabbitContext
 from config import Config
 
+def create_questionnaire_linked_message():
+    print('Ok, Im gonna link a questionnaire')
+    print('Whats the QID?')
+    qid = input()
+
+    print('Whats the CaseID?')
+    case_id = input()
+
+
+    message = {
+        "event": {
+            "type": "QUESTIONNAIRE_LINKED",
+            "source": "RM",
+            "channel": "RM",
+            "dateTime": datetime.utcnow().isoformat() + 'Z',
+            "transactionId": str(uuid.uuid4())
+        },
+        "payload": {
+            "uac": {
+                "questionnaireId": qid,
+                "caseId": case_id,
+            }
+        }
+    }
+
+    print(f'Here is the generated message:')
+    print(json.dumps(message, sort_keys=True, indent=4))
+    print(f'Do you want to publish it?')
+    do_publish = input()
+
+    if do_publish != 'yes':
+        print('Not publishing')
+        return
+
+    with RabbitContext() as rabbit:
+        rabbit.publish_message(json.dumps(message), 'application/json', None, exchange='events',
+                               routing_key='event.questionnaire.update')
+        print('Successfully published')
+
 
 def create_refusal_message():
     print('Ok, I am creating a Refusal message for you')
@@ -78,10 +117,13 @@ def create_refusal_message():
 def main():
     print('What type of message do you want?')
     print('1. Refusal')
+    print('2. questionnaire linked')
     message_type = input()
 
     if message_type == '1':
         create_refusal_message()
+    elif message_type == '2':
+        create_questionnaire_linked_message()
     else:
         print('Error: you must choose a valid option')
 
