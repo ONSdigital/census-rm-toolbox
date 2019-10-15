@@ -17,6 +17,14 @@ def create_questionnaire_linked_message():
     print('Whats the CaseID?')
     case_id = input()
 
+    response = requests.get(f'http://{Config.CASEAPI_HOST}:{Config.CASEAPI_PORT}/cases/{case_id}')
+
+    try:
+        response.raise_for_status()
+    except HTTPError:
+        print('Error: invalid or non-existent Case ID')
+        return
+
     message = {
         "event": {
             "type": "QUESTIONNAIRE_LINKED",
