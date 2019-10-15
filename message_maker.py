@@ -125,7 +125,7 @@ def create_refusal_message():
 def main():
     print('What type of message do you want?')
     print('1. Refusal')
-    print('2. questionnaire linked')
+    print('2. Questionnaire Linked')
     message_type = input()
 
     if message_type == '1':
