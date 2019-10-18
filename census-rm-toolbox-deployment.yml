@@ -103,6 +103,16 @@
             value: "exception-manager"
           - name: EXCEPTIONMANAGER_PORT
             value: "80"
+          - name: QID_MODULUS
+            valueFrom:
+              secretKeyRef:
+                name: qid-config
+                key: modulus
+          - name: QID_FACTOR
+            valueFrom:
+              secretKeyRef:
+                name: qid-config
+                key: factor
         volumes:
         - name: gcp-credentials-volume
           secret:
