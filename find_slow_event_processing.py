@@ -1,8 +1,6 @@
 import json
 
-import psycopg2
-
-from config import Config
+from utilities.db_helper import execute_sql_query
 
 if __name__ == "__main__":
     sql_query = """
@@ -32,12 +30,7 @@ from (select event_type,
       group by event_times.event_type, event_times.event_channel;
         """
 
-    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
-    cur = conn.cursor()
-    cur.execute(sql_query)
-
-    db_result = cur.fetchall()
+    db_result = execute_sql_query(sql_query)
 
     for one_result in db_result:
         print(json.dumps({'event_type': one_result[0], 'event_channel': one_result[1], 'average_time': one_result[2],
