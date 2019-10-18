@@ -18,7 +18,8 @@ def generate_checksum_digits(code: str, modulus: int, factor: int) -> int:
     return remainder % modulus
 
 
-def find_nearby_valid_qid(code: str, modulus: int, factor: int):
+def find_nearby_valid_qids(code: str, modulus: int, factor: int):
+    nearby_qids = []
     code_component = code[:-2]
     actual_checksum_digits = code[-2:]
     for index, char in reversed(list(enumerate(code_component))):
@@ -26,16 +27,17 @@ def find_nearby_valid_qid(code: str, modulus: int, factor: int):
             nearby_code = code_component[:index] + chr(attempt_value) + code_component[index + 1:]
             attempt_checksum = generate_checksum_digits(nearby_code, modulus, factor)
             if str(attempt_checksum).zfill(2) == actual_checksum_digits:
-                return nearby_code + actual_checksum_digits, index
-    return None, None
+                nearby_qids.append((nearby_code + actual_checksum_digits, index))
+    return nearby_qids
 
 
 def show_nearby_valid_qid(code: str, modulus: int, factor: int):
-    nearby_qid, replaced_index = find_nearby_valid_qid(code, modulus, factor)
-    if nearby_qid:
-        position_indicator = (replaced_index * ' ') + '^'
-        print(f'Found a nearby valid QID by changing one digit: {nearby_qid}')
-        print(f'                                                {position_indicator}')
+    nearby_qids = find_nearby_valid_qids(code, modulus, factor)
+    if nearby_qids:
+        for nearby_qid, replaced_index in nearby_qids:
+            position_indicator = (replaced_index * ' ') + '^'
+            print(f'Found a nearby valid QID by changing one digit: {nearby_qid}')
+            print(f'                                                {position_indicator}')
 
 
 def parse_arguments():
