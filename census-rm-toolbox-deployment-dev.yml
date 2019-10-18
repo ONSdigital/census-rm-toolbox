@@ -100,7 +100,7 @@ spec:
             secretKeyRef:
               name: qid-config
               key: factor
-       volumes:
+      volumes:
       - name: gcp-credentials-volume
         secret:
           secretName: toolbox-credentials
