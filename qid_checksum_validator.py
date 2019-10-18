@@ -22,8 +22,10 @@ def parse_arguments():
     parser = argparse.ArgumentParser(
         description='Validate the checksum of a code')
     parser.add_argument('code', help='Code including checksum to validate', type=str)
-    parser.add_argument('--modulus', help='Modulus for checksum algorithm', type=int, default=os.getenv('QID_MODULUS'), required=True)
-    parser.add_argument('--factor', help='Factor for checksum algorithm', type=int, default=os.getenv('QID_FACTOR'), required=True)
+    parser.add_argument('--modulus', help='Modulus for checksum algorithm',
+                        type=int, default=os.getenv('QID_MODULUS'), required=True)
+    parser.add_argument('--factor', help='Factor for checksum algorithm',
+                        type=int, default=os.getenv('QID_FACTOR'), required=True)
     return parser.parse_args()
 
 

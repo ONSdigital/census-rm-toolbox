@@ -139,4 +139,3 @@
               path: "postgresql.crt"
             - key: "postgresql.key"
               path: "postgresql.key"
-
