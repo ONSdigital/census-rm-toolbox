@@ -138,6 +138,22 @@ Publishing message from GCS bucket to pubsub topic:
 ```bash
 python publish_message_from_bucket.py <topic name> <project id> <bucket blob name> <bucket name>
 ```
+
+## QID Checksum Validator
+A tool to check if a QID checksum is valid. Also shows the valid checksum digits if the QID fails. 
+
+### Usage
+```bash
+qidcheck <QID>
+```
+
+### Arguments
+| Name                      | Description                                                                                                         |                                                                                        
+| ---------------------     | ------------------------------------------------------------------------------------------------------------------- |
+| `qid`                     | The QID you wish to validate                                                                                        |
+
+#### Optional Arguments
+A non-default modulus and or factor for the checksum algorithm can be used with the optional flags `--modulus` and `--factor` 
    
 ## Running in Kubernetes
 To run the toolbox in a kubernetes environment, you'll have to create the deployment using `census-rm-toolbox-deployment.yml`
