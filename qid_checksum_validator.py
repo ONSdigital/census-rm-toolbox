@@ -31,7 +31,7 @@ def find_nearby_valid_qids(code: str, modulus: int, factor: int):
     return nearby_qids
 
 
-def show_nearby_valid_qid(code: str, modulus: int, factor: int):
+def show_nearby_valid_qids(code: str, modulus: int, factor: int):
     nearby_qids = find_nearby_valid_qids(code, modulus, factor)
     if nearby_qids:
         for nearby_qid, replaced_index in nearby_qids:
@@ -59,5 +59,5 @@ if __name__ == '__main__':
     else:
         print(f'{args.code} is NOT valid ❌')
         print(f'The valid checksum digits for this QID component would be {valid_checksum}')
-        show_nearby_valid_qid(args.code, args.modulus, args.factor)
+        show_nearby_valid_qids(args.code, args.modulus, args.factor)
         exit(1)
