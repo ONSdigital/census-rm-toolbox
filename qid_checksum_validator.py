@@ -10,12 +10,32 @@ def validate(code: str, modulus: int, factor: int) -> Tuple[bool, str]:
     return actual_checksum_digits == valid_checksum_digits, valid_checksum_digits
 
 
-def generate_checksum_digits(code: str, modulus: int, factor: int) -> str:
+def generate_checksum_digits(code: str, modulus: int, factor: int) -> int:
     remainder = ord(code[0])
     for char in code[1:]:
         ascii_value = ord(char)
         remainder = ((remainder * factor) + ascii_value) % modulus
     return remainder % modulus
+
+
+def find_nearby_valid_qid(code: str, modulus: int, factor: int):
+    code_component = code[:-2]
+    actual_checksum_digits = code[-2:]
+    for index, char in reversed(list(enumerate(code_component))):
+        for attempt_value in range(ord('0'), ord('9') + 1):
+            nearby_code = code_component[:index] + chr(attempt_value) + code_component[index + 1:]
+            attempt_checksum = generate_checksum_digits(nearby_code, modulus, factor)
+            if str(attempt_checksum).zfill(2) == actual_checksum_digits:
+                return nearby_code + actual_checksum_digits, index
+    return None, None
+
+
+def show_nearby_valid_qid(code: str, modulus: int, factor: int):
+    nearby_qid, replaced_index = find_nearby_valid_qid(code, modulus, factor)
+    if nearby_qid:
+        position_indicator = (replaced_index * ' ') + '^'
+        print(f'Found a nearby valid QID by changing one digit: {nearby_qid}')
+        print(f'                                                {position_indicator}')
 
 
 def parse_arguments():
@@ -36,5 +56,6 @@ if __name__ == '__main__':
         print(f'{args.code} is valid! ✅')
     else:
         print(f'{args.code} is NOT valid ❌')
-        print(f'The valid checksum for this QID component would be {valid_checksum}')
+        print(f'The valid checksum digits for this QID component would be {valid_checksum}')
+        show_nearby_valid_qid(args.code, args.modulus, args.factor)
         exit(1)
