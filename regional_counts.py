@@ -1,3 +1,5 @@
+import json
+
 from utilities.db_helper import execute_sql_query
 
 if __name__ == "__main__":
@@ -9,7 +11,7 @@ SELECT CASE LEFT(region, 1)
            ELSE region END AS region, COUNT(*)
 FROM casev2.cases
 WHERE receipt_received = true
-AND action_plan_id = '432f0597-0076-4adb-834b-bf249dc06ded'
+-- AND action_plan_id = '432f0597-0076-4adb-834b-bf249dc06ded'
 GROUP BY region;
         """
 
@@ -17,4 +19,4 @@ GROUP BY region;
 
     regional_counts = dict(db_result)
     regional_counts['Total'] = sum(regional_counts.values())
-    print(regional_counts)
+    print(json.dumps(regional_counts))
