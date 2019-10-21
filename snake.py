@@ -100,7 +100,7 @@ class Game:
     def start(self):
         try:
             self.configure_curses()
-            self.key_to_continue_splash('   PRESS A [S] KEY TO START\n\n'
+            self.key_to_continue_splash('      PRESS [S] TO START\n\n'
                                         '   WASD to move, CTRL+C to exit', continue_keys={ord('s')})
             self.play_game()
             self.key_to_continue_splash(f'GAME OVER, SCORE: {self.score}\n\n'
