@@ -60,14 +60,12 @@ class Game:
 
         self.game_window.refresh()
 
-    def begin_game(self):
+    def play_game(self):
         while True:
             with self.wait_for_full_frame_time():
                 self.render_frame()
                 if self.lost:
                     break
-
-    def run_game_loop(self):
 
     def is_lost(self):
         return self.snake.is_outside_bound() or self.snake.head_hit_tail()
@@ -104,7 +102,7 @@ class Game:
             self.configure_curses()
             self.key_to_continue_splash('   PRESS A [S] KEY TO START\n\n'
                                         '   WASD to move, CTRL+C to exit', continue_keys={ord('s')})
-            self.begin_game()
+            self.play_game()
             self.key_to_continue_splash(f'GAME OVER, SCORE: {self.score}\n\n'
                                         f'      [Q] TO EXIT', continue_keys={ord('q')})
         finally:
@@ -125,7 +123,8 @@ class Game:
         splash_height = len(message_lines) + 2
         splash_width = max(len(line) for line in message_lines) + 4
         self.screen.refresh()
-        splash_window = curses.newwin(splash_height, splash_width, (HEIGHT - splash_height) // 2, (WIDTH - splash_width) // 2)
+        splash_window = curses.newwin(splash_height, splash_width,
+                                      (HEIGHT - splash_height) // 2, (WIDTH - splash_width) // 2)
         splash_window.addstr(1, 2, message)
         splash_window.border()
         splash_window.touchwin()
