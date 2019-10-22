@@ -30,7 +30,7 @@ def fulfilment_query(Fulfilment_date_begin, Fulfilment_date_end):
     db_result = cur.fetchall()
     print(db_result)
 
-    with open(f'fulfilment-{datetime.datetime.now().date()}.csv', 'w') as out:
+    with open(f'fulfilment-{Fulfilment_date_end[:10]}.csv', 'w') as out:
         csv_out = csv.writer(out)
         csv_out.writerow(['treatment_code', 'count'])
         for row in db_result:

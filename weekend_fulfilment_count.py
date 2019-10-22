@@ -19,6 +19,7 @@ def fulfilment_query():
       AND event_payload ->> 'fulfilmentCode' LIKE 'P_%%'
       GROUP BY event_payload ->> 'fulfilmentCode';
       """
+
     conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
                             f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
     cur = conn.cursor()
