@@ -1,15 +1,14 @@
 import csv
 from datetime import datetime, timedelta
-from dateutil.rrule import *
+from dateutil.rrule import rrule, DAILY
 import psycopg2
 
 from config import Config
 
 
 def fulfilment_query():
-
     weekend_dates = list(rrule(DAILY, dtstart=datetime.today().replace(hour=15, minute=0, second=0) - timedelta(3),
-                       until=datetime.today().replace(hour=15, minute=0, second=0)))
+                               until=datetime.today().replace(hour=15, minute=0, second=0)))
 
     sql_query = """SELECT event_payload ->> 'fulfilmentCode' AS fulfilment_code,
      count(*) 
