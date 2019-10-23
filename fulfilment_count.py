@@ -4,6 +4,7 @@ from getpass import getpass
 import psycopg2
 from config import Config
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Tool to get fulfilment counts ')
     parser.add_argument('fulfilment_date_from', help='From date e.g. 2019-10-18T16:00:00+01:00', type=str)
@@ -14,10 +15,10 @@ def parse_arguments():
 
 def fulfilment_query(fulfilment_date_from, fulfilment_date_to, username, password):
     sql_query = """SELECT event_payload ->> 'fulfilmentCode' AS fulfilment_code,
-     count(*) 
+     count(*)
      FROM casev2.event
-      WHERE rm_event_processed BETWEEN %s AND %s 
-      AND event_type = 'FULFILMENT_REQUESTED' 
+      WHERE rm_event_processed BETWEEN %s AND %s
+      AND event_type = 'FULFILMENT_REQUESTED'
       AND event_payload ->> 'fulfilmentCode' LIKE 'P_%%'
       GROUP BY event_payload ->> 'fulfilmentCode';
       """

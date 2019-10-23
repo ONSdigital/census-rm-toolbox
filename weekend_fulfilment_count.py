@@ -14,10 +14,10 @@ def fulfilment_query(username, password):
                                until=datetime.today().replace(hour=15, minute=0, second=0)))
 
     sql_query = """SELECT event_payload ->> 'fulfilmentCode' AS fulfilment_code,
-     count(*) 
+     count(*)
      FROM casev2.event
-      WHERE rm_event_processed BETWEEN %s AND %s 
-      AND event_type = 'FULFILMENT_REQUESTED' 
+      WHERE rm_event_processed BETWEEN %s AND %s
+      AND event_type = 'FULFILMENT_REQUESTED'
       AND event_payload ->> 'fulfilmentCode' LIKE 'P_%%'
       GROUP BY event_payload ->> 'fulfilmentCode';
       """
