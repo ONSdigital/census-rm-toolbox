@@ -1,19 +1,20 @@
 import argparse
 import csv
 import psycopg2
-
+import os
 from config import Config
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Tool to get fulfilment counts ')
-    parser.add_argument('fulfilment_date_from', help='From date e.g. 2019-XX-XXT16:00:00+01:00', type=str)
-    parser.add_argument('fulfilment_date_to', help='To date e.g. 2019-XX-XXT16:00:00+01:00', type=str)
+    parser.add_argument('fulfilment_date_from', help='From date e.g. 2019-10-18T16:00:00+01:00', type=str)
+    parser.add_argument('fulfilment_date_to', help='To date e.g. 2019-10-22T16:00:00+01:00', type=str)
+    parser.add_argument('username', help='Username to connect to database', type=str)
+    parser.add_argument('password', help='Password to connect to database', type=str)
 
     return parser.parse_args()
 
 
-def fulfilment_query(fulfilment_date_from, fulfilment_date_to):
+def fulfilment_query(fulfilment_date_from, fulfilment_date_to, username, password):
     sql_query = """SELECT event_payload ->> 'fulfilmentCode' AS fulfilment_code,
      count(*) 
      FROM casev2.event
@@ -22,8 +23,8 @@ def fulfilment_query(fulfilment_date_from, fulfilment_date_to):
       AND event_payload ->> 'fulfilmentCode' LIKE 'P_%%'
       GROUP BY event_payload ->> 'fulfilmentCode';
       """
-    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+    conn = psycopg2.connect(f"dbname='{os.environ['DB_NAME']}' user={username} host='{os.environ['DB_HOST']}' "
+                            f"password={password} port='{os.environ['DB_PORT']}'{Config.DB_USESSL}")
     cur = conn.cursor()
     cur.execute(sql_query, (fulfilment_date_from, fulfilment_date_to,))
     db_result = cur.fetchall()
@@ -37,5 +38,4 @@ def fulfilment_query(fulfilment_date_from, fulfilment_date_to):
 
 if __name__ == "__main__":
     args = parse_arguments()
-
-    fulfilment_query(args.fulfilment_date_from, args.fulfilment_date_to)
+    fulfilment_query(args.fulfilment_date_from, args.fulfilment_date_to, args.username, args.password)
