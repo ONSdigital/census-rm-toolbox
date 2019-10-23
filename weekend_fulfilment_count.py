@@ -32,8 +32,8 @@ def fulfilment_query(username, password):
 
 
 def execute_query(cur, dates, index, sql_query):
-    cur.execute(sql_query, (f"{str(dates[index].date())}T16:00:00+00:00".replace(' ', ''),
-                            f"{str(dates[index + 1].date())}T16:00:00+00:00".replace(' ', '')))
+    cur.execute(sql_query, (f"{str(dates[index].date())}T16:00:00+01:00",
+                            f"{str(dates[index + 1].date())}T16:00:00+01:00"))
     db_result = cur.fetchall()
 
     with open(f'fulfilment-{dates[index + 1].date()}.csv', 'w') as out:
