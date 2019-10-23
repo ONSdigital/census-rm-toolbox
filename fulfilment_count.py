@@ -1,7 +1,9 @@
 import argparse
 import csv
 from getpass import getpass
+
 import psycopg2
+
 from config import Config
 
 

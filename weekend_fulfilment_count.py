@@ -3,8 +3,8 @@ import csv
 from datetime import datetime, timedelta
 from getpass import getpass
 
-from dateutil.rrule import rrule, DAILY
 import psycopg2
+from dateutil.rrule import rrule, DAILY
 
 from config import Config
 
