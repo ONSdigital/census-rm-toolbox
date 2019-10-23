@@ -10,8 +10,8 @@ from config import Config
 
 
 def fulfilment_query(username, password):
-    weekend_dates = list(rrule(DAILY, dtstart=datetime.today().replace(hour=15, minute=0, second=0) - timedelta(3),
-                               until=datetime.today().replace(hour=15, minute=0, second=0)))
+    weekend_dates = list(rrule(DAILY, dtstart=datetime.today() - timedelta(3),
+                               until=datetime.today()))
 
     sql_query = """SELECT event_payload ->> 'fulfilmentCode' AS fulfilment_code,
      count(*)
@@ -32,8 +32,8 @@ def fulfilment_query(username, password):
 
 
 def execute_query(cur, dates, index, sql_query):
-    cur.execute(sql_query, (f"{str(dates[index].date())}T16:00:00+01:00".replace(' ', ''),
-                            f"{str(dates[index + 1].date())}T16:00:00+01:00".replace(' ', '')))
+    cur.execute(sql_query, (f"{str(dates[index].date())}T16:00:00+00:00".replace(' ', ''),
+                            f"{str(dates[index + 1].date())}T16:00:00+00:00".replace(' ', '')))
     db_result = cur.fetchall()
 
     with open(f'fulfilment-{dates[index + 1].date()}.csv', 'w') as out:
