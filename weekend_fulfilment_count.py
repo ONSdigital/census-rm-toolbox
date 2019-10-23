@@ -1,12 +1,15 @@
+import argparse
 import csv
 from datetime import datetime, timedelta
+from getpass import getpass
+
 from dateutil.rrule import rrule, DAILY
 import psycopg2
 
 from config import Config
 
 
-def fulfilment_query():
+def fulfilment_query(username, password):
     weekend_dates = list(rrule(DAILY, dtstart=datetime.today().replace(hour=15, minute=0, second=0) - timedelta(3),
                                until=datetime.today().replace(hour=15, minute=0, second=0)))
 
@@ -19,8 +22,8 @@ def fulfilment_query():
       GROUP BY event_payload ->> 'fulfilmentCode';
       """
 
-    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{username}' host='{Config.DB_HOST}' "
+                            f"password='{password}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
     cur = conn.cursor()
     for index, _ in enumerate(weekend_dates):
         if index == 3:
@@ -40,5 +43,13 @@ def execute_query(cur, dates, index, sql_query):
             csv_out.writerow(row)
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(description='Tool to get fulfilment counts ')
+    parser.add_argument('username', help='Username to connect to database', type=str)
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    fulfilment_query()
+    args = parse_arguments()
+    password = getpass()
+    fulfilment_query(args.username, password)
