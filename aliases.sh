@@ -16,7 +16,7 @@ alias findbad='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badm
 alias viewskipped='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skippedmessages | jq'
 alias resetexceptionmanager='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/reset'
 alias msgwizard='python bad_message_wizard.py'
-alias qidcheck='python qid_checksum_validator.py'
+alias qidcheck='python qid_checksum_validator.py --modulus $QID_MODULUS --factor $QID_FACTOR'
 alias fulfilment='python fulfilment_count.py'
 alias weekendfulfilment='python weekend_fulfilment_count.py'
 
