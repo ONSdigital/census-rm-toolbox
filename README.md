@@ -229,3 +229,22 @@ To delete your cloudshell whitelist entry when you are finished, run
 remove_from_whitelist.sh <PROJECT_ID>
 ```
 
+## Generate Fulfilment Counts
+
+### Daily Fulfilment
+To generate fulfilment counts for the day, connect to the Toolbox from cloud shell and run:
+```python
+fulfilment <FULFILMENT_DATE_FROM> <FULFILMENT_DATE_TO> <DB_USERNAME>
+```
+The fulfilment dates should be in the format of `2019-10-18T16:00:00+01:00`.
+
+After you run this you will prompted to type in your password for the database. Once you entered in your credentials, it will create a CSV file of the counts for you
+in the format of `fulfilments-<date>.csv`.
+
+### Weekend Fulfilment count
+
+To run the fulfilment count for the weekend run:
+```python
+weekendfulfilment <DB_USERNAME>
+```
+You'll be prompted for your password and once entered, it will generate fulfilment counts for the last 3 days.
