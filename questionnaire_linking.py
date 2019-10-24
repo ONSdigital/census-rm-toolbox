@@ -1,6 +1,5 @@
 import csv
 import argparse
-import json
 import os
 import requests
 import qid_checksum_validator
@@ -33,7 +32,6 @@ args = parse_arguments()
 error_count = 0
 
 
-
 def validate_and_submit_questionnaire_links(sample_file_reader):
     for line_number, questionnaire_link in enumerate(sample_file_reader, 1): #remove whitespace
         for i in questionnaire_link:
@@ -42,7 +40,6 @@ def validate_and_submit_questionnaire_links(sample_file_reader):
                 or not validate_qid(line_number, questionnaire_link["qid"])):
             continue
         validate_case_id(line_number, questionnaire_link["case_ref"])
-
 
 
 def validate_case_ref(line_number, case_ref):
@@ -71,39 +68,6 @@ def validate_case_id(line_number, case_ref):
         return None
     response.raise_for_status()
     return response.json()["id"]
-
-
-
-
-
-
-
-# def validate_white_space
-#
-# def file_type():
-#
-#
-# def QID_correct_length():
-#
-#
-# def caseref_correct_length():
-#
-#
-# def QID_third_digit():
-#
-#
-# def QID_check_digits():
-#
-#
-# def check_case_exists():
-#
-#
-# good_files = []
-#
-# bad_files = []
-
-
-
 
 
 def main():
