@@ -100,7 +100,7 @@ def confirm_quarantine_all_bad_messages(bad_messages):
 
 
 def show_quarantine_all_bad_messages():
-    bad_messages = get_message_summaries()
+    bad_messages = get_bad_message_list()
     if not bad_messages:
         show_no_bad_messages()
         return
@@ -189,6 +189,12 @@ def show_bad_message_list():
 
 def get_message_summaries():
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages/summary')
+    response.raise_for_status()
+    return response.json()
+
+
+def get_bad_message_list():
+    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages')
     response.raise_for_status()
     return response.json()
 
