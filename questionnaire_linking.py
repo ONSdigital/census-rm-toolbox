@@ -12,13 +12,13 @@ from utilities.rabbit_context import RabbitContext
 def validate_qid_link_file(qid_link_file_path):
     try:
         with open(qid_link_file_path, encoding="utf-8") as qid_link_file:
-            return load_sample(qid_link_file)
+            return qid_file(qid_link_file)
     except UnicodeDecodeError as err:
         print(f'Invalid file encoding, requires utf-8, error: {err}')
         exit(-1)
 
 
-def load_sample(qid_link_file):
+def qid_file(qid_link_file):
     qid_link_file_reader = csv.DictReader(qid_link_file, delimiter=',', fieldnames=['case_ref', 'qid'])
     validate_and_submit_questionnaire_links(qid_link_file_reader)
 
@@ -39,7 +39,6 @@ def validate_and_submit_questionnaire_links(qid_link_file_reader):
         error_count = 0
         for i in questionnaire_link:
             questionnaire_link[i] = questionnaire_link[i].replace(" ", "")
-        validate_case_ref(line_number, questionnaire_link["case_ref"])
         validate_qid_len_and_type(line_number, questionnaire_link["qid"])
         validate_qid_third_digit(line_number, questionnaire_link["qid"])
         validate_check_digits(line_number, questionnaire_link["qid"])
