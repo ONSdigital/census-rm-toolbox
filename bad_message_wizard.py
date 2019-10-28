@@ -143,7 +143,8 @@ def quarantine_bad_message(message_hash):
 
 
 def reset_bad_message_cache():
-    confirmation = input(f'Confirm you want to reset the exception manager cache by responding "{colored("yes", "cyan")}": ')
+    confirmation = input(f'Confirm you want to reset '
+                         f'the exception manager cache by responding "{colored("yes", "cyan")}": ')
     if confirmation == 'yes':
         print(colored('Resetting bad message cache', 'yellow'))
         response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset')
@@ -171,7 +172,8 @@ def show_bad_message_list():
     pretty_print_bad_message_summaries(bad_message_summaries)
     print('')
 
-    raw_selection = input(colored(f'Select a message (1 to {len(bad_message_summaries)}) or cancel with ENTER: ', 'cyan'))
+    raw_selection = input(
+        colored(f'Select a message (1 to {len(bad_message_summaries)}) or cancel with ENTER: ', 'cyan'))
     print('')
 
     valid_selection = validate_integer_input_range(raw_selection, 1, len(bad_message_summaries))
