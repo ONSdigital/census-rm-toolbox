@@ -171,7 +171,9 @@ def show_bad_message_list():
     if not valid_selection:
         return
 
-    show_bad_message_metadata_for_hash(bad_messages[valid_selection - 1]['messageHash'])
+    in_bad_message_context = True
+    while in_bad_message_context:
+        in_bad_message_context = show_bad_message_metadata_for_hash(bad_messages[valid_selection - 1]['messageHash'])
 
 
 def pretty_print_bad_message_summaries(bad_message_summaries):
@@ -236,12 +238,13 @@ def show_bad_message_metadata_for_hash(message_hash):
         return
     pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata)
     print(colored('Actions:', 'cyan', attrs=['underline']))
-    print(colored('1.', 'cyan'), 'View message')
-    print(colored('2.', 'cyan'), 'Quarantine message')
+    print(colored('  1.', 'cyan'), 'View message')
+    print(colored('  2.', 'cyan'), 'Quarantine message')
+    print(colored('  3.', 'cyan'), 'Cancel')
     print('')
 
     raw_selection = input(colored('Choose an action: ', 'cyan'))
-    valid_selection = validate_integer_input_range(raw_selection, 1, 2)
+    valid_selection = validate_integer_input_range(raw_selection, 1, 3)
     if not valid_selection:
         return True
     elif valid_selection == 1:
@@ -249,6 +252,8 @@ def show_bad_message_metadata_for_hash(message_hash):
         return True
     elif valid_selection == 2:
         confirm_quarantine_bad_message(message_hash)
+        return False
+    elif valid_selection == 3:
         return False
 
 
