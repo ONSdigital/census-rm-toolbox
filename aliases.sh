@@ -17,6 +17,7 @@ alias viewskipped='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/
 alias resetexceptionmanager='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/reset'
 alias msgwizard='python bad_message_wizard.py'
 alias qidcheck='python qid_checksum_validator.py --modulus $QID_MODULUS --factor $QID_FACTOR'
+alias qidlink='python questionnaire_linking.py'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq
