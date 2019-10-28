@@ -143,12 +143,16 @@ def quarantine_bad_message(message_hash):
 
 
 def reset_bad_message_cache():
-    print('')
-    print(colored('Resetting bad message cache', 'yellow'))
-    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset')
-    response.raise_for_status()
-    print(colored('Successfully reset bad message cache', 'green'))
-    print('')
+    confirmation = input(f'Confirm you want to reset the exception manager cache by responding "{colored("yes", "cyan")}": ')
+    if confirmation == 'yes':
+        print(colored('Resetting bad message cache', 'yellow'))
+        response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset')
+        response.raise_for_status()
+        print(colored('Successfully reset bad message cache', 'green'))
+        print('')
+    else:
+        print(colored('Aborted', 'red'))
+        print('')
 
 
 def show_bad_message_list():
@@ -198,7 +202,7 @@ def pretty_print_bad_message_summaries(bad_message_summaries):
               f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
               f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
     print(header)
-    print(f'   ---|{"-" * (column_widths["messageHash"]+ 2)}'
+    print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
           f'|{"-" * (column_widths["queues"] + 2)}')
     for index, summary in enumerate(bad_message_summaries, 1):
