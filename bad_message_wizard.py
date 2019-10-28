@@ -100,7 +100,7 @@ def confirm_quarantine_all_bad_messages(bad_messages):
 
 
 def show_quarantine_all_bad_messages():
-    bad_messages = list_bad_message_summaries()
+    bad_messages = get_message_summaries()
     if not bad_messages:
         show_no_bad_messages()
         return
@@ -131,8 +131,10 @@ def confirm_quarantine_bad_message(message_hash):
         print('')
         print(colored(f'Quarantining {message_hash}', 'green'))
         print('')
+        return True
     else:
         print(colored('Aborted', 'red'))
+        return False
 
 
 def quarantine_bad_message(message_hash):
@@ -150,49 +152,60 @@ def reset_bad_message_cache():
 
 
 def show_bad_message_list():
-    bad_messages: list = list_bad_message_summaries()
-    if not bad_messages:
+    all_message_summaries: list = get_message_summaries()
+    bad_message_summaries = [summary for summary in all_message_summaries if not summary['quarantined']]
+    if not bad_message_summaries:
         show_no_bad_messages()
         return
-    bad_messages.sort(key=lambda message: message['firstSeen'])
+    bad_message_summaries.sort(key=lambda message: message['firstSeen'])
     print('')
-    print(f'There are currently {len(bad_messages)} bad messages:')
-    if len(bad_messages) > 20:
+    print(f'There are currently {len(bad_message_summaries)} bad messages:')
+    if len(bad_message_summaries) > 20:
         print('Showing only the oldest 20')
-        bad_messages = bad_messages[:20]
+        bad_message_summaries = bad_message_summaries[:20]
 
-    pretty_print_bad_message_summaries(bad_messages)
+    pretty_print_bad_message_summaries(bad_message_summaries)
     print('')
 
-    raw_selection = input(colored(f'Select a message (1 to {len(bad_messages)}) or cancel with ENTER: ', 'cyan'))
+    raw_selection = input(colored(f'Select a message (1 to {len(bad_message_summaries)}) or cancel with ENTER: ', 'cyan'))
     print('')
 
-    valid_selection = validate_integer_input_range(raw_selection, 1, len(bad_messages))
+    valid_selection = validate_integer_input_range(raw_selection, 1, len(bad_message_summaries))
     if not valid_selection:
         return
 
-    in_bad_message_context = True
-    while in_bad_message_context:
-        in_bad_message_context = show_bad_message_metadata_for_hash(bad_messages[valid_selection - 1]['messageHash'])
+    message_hash = bad_message_summaries[valid_selection - 1]['messageHash']
+    show_bad_message_metadata_for_hash(message_hash)
+    in_message_context = True
+    while in_message_context:
+        in_message_context = show_bad_message_options(message_hash)
+
+
+def get_message_summaries():
+    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages/summary')
+    response.raise_for_status()
+    return response.json()
 
 
 def pretty_print_bad_message_summaries(bad_message_summaries):
     column_widths = {
         'messageHash': len(bad_message_summaries[0]['messageHash']),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
-        'quarantined': len("Quarantined"),
-        'queues': max(len(str(summary['affectedQueues'])) for summary in bad_message_summaries),
+        'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
     }
-    print(f'      | {colored("Message Hash".ljust(column_widths["messageHash"]), color="cyan")} '
-          f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
-          f'| {colored("Quarantined", color="cyan")} '
-          f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
+    print('')
+    header = (f'      | {colored("Message Hash".ljust(column_widths["messageHash"]), color="cyan")} '
+              f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
+              f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
+    print(header)
+    print(f'   ---|{"-" * (column_widths["messageHash"]+ 2)}'
+          f'|{"-" * (column_widths["firstSeen"] + 2)}'
+          f'|{"-" * (column_widths["queues"] + 2)}')
     for index, summary in enumerate(bad_message_summaries, 1):
-        print(f'   {colored(str(index).ljust(2), color="cyan")} '
+        print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
               f'| {summary["messageHash"]} '
               f'| {summary["firstSeen"]} '
-              f'| {str(summary["quarantined"]).ljust(column_widths["quarantined"])} '
-              f'| {summary["affectedQueues"]}')
+              f'| {", ".join(summary["affectedQueues"])}')
 
 
 def show_no_bad_messages():
@@ -204,9 +217,9 @@ def show_no_bad_messages():
 def pretty_print_bad_message(message_hash, body, message_format):
     print('')
     print(colored('-------------------------------------------------------------------------------------', 'green'))
-    print(colored('Message Hash: ', 'green'), message_hash)
-    print(colored('Detected Format: ', 'green'), message_format)
-    print(colored('Body: ', 'green'), body)
+    print(colored('Message Hash:', 'green'), message_hash)
+    print(colored('Detected Format:', 'green'), message_format)
+    print(colored('Body:', 'green'), body)
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
 
@@ -225,9 +238,10 @@ def show_bad_message_body(message_hash):
 
 def show_bad_message_metadata():
     message_hash = input('Message hash: ')
+    show_bad_message_metadata_for_hash(message_hash)
     in_message_context = True
     while in_message_context:
-        in_message_context = show_bad_message_metadata_for_hash(message_hash)
+        in_message_context = show_bad_message_options(message_hash)
 
 
 def show_bad_message_metadata_for_hash(message_hash):
@@ -237,6 +251,10 @@ def show_bad_message_metadata_for_hash(message_hash):
         print('')
         return
     pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata)
+
+
+def show_bad_message_options(message_hash):
+    print(colored('Current message hash:', 'cyan'), message_hash)
     print(colored('Actions:', 'cyan', attrs=['underline']))
     print(colored('  1.', 'cyan'), 'View message')
     print(colored('  2.', 'cyan'), 'Quarantine message')
@@ -245,16 +263,14 @@ def show_bad_message_metadata_for_hash(message_hash):
 
     raw_selection = input(colored('Choose an action: ', 'cyan'))
     valid_selection = validate_integer_input_range(raw_selection, 1, 3)
-    if not valid_selection:
-        return True
-    elif valid_selection == 1:
+    stay_in_menu = True
+    if valid_selection == 1:
         show_bad_message_body(message_hash)
-        return True
     elif valid_selection == 2:
-        confirm_quarantine_bad_message(message_hash)
-        return False
+        stay_in_menu = not confirm_quarantine_bad_message(message_hash)
     elif valid_selection == 3:
-        return False
+        stay_in_menu = False
+    return stay_in_menu
 
 
 def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata):
@@ -272,12 +288,6 @@ def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadat
             print(f'      {colored(k, "green")}: {v}')
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print('')
-
-
-def list_bad_message_summaries():
-    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages/summary')
-    response.raise_for_status()
-    return response.json()
 
 
 def get_bad_message_metadata(message_hash):
