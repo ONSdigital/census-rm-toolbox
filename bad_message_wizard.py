@@ -25,8 +25,8 @@ def main():
         input(f'press {colored("ENTER", "cyan")} to continue')
         print('')
         print(colored('Actions:', 'cyan', attrs=['underline']))
-        for index, action in enumerate(actions):
-            print(f'  {colored(f"{index + 1}.", "cyan")} {action["description"]}')
+        for index, action in enumerate(actions, 1):
+            print(f'  {colored(f"{index}.", "cyan")} {action["description"]}')
         print('')
 
         raw_selection = input(colored('Choose an action: ', 'cyan'))
@@ -49,8 +49,8 @@ def pretty_print_quarantined_message(message_hash, metadata, formatted_payload):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash: ', 'green'), message_hash)
     print(colored('Reports: ', 'green'))
-    for index, report in enumerate(metadata):
-        print(f"  {colored(index + 1, 'blue')}:  ")
+    for index, report in enumerate(metadata, 1):
+        print(f"  {colored(index, 'blue')}:  ")
         for k, v in report.items():
             print(colored(f'    {k}: ', 'green'), v)
     print(colored('Message Payload: ', 'green'), formatted_payload)
@@ -58,12 +58,12 @@ def pretty_print_quarantined_message(message_hash, metadata, formatted_payload):
 
 
 def show_all_quarantined_messages(quarantined_messages):
-    for index, (message_hash, metadata) in enumerate(quarantined_messages.items()):
+    for index, (message_hash, metadata) in enumerate(quarantined_messages.items(), 1):
         message_payload = base64.b64decode(metadata[0]['messagePayload']).decode()
         for report in metadata:
             report.pop('messagePayload')
         if len(quarantined_messages) > 1:
-            print(f'  {colored(index + 1, "blue")}:')
+            print(f'  {colored(index, "blue")}:')
         # Try to JSON decode it, otherwise default to bare un-formatted text
         with suppress(JSONDecodeError):
             pretty_print_quarantined_message(message_hash, metadata, json.dumps(json.loads(message_payload), indent=2))
@@ -289,9 +289,9 @@ def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadat
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash:', 'green'), message_hash)
     print(colored('Reports: ', 'green'))
-    for index, report in enumerate(selected_bad_message_metadata):
+    for index, report in enumerate(selected_bad_message_metadata, 1):
         if len(report) > 1:
-            print(f'  {colored(index + 1, "blue")}:')
+            print(f'  {colored(index, "blue")}:')
         print(f"{colored('    Exception Report', 'green')}:")
         for k, v in report['exceptionReport'].items():
             print(f'      {colored(k, "green")}: {v}')
