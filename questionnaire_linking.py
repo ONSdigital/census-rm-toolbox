@@ -1,12 +1,18 @@
-import csv
 import argparse
+import csv
+import json
+import uuid
+from datetime import datetime
+
 import requests
+
 import qid_checksum_validator
 from config import Config
-from datetime import datetime
-import uuid
-import json
 from utilities.rabbit_context import RabbitContext
+
+
+CASE_REF_ERROR_COUNT = 0
+QID_ERROR_COUNT = 0
 
 
 def validate_qid_link_file(qid_link_file_path):
@@ -24,19 +30,17 @@ def qid_file(qid_link_file):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Load a QID Link file into response management.')
+    parser = argparse.ArgumentParser(description='Load a QID Link file into response management')
     parser.add_argument('qid_link_file_path', help='path to the QID Link file', type=str)
     return parser.parse_args()
 
 
-args = parse_arguments()
-error_count = 0
-
-
 def validate_and_submit_questionnaire_links(qid_link_file_reader):
-    global error_count
+    global CASE_REF_ERROR_COUNT
+    global QID_ERROR_COUNT
     for line_number, questionnaire_link in enumerate(qid_link_file_reader, 1):
-        error_count = 0
+        CASE_REF_ERROR_COUNT = 0
+        QID_ERROR_COUNT = 0
         for i in questionnaire_link:
             questionnaire_link[i] = questionnaire_link[i].replace(" ", "")
         validate_qid_len_and_type(line_number, questionnaire_link["qid"])
@@ -44,47 +48,59 @@ def validate_and_submit_questionnaire_links(qid_link_file_reader):
         validate_check_digits(line_number, questionnaire_link["qid"])
         case_id = validate_case_ref(line_number, questionnaire_link["case_ref"])
 
-        if error_count > 0:
-            print(f'Error: {questionnaire_link} on line {line_number} have FAILED')
+        if CASE_REF_ERROR_COUNT or QID_ERROR_COUNT:
+            print(f'Error: Line {line_number}: {questionnaire_link} has FAILED')
         else:
             post_message_to_queue(case_id, questionnaire_link["qid"], line_number)
         print("\n")
 
 
 def validate_case_ref(line_number, case_ref):
-    global error_count
-    if len(case_ref) != 8 or not case_ref.isdigit():
-        print(f'Error: Either wrong length or type located on Case Reference {case_ref}, line {line_number}')
-        error_count += 1
-    if error_count == 0:
+    global CASE_REF_ERROR_COUNT
+    if len(case_ref) != 8:
+        print(f'Error: Line {line_number}: Incorrect length of Case Reference {case_ref}. Expected length is 8 digits')
+        CASE_REF_ERROR_COUNT += 1
+    if not case_ref.isdigit():
+        print(f'Error: Line {line_number}: Incorrect type of Case Reference {case_ref}. Case Reference MUST be numeric')
+        CASE_REF_ERROR_COUNT += 1
+    if CASE_REF_ERROR_COUNT == 0:
         response = requests.get(f'http://{Config.CASEAPI_HOST}:{Config.CASEAPI_PORT}/cases/ref/{case_ref}')
         if response.status_code == 404:
-            print(f'Error: Case Reference {case_ref} on line {line_number} does not exist')
-            error_count += 1
+            print(f'Error: Line {line_number}: Case Reference {case_ref} does not exist')
+            CASE_REF_ERROR_COUNT += 1
             return None
         response.raise_for_status()
         return response.json()["id"]
 
 
 def validate_qid_len_and_type(line_number, qid):
-    global error_count
-    if len(qid) != 16 or not qid.isdigit():
-        print(f'Error: Either wrong length or type located on QID {qid}, line {line_number}')
-        error_count += 1
+    global QID_ERROR_COUNT
+    if len(qid) != 16:
+        print(f'Error: Line {line_number}: Incorrect length of QID {qid}. Expected length is 16 digits')
+        QID_ERROR_COUNT += 1
+    if not qid.isdigit():
+        print(f'Error: Line {line_number}: Incorrect type of QID {qid}. QID MUST be numeric')
+        QID_ERROR_COUNT += 1
 
 
 def validate_qid_third_digit(line_number, qid):
-    global error_count
-    if qid[2] != "2":
-        print(f'Error: QID {qid}, line {line_number} tranche identifier must be 2')
-        error_count += 1
+    global QID_ERROR_COUNT
+    if len(qid) >= 3:
+        if qid[2] != "2":
+            print(f'Error: Line {line_number}: QID {qid} tranche identifier must be 2')
+            QID_ERROR_COUNT += 1
+    elif len(qid) < 3:
+        print(f'Error: Line {line_number}: QID {qid} must have a minimum of 3 digits for Tranche ID to be checked')
 
 
 def validate_check_digits(line_number, qid):
-    global error_count
-    if not qid_checksum_validator.validate(qid, int(Config.QID_MODULUS), int(Config.QID_FACTOR))[0]:
-        print(f'Error: Check Digits incorrect for QID {qid}, line {line_number}')
-        error_count += 1
+    global QID_ERROR_COUNT
+    if len(qid) >= 3:
+        if not qid_checksum_validator.validate(qid, int(Config.QID_MODULUS), int(Config.QID_FACTOR))[0]:
+            print(f'Error: Line {line_number}: Check Digits incorrect in QID {qid}')
+            QID_ERROR_COUNT += 1
+    elif len(qid) < 3:
+        print(f'Error: Line {line_number}: QID {qid} length is not long enough for Check Digits to be validated')
 
 
 def post_message_to_queue(case_id, qid, line_number):
@@ -106,10 +122,11 @@ def post_message_to_queue(case_id, qid, line_number):
     with RabbitContext() as rabbit:
         rabbit.publish_message(json.dumps(message), "application/json", None, exchange='events',
                                routing_key='event.questionnaire.update')
-        print(f'Case ID {case_id} and QID {qid} on line {line_number} have PASSED')
+        print(f'Success: Line {line_number}: Case ID {case_id} and QID {qid} have PASSED and have been LINKED')
 
 
 def main():
+    args = parse_arguments()
     validate_qid_link_file(args.qid_link_file_path)
 
 
