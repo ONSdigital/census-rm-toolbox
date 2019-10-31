@@ -41,8 +41,8 @@ def main():
         total_messages = queue_details.get('messages', 0)
         consumer_count = len(queue_details.get('consumer_details', {}))
 
-        ''' We want to alert on percentage rate of change
-        if a queue is sitting at zero messages and any come in, 
+        ''' We want to alert on percentage rate of change.
+        if a queue is sitting at zero messages and any come in,
         that gets evaluated as a massive percentage, wrongly triggering alerts.
         To get around this, we log the total messages plus one
         to get reasonable percentage changes even if the queue is normally empty'''
