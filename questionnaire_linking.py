@@ -9,6 +9,9 @@ import requests
 import qid_checksum_validator
 from config import Config
 from utilities.rabbit_context import RabbitContext
+import pika
+from pika import BasicProperties
+from pika.spec import PERSISTENT_DELIVERY_MODE
 
 
 CASE_REF_ERROR_COUNT = 0
@@ -104,6 +107,7 @@ def validate_check_digits(line_number, qid):
 
 
 def post_message_to_queue(case_id, qid, line_number):
+    properties = BasicProperties(content_type='application/json', delivery_mode=PERSISTENT_DELIVERY_MODE)
     message = {
         "event": {
             "type": "QUESTIONNAIRE_LINKED",
@@ -120,8 +124,8 @@ def post_message_to_queue(case_id, qid, line_number):
         }
     }
     with RabbitContext() as rabbit:
-        rabbit.publish_message(json.dumps(message), "application/json", None, exchange='events',
-                               routing_key='event.questionnaire.update')
+        rabbit.channel.basic_publish(exchange='events', routing_key='event.questionnaire.update',
+        body=json.dumps(message), properties=properties, mandatory=True)
         print(f'Success: Line {line_number}: Case ID {case_id} and QID {qid} have PASSED and have been LINKED')
 
 
