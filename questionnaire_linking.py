@@ -86,22 +86,22 @@ def validate_qid_len_and_type(line_number, qid):
 
 def validate_qid_third_digit(line_number, qid):
     global QID_ERROR_COUNT
-    if len(qid) >= 3:
-        if qid[2] != "2":
-            print(f'Error: Line {line_number}: QID {qid} tranche identifier must be 2')
-            QID_ERROR_COUNT += 1
+    if len(qid) >= 3 and qid[2] != "2":
+        print(f'Error: Line {line_number}: QID {qid} tranche identifier must be 2')
+        QID_ERROR_COUNT += 1
     elif len(qid) < 3:
         print(f'Error: Line {line_number}: QID {qid} must have a minimum of 3 digits for Tranche ID to be checked')
+        QID_ERROR_COUNT += 1
 
 
 def validate_check_digits(line_number, qid):
     global QID_ERROR_COUNT
-    if len(qid) >= 3:
-        if not qid_checksum_validator.validate(qid, int(Config.QID_MODULUS), int(Config.QID_FACTOR))[0]:
-            print(f'Error: Line {line_number}: Check Digits incorrect in QID {qid}')
-            QID_ERROR_COUNT += 1
+    if len(qid) >= 3 and not qid_checksum_validator.validate(qid, int(Config.QID_MODULUS), int(Config.QID_FACTOR))[0]:
+        print(f'Error: Line {line_number}: Check Digits incorrect in QID {qid}')
+        QID_ERROR_COUNT += 1
     elif len(qid) < 3:
         print(f'Error: Line {line_number}: QID {qid} length is not long enough for Check Digits to be validated')
+        QID_ERROR_COUNT += 1
 
 
 def post_message_to_queue(case_id, qid, line_number):
