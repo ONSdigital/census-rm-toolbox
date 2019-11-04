@@ -2,6 +2,13 @@
 
 The most bestestest tools for make running the census big success wow.
 
+## Questionnaire Linking
+On dev-toolbox run
+```bash
+qidlink <filename.csv>
+```
+
+
 ## Bad Message Wizard
 On the pod run
 ```bash
