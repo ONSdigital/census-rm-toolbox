@@ -30,7 +30,7 @@ def fulfilment_query(fulfilment_date_from, fulfilment_date_to, username, passwor
     cur.execute(sql_query, (fulfilment_date_from, fulfilment_date_to,))
     db_result = cur.fetchall()
 
-    with open(f'fulfilment-{fulfilment_date_to[:10]}.csv', 'w') as out:
+    with open(f'fulfilments-{fulfilment_date_to[:10]}.csv', 'w') as out:
         csv_out = csv.writer(out)
         csv_out.writerow(['treatment_code', 'count'])
         for row in db_result:
