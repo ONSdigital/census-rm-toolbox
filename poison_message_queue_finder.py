@@ -29,7 +29,7 @@ def main():
             queue_name = queue['name']
         except [TypeError, KeyError]:
             print(f'Unexpected data for queue: {queue}')
-            pass
+            continue
 
         queue_details = requests.get(
             f'http://{Config.RABBITMQ_HOST}:{Config.RABBITMQ_HTTP_PORT}/api/queues/{v_host}/{queue_name}',
@@ -41,13 +41,21 @@ def main():
         total_messages = queue_details.get('messages', 0)
         consumer_count = len(queue_details.get('consumer_details', {}))
 
+        ''' We want to alert on percentage rate of change.
+        if a queue is sitting at zero messages and any come in,
+        that gets evaluated as a massive percentage, wrongly triggering alerts.
+        To get around this, we log the total messages plus one
+        to get reasonable percentage changes even if the queue is normally empty'''
+        adjusted_total_messages = total_messages + 1
+
         json_to_log = {
             "queue_name": queue_name,
             "redeliver_rate": redeliver_rate,
             "publish_rate": publish_rate,
             "ack_rate": ack_rate,
             "total_messages": total_messages,
-            "consumer_count": consumer_count
+            "consumer_count": consumer_count,
+            "adjusted_total_messages": adjusted_total_messages,
         }
 
         if args.redeliver and redeliver_rate > 1 or not args.redeliver:
