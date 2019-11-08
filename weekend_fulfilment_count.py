@@ -36,7 +36,7 @@ def execute_query(cur, dates, index, sql_query):
                             f"{str(dates[index + 1].date())}T16:00:00+00:00"))
     db_result = cur.fetchall()
 
-    with open(f'fulfilment-{dates[index + 1].date()}.csv', 'w') as out:
+    with open(f'fulfilments-{dates[index + 1].date()}.csv', 'w') as out:
         csv_out = csv.writer(out)
         csv_out.writerow(['treatment_code', 'count'])
         for row in db_result:

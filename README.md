@@ -2,6 +2,13 @@
 
 The most bestestest tools for make running the census big success wow.
 
+## Questionnaire Linking
+On dev-toolbox run
+```bash
+qidlink <filename.csv>
+```
+
+
 ## Bad Message Wizard
 On the pod run
 ```bash
@@ -239,7 +246,7 @@ fulfilment <FULFILMENT_DATE_FROM> <FULFILMENT_DATE_TO> <DB_USERNAME>
 The fulfilment dates should be in the format of `2019-10-18T16:00:00+01:00`.
 
 After you run this you will prompted to type in your password for the database. Once you entered in your credentials, it will create a CSV file of the counts for you
-in the format of `fulfilment-<date>.csv`.
+in the format of `fulfilments-<date>.csv`.
 
 ### Weekend Fulfilment count
 
