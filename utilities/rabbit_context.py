@@ -1,4 +1,5 @@
 import pika
+from pika.spec import PERSISTENT_DELIVERY_MODE
 
 from config import Config
 from utilities.exceptions import RabbitConnectionClosedError
@@ -57,7 +58,8 @@ class RabbitContext:
             exchange=exchange or self._exchange,
             routing_key=routing_key or self.queue_name,
             body=message,
-            properties=pika.BasicProperties(content_type=content_type, headers=headers))
+            properties=pika.BasicProperties(content_type=content_type, headers=headers,
+                                            delivery_mode=PERSISTENT_DELIVERY_MODE))
 
     def get_queue_message_qty(self):
         return self.queue_declare_result.method.message_count

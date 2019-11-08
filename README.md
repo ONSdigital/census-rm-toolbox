@@ -206,7 +206,7 @@ pipenv install --dev
 
 ### Set Up Aliases and Shortcuts
 If you're going to be running these commands regularly it may be helpful to have the scripts on your `PATH` and set up some alias in your cloudshell bash.
-Add these lines to your `~/.bashrc` file in the cloudshell
+Add these lines to your `~/.bashrc` file in the cloudshell 
 ```shell script
 export PATH="<PATH_TO_CENSUS_RM_TOOLBOX>/cloudshell_utilities:$PATH"
 alias prod-configure="configure_and_whitelist.sh census-rm-prod"
