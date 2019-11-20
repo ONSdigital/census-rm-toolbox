@@ -25,7 +25,8 @@ from (select event_type,
                            'NEW_ADDRESS_REPORTED',
                            'SURVEY_LAUNCHED',
                            'RESPONDENT_AUTHENTICATED',
-                           'UNDELIVERED_MAIL_REPORTED')
+                           'UNDELIVERED_MAIL_REPORTED',
+                           'CCS_ADDRESS_LISTED')
         and rm_event_processed between now() - interval '1 minutes' and now()) as event_times
       group by event_times.event_type, event_times.event_channel;
         """
