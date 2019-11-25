@@ -1,5 +1,5 @@
 cd /app/groundzero/
-psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser pass=password dbname=$DB_NAME_RW" -f destroy_schemas.sql
+psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser password=password dbname=$DB_NAME_RW" -f destroy_schemas.sql
 
 rm actionv2.sql
 rm casev2.sql
@@ -27,6 +27,6 @@ echo "commit transaction;" >> header_footer_temp.txt
 rm uacqid.sql
 mv header_footer_temp.txt uacqid.sql
 
-psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser pass=password dbname=$DB_NAME_RW" -f casev2.sql
-psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser pass=password dbname=$DB_NAME_RW" -f actionv2.sql
-psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser pass=password dbname=$DB_NAME_RW" -f uacqid.sql
+psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser password=password dbname=$DB_NAME_RW" -f casev2.sql
+psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser password=password dbname=$DB_NAME_RW" -f actionv2.sql
+psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser password=password dbname=$DB_NAME_RW" -f uacqid.sql
