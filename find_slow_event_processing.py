@@ -9,10 +9,10 @@ from (select event_type,
              event_channel,
              event_date,
              rm_event_processed,
-             ((DATE_PART('day', rm_event_processed::timestamp - event_date::timestamp) * 24 +
-               DATE_PART('hour', rm_event_processed::timestamp - event_date::timestamp)) * 60 +
-              DATE_PART('minute', rm_event_processed::timestamp - event_date::timestamp)) * 60 +
-             DATE_PART('second', rm_event_processed::timestamp - event_date::timestamp) as timediff
+             ((DATE_PART('day', rm_event_processed::timestamp - message_timestamp::timestamp) * 24 +
+               DATE_PART('hour', rm_event_processed::timestamp - message_timestamp::timestamp)) * 60 +
+              DATE_PART('minute', rm_event_processed::timestamp - message_timestamp::timestamp)) * 60 +
+             DATE_PART('second', rm_event_processed::timestamp - message_timestamp::timestamp) as timediff
       from casev2.event
       where event_type in ('RESPONSE_RECEIVED',
                            'REFUSAL_RECEIVED',
