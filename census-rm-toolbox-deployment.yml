@@ -36,10 +36,10 @@
           - name: gcp-credentials-volume
             mountPath: /gcp-credentials
           - name: cloud-sql-certs
-            mountPath: "/root/.postgresql-rw"
+            mountPath: "/home/toolbox/.postgresql-rw"
             readOnly: true
           - name: read-replica-cloud-sql-certs
-            mountPath: "/root/.postgresql"
+            mountPath: "/home/toolbox/.postgresql"
             readOnly: true
           env:
           - name: RABBITMQ_SERVICE_HOST
@@ -122,8 +122,8 @@
             secretName: cloud-sql-certs
             defaultMode: 0400
             items:
-            - key: "root.crt"
-              path: "root.crt"
+            - key: "home/toolbox.crt"
+              path: "home/toolbox.crt"
             - key: "postgresql.crt"
               path: "postgresql.crt"
             - key: "postgresql.key"
@@ -133,8 +133,8 @@
             secretName: read-replica-cloud-sql-certs
             defaultMode: 0400
             items:
-            - key: "root.crt"
-              path: "root.crt"
+            - key: "home/toolbox.crt"
+              path: "home/toolbox.crt"
             - key: "postgresql.crt"
               path: "postgresql.crt"
             - key: "postgresql.key"

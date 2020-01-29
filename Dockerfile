@@ -1,5 +1,13 @@
 FROM python:3.7-slim
 
+RUN pip install pipenv
+
+RUN apt-get update && apt-get -yq install curl && apt-get -yq install jq && apt-get -yq install vim-tiny && \
+    apt-get -yq install postgresql-client || true && apt-get -yq install openssh-client || true && \
+    apt-get -yq clean && groupadd --gid 1000 toolbox && \
+    useradd --create-home --system --uid 1000 --gid toolbox toolbox
+WORKDIR /home/toolbox
+
 ENV RABBITMQ_SERVICE_HOST rabbitmq
 ENV RABBITMQ_SERVICE_PORT 5672
 ENV RABBITMQ_HTTP_PORT 15672
@@ -7,21 +15,14 @@ ENV RABBITMQ_VHOST /
 ENV RABBITMQ_USER guest
 ENV RABBITMQ_PASSWORD guest
 
-RUN apt-get update
-RUN apt-get -yq install curl
-RUN apt-get -yq install jq
-RUN apt-get -yq install vim-tiny
-RUN apt-get -yq install postgresql-client || true
-RUN apt-get -yq install openssh-client || true
-RUN apt-get -yq clean
-
-WORKDIR /app
-COPY . /app
-RUN pip install pipenv
+COPY Pipfile* /home/toolbox/
 RUN pipenv install --system --deploy
+USER toolbox
 
 RUN cp /app/.psqlrc /root
-RUN echo "source /app/aliases.sh" >> /root/.bashrc
-RUN echo "/app/splashscreen.sh" >> /root/.bashrc
-RUN echo 'PS1="[$PROJECT_NAME]-TOOLZ🔥> "' >> /root/.bashrc
-RUN echo "export PATH=/app:$PATH" >> /root/.bashrc
+
+RUN echo "source /app/aliases.sh" >> /home/toolbox/.bashrc && echo "/app/splashscreen.sh" >> /home/toolbox/.bashrc && \
+    echo 'PS1="[$PROJECT_NAME]-TOOLZ🔥> "' >> /home/toolbox/.bashrc && \
+    echo "export PATH=/app:$PATH" >> /home/toolbox/.bashrc
+
+COPY --chown=toolbox . /home/toolbox
