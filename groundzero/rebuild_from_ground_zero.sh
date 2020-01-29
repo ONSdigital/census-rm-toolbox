@@ -3,11 +3,6 @@ cd /app/groundzero/
 PSQL_CONNECT_WRITE_MODE="sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=rmuser password=password dbname=$DB_NAME_RW"
 psql "$PSQL_CONNECT_WRITE_MODE" -f destroy_schemas.sql
 
-rm actionv2.sql
-rm casev2.sql
-rm uacqid.sql
-rm ddl_version.sql
-
 for SCRIPT_NAME in actionv2.sql casev2.sql uacqid.sql ddl_version.sql
 do
   rm $SCRIPT_NAME
