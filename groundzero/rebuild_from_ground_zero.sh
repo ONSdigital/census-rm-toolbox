@@ -12,7 +12,7 @@ do
   cat $SCRIPT_NAME >> header_footer_temp.txt
   echo "commit transaction;" >> header_footer_temp.txt
   rm $SCRIPT_NAME
-  mv header_footer_temp.txt actionv2.sql
+  mv header_footer_temp.txt $SCRIPT_NAME
 
   psql "$PSQL_CONNECT_WRITE_MODE" -f $SCRIPT_NAME
 done
