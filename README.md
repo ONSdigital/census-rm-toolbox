@@ -163,18 +163,13 @@ qidcheck <QID>
 A non-default modulus and or factor for the checksum algorithm can be used with the optional flags `--modulus` and `--factor` 
    
 ## Running in Kubernetes
-To run the toolbox in a kubernetes environment, you'll have to create the deployment using `census-rm-toolbox-deployment.yml`
-```bash
-make apply-deployment
-```
+To run the toolbox in a kubernetes environment, you'll have to create the deployment using the YAML files in census-rm-kubernetes. If you do not have a Cloud SQL Read Replica, use the dev deployment YAML file
+
 Once the pod is up, you can connect to it:
 ```bash
-make connect-to-pod
+kubectl exec -it $(kubectl get pods --selector=app=census-rm-toolbox -o jsonpath='{.items[*].metadata.name}') -- /bin/bash
 ```
-Once you're finished with the pod, you can remove it from your kubernetes environment:
-```bash
-make delete-pod
-```
+
 
 
 ## Configure and Whitelist Cloud Shell Tool
