@@ -34,5 +34,5 @@ else
   username=$2
 fi
 
-psql "sslmode=verify-ca sslrootcert=/root/.postgresql-rw/root.crt sslcert=/root/.postgresql-rw/postgresql.crt sslkey=/root/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=$username dbname=$DB_NAME_RW"
+psql "sslmode=verify-ca sslrootcert=/home/toolbox/.postgresql-rw/root.crt sslcert=/home/toolbox/.postgresql-rw/postgresql.crt sslkey=/home/toolbox/.postgresql-rw/postgresql.key hostaddr=$DB_HOST_RW user=$username dbname=$DB_NAME_RW"
 tput sgr0
