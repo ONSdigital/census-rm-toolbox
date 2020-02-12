@@ -122,8 +122,8 @@
             secretName: cloud-sql-certs
             defaultMode: 0400
             items:
-            - key: "home/toolbox.crt"
-              path: "home/toolbox.crt"
+            - key: "root.crt"
+              path: "root.crt"
             - key: "postgresql.crt"
               path: "postgresql.crt"
             - key: "postgresql.key"
@@ -133,8 +133,8 @@
             secretName: read-replica-cloud-sql-certs
             defaultMode: 0400
             items:
-            - key: "home/toolbox.crt"
-              path: "home/toolbox.crt"
+            - key: "root.crt"
+              path: "root.crt"
             - key: "postgresql.crt"
               path: "postgresql.crt"
             - key: "postgresql.key"
