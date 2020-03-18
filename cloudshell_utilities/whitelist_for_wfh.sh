@@ -13,6 +13,7 @@ pushd "${0%/*}" || exit 1
 echo "Whitelisting IP: ${WFH_IP} with name ${WFH_NAME} WFH"
 gcloud config set project census-rm-whitelodge
 gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project census-rm-whitelodge
+pipenv run python whitelist_service_ip.py $WFH_IP case-api || exit 1
 pipenv run python whitelist_service_ip.py $WFH_IP ops || exit 1
 pipenv run python whitelist_service_ip.py $WFH_IP rabbitmqmanagement || exit 1
 
