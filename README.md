@@ -250,3 +250,10 @@ To run the fulfilment count for the weekend run:
 weekendfulfilment <DB_USERNAME>
 ```
 You'll be prompted for your password and once entered, it will generate fulfilment counts for the last 3 days.
+
+
+## Work From Home (WFH) Whitelist Script
+Once you have whitelisted yourself on the White Lodge and Black Lodge clusters, you can easily add all the whitelisting for a colleague who is working from home by running the following script:
+```bash
+./whitelist_for_wfh.sh <IP ADDRESS> <NAME OF PERSON>
+```
