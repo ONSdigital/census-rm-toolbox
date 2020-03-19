@@ -4,6 +4,8 @@ import os
 
 import requests
 
+GOOGLE_API_SQL_PROJECTS = 'https://www.googleapis.com/sql/v1beta4/projects'
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Tool to whitelist an IP address for WFH access to DB')
@@ -19,7 +21,7 @@ def whitelist_ip(new_ip, new_name, project):
     access_token = access_token.replace('\n', '')
 
     headers = {"Authorization": f"Bearer {access_token}"}
-    response = requests.get(f"https://www.googleapis.com/sql/v1beta4/projects/{project}/instances",
+    response = requests.get(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances",
                             headers=headers)
     response.raise_for_status()
 
@@ -31,8 +33,8 @@ def whitelist_ip(new_ip, new_name, project):
         if not ip_exists:
             authorized_networks.append({'value': new_ip, 'name': new_name, 'kind': 'sql#aclEntry'})
             patch_data = json.dumps({'settings': {'ipConfiguration': {'authorizedNetworks': authorized_networks}}})
-            response = requests.patch(f"https://www.googleapis.com/sql/v1beta4/projects/{project}/instances/{item['name']}",
-                                      patch_data, headers=headers)
+            response = requests.patch(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances/{item['name']}", patch_data,
+                                      headers=headers)
             response.raise_for_status()
             print(f'IP successfully whitelisted')
         else:
