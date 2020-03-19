@@ -1,5 +1,4 @@
 import argparse
-import copy
 import json
 import os
 
@@ -20,7 +19,7 @@ def main():
 
     parsed_json = json.loads(output)
 
-    lb_ips = copy.copy(parsed_json['spec']['loadBalancerSourceRanges'])
+    lb_ips = parsed_json['spec']['loadBalancerSourceRanges']
 
     if ip_to_whitelist not in lb_ips:
         lb_ips.append(ip_to_whitelist)
