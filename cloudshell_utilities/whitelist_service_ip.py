@@ -5,7 +5,7 @@ import os
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description='Tool to whitelist an IP address in for WFH access')
+    parser = argparse.ArgumentParser(description='Tool to whitelist an IP address for WFH access to services')
     parser.add_argument('ip', help='IP Address', type=str)
     parser.add_argument('service', help='Service', type=str)
     return parser.parse_args()
