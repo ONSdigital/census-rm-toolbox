@@ -1,5 +1,4 @@
 import argparse
-import os
 
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
