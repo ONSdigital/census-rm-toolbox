@@ -27,12 +27,21 @@ def main():
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
 
-    ip_exists = any(elem['cidrBlock'] == f'{args.ip_address}/32' for elem in current_authorised_networks)
+    ip_exists = any(elem['cidrBlock'] == f'{args.ip_address}/32' for elem in current_authorised_networks['cidrBlocks'])
 
     if not ip_exists:
         if args.suffix == "_cloudshell":
             print('Removing cloudshell entries for you')
             new_authorised_networks = remove_cloudshell_whitelist_entries(current_authorised_networks)
+        else:
+            new_authorised_networks = {
+                'update': {
+                    'desiredMasterAuthorizedNetworksConfig': {
+                        'enabled': True,
+                        'cidrBlocks': current_authorised_networks['cidrBlocks']
+                    }
+                }
+            }
 
         new_ip = {'displayName': f'{args.name}{args.suffix}',
                   'cidrBlock': f'{args.ip_address}/32'}
