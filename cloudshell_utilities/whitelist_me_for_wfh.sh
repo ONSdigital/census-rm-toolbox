@@ -1,4 +1,7 @@
 pushd "${0%/*}" || exit 1
+
+gcloud auth application-default login
+
 WFH_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
 
 echo "Whitelisting IP: ${WFH_IP} with name ${USER} WFH"
