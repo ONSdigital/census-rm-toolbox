@@ -24,5 +24,6 @@ pipenv run python whitelist_service_ip.py $WFH_IP case-api-test || exit 1
 pipenv run python whitelist_db_ip.py $WFH_IP "$USER" census-rm-blacklodge
 
 gcloud config set project $CURRENT_PROJECT
+gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $CURRENT_PROJECT
 
 popd || exit
