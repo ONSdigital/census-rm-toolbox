@@ -1,5 +1,8 @@
 pushd "${0%/*}" || exit 1
 
+CURRENT_PROJECT=$(gcloud config get-value project 2> /dev/null)
+echo Current project is $CURRENT_PROJECT
+
 gcloud auth application-default login
 
 WFH_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
@@ -20,5 +23,9 @@ pipenv run python whitelist_service_ip.py $WFH_IP ops || exit 1
 pipenv run python whitelist_service_ip.py $WFH_IP rabbitmqmanagement || exit 1
 pipenv run python whitelist_service_ip.py $WFH_IP case-api-test || exit 1
 pipenv run python whitelist_db_ip.py $WFH_IP "$USER" census-rm-blacklodge
+
+gcloud config set project $CURRENT_PROJECT
+gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $CURRENT_PROJECT
+echo Restored current project to $(gcloud config get-value project 2> /dev/null)
 
 popd || exit
