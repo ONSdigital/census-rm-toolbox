@@ -15,21 +15,19 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def main():
-    args = parse_arguments()
-
+def whitelist_cluster_ip(project_id, ip_address, suffix, name):
     service = discovery.build('container', 'v1', credentials=GoogleCredentials.get_application_default())
 
     get_current_whitelist_request = service.projects().locations().clusters().get(
-        name=f'projects/{args.project_id}/locations/europe-west2/clusters/rm-k8s-cluster')
+        name=f'projects/{project_id}/locations/europe-west2/clusters/rm-k8s-cluster')
     response = get_current_whitelist_request.execute()
 
     current_authorised_networks = response['masterAuthorizedNetworksConfig']
 
-    ip_exists = any(elem['cidrBlock'] == f'{args.ip_address}/32' for elem in current_authorised_networks['cidrBlocks'])
+    ip_exists = any(elem['cidrBlock'] == f'{ip_address}/32' for elem in current_authorised_networks['cidrBlocks'])
 
     if not ip_exists:
-        if args.suffix == "_cloudshell":
+        if suffix == "_cloudshell":
             print('Removing cloudshell entries for you')
             new_authorised_networks = remove_cloudshell_whitelist_entries(current_authorised_networks)
         else:
@@ -42,12 +40,12 @@ def main():
                 }
             }
 
-        new_ip = {'displayName': f'{args.name}{args.suffix}',
-                  'cidrBlock': f'{args.ip_address}/32'}
+        new_ip = {'displayName': f'{name}{suffix}',
+                  'cidrBlock': f'{ip_address}/32'}
 
         new_authorised_networks['update']['desiredMasterAuthorizedNetworksConfig']['cidrBlocks'].append(new_ip)
 
-        update_request = service.projects().locations().clusters().update(name=f'projects/{args.project_id}/locations'
+        update_request = service.projects().locations().clusters().update(name=f'projects/{project_id}/locations'
                                                                                f'/europe-west2/clusters/rm-k8s-cluster',
                                                                           body=new_authorised_networks)
 
@@ -55,6 +53,11 @@ def main():
         print("Successfully Whitelisted IP ")
     else:
         print(f'IP already whitelisted')
+
+
+def main():
+    args = parse_arguments()
+    whitelist_cluster_ip(args.project_id, args.ip_address, args.suffix, args.name)
 
 
 if __name__ == '__main__':

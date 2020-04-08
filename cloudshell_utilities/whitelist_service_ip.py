@@ -10,11 +10,10 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def main():
-    args = parse_arguments()
-    ip_to_whitelist = f'{args.ip}/32'
+def whitelist_service_ip(ip, service):
+    ip_to_whitelist = f'{ip}/32'
 
-    stream = os.popen(f'kubectl get service {args.service} -o json')
+    stream = os.popen(f'kubectl get service {service} -o json')
     output = stream.read()
 
     parsed_json = json.loads(output)
@@ -24,10 +23,15 @@ def main():
     if ip_to_whitelist not in lb_ips:
         lb_ips.append(ip_to_whitelist)
         patch_body = {"spec": {"loadBalancerSourceRanges": lb_ips}}
-        os.system(f"kubectl patch service -p '{json.dumps(patch_body)}' {args.service}")
+        os.system(f"kubectl patch service -p '{json.dumps(patch_body)}' {service}")
         print("IP successfully whitelisted")
     else:
         print("IP already whitelisted")
+
+
+def main():
+    args = parse_arguments()
+    whitelist_service_ip(args.ip, args.service)
 
 
 if __name__ == '__main__':

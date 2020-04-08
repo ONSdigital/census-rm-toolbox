@@ -15,7 +15,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def whitelist_ip(new_ip, new_name, project):
+def whitelist_db_ip(new_ip, new_name, project):
     stream = os.popen('gcloud auth print-access-token')
     access_token = str(stream.read())
     access_token = access_token.replace('\n', '')
@@ -43,7 +43,7 @@ def whitelist_ip(new_ip, new_name, project):
 
 def main():
     args = parse_arguments()
-    whitelist_ip(f'{args.ip}/32', f'{args.name} WFH', args.project)
+    whitelist_db_ip(f'{args.ip}/32', f'{args.name} WFH', args.project)
 
 
 if __name__ == '__main__':
