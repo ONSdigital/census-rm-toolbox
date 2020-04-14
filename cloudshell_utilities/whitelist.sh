@@ -1,5 +1,7 @@
 pushd "${0%/*}" || exit 1
 
+git clone git@github.com:ONSdigital/census-rm-whitelist.git
+
 CURRENT_PROJECT=$(gcloud config get-value project 2> /dev/null)
 echo Current project is $CURRENT_PROJECT
 
@@ -12,5 +14,7 @@ pipenv run python whitelist.py census-rm-whitelodge || exit 1
 gcloud config set project $CURRENT_PROJECT
 gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $CURRENT_PROJECT
 echo Restored current project to $(gcloud config get-value project 2> /dev/null)
+
+rm -rf census-rm-whitelist
 
 popd || exit
