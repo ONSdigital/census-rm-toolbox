@@ -52,11 +52,19 @@ def whitelist(project_id):
 def main():
     args = parse_arguments()
     project_id = args.project
+
+    print('Dewhitelisting old IPs...')
     unwhitelist(project_id)
 
     # We have to wait until the DB has finished updating otherwise we get a 409 error
-    time.sleep(30)
+    progress = '.'
+    for _ in range(1, 30):
+        print(f'Waiting for changes to be applied{progress}\r', end='')
+        progress = f'{progress}.'
+        time.sleep(1)
+    print('')
 
+    print('Whitelisting IPs...')
     whitelist(project_id)
 
 
