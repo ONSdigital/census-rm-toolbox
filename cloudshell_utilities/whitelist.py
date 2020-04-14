@@ -1,10 +1,10 @@
 import argparse
 import json
-import os
+import time
 
-from whitelist_db_ip import whitelist_db_ip
-from whitelist_service_ip import whitelist_service_ip
-from add_cluster_ip import whitelist_cluster_ip
+from whitelist_db_ip import whitelist_db_ip, unwhitelist_db_ips
+from whitelist_service_ip import whitelist_service_ip, unwhitelist_service_ips
+from whitelist_cluster_ip import whitelist_cluster_ip, unwhitelist_cluster_ips
 
 
 def parse_arguments():
@@ -13,16 +13,29 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def main():
-    args = parse_arguments()
-    project_id = args.project
-    os.system('rm whitelist.json')
-    os.system('gsutil cp gs://census-rm-whitelist/whitelist.json .')
+def unwhitelist(project_id):
+    with open(f'census-rm-whitelist/{project_id}/previous_whitelist.json', 'r') as whitelist_file:
+        previous_whitelist = json.load(whitelist_file)
 
-    with open('whitelist.json', 'r') as whitelist_file:
-        whitelist = json.load(whitelist_file)
+    previous_ips = []
+    previous_services = set()
+    for person in previous_whitelist['whitelist']:
+        previous_ips.append(person['ip'])
 
-    for person in whitelist['whitelist']:
+        for service in person['services']:
+            previous_services.add(service)
+
+    unwhitelist_cluster_ips(project_id, previous_ips)
+    unwhitelist_db_ips(previous_ips, project_id)
+    for service in previous_services:
+        unwhitelist_service_ips(previous_ips, service)
+
+
+def whitelist(project_id):
+    with open(f'census-rm-whitelist/{project_id}/current_whitelist.json', 'r') as whitelist_file:
+        current_whitelist = json.load(whitelist_file)
+
+    for person in current_whitelist['whitelist']:
         person_name = person['name']
         ip_address = person['ip']
 
@@ -35,7 +48,16 @@ def main():
         for service in person['services']:
             whitelist_service_ip(ip_address, service)
 
-    os.system('rm whitelist.json')
+
+def main():
+    args = parse_arguments()
+    project_id = args.project
+    unwhitelist(project_id)
+
+    # We have to wait until the DB has finished updating otherwise we get a 409 error
+    time.sleep(30)
+
+    whitelist(project_id)
 
 
 if __name__ == '__main__':

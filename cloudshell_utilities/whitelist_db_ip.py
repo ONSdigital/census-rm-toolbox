@@ -15,6 +15,34 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def unwhitelist_db_ips(ips_to_remove, project):
+    ips_to_remove_cidr = []
+
+    for ip in ips_to_remove:
+        ips_to_remove_cidr.append(f'{ip}/32')
+
+    stream = os.popen('gcloud auth print-access-token')
+    access_token = str(stream.read())
+    access_token = access_token.replace('\n', '')
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances",
+                            headers=headers)
+    response.raise_for_status()
+
+    for item in response.json()['items']:
+        authorized_networks = []
+        current_authorized_networks = item['settings']['ipConfiguration']['authorizedNetworks']
+        for network in current_authorized_networks:
+            if network['value'] not in ips_to_remove_cidr:
+                authorized_networks.append(network)
+
+        patch_data = json.dumps({'settings': {'ipConfiguration': {'authorizedNetworks': authorized_networks}}})
+        response = requests.patch(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances/{item['name']}", patch_data,
+                                  headers=headers)
+        response.raise_for_status()
+
+
 def whitelist_db_ip(new_ip, new_name, project):
     stream = os.popen('gcloud auth print-access-token')
     access_token = str(stream.read())

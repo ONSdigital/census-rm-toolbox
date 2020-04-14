@@ -14,7 +14,7 @@ gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 -
 CLOUDSHELL_IP=$(dig +short myip.opendns.com @resolver1.opendns.com)
 
 echo "Whitelisting cloudshell IP: $CLOUDSHELL_IP with name ${USER}_cloudshell"
-pipenv run python add_cluster_ip.py "$TARGET_PROJECT" "$CLOUDSHELL_IP" "$USER" "_cloudshell" || exit 1
+pipenv run python whitelist_cluster_ip.py "$TARGET_PROJECT" "$CLOUDSHELL_IP" "$USER" "_cloudshell" || exit 1
 
 echo "Test cluster connection by running 'kubectl get pods'"
 popd || exit

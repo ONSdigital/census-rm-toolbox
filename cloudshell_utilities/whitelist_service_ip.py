@@ -10,6 +10,28 @@ def parse_arguments():
     return parser.parse_args()
 
 
+def unwhitelist_service_ips(ips_to_remove, service):
+    ips_to_remove_cidr = []
+
+    for ip in ips_to_remove:
+        ips_to_remove_cidr.append(f'{ip}/32')
+
+    stream = os.popen(f'kubectl get service {service} -o json')
+    output = stream.read()
+
+    parsed_json = json.loads(output)
+
+    new_lb_ips = []
+    current_lb_ips = parsed_json['spec']['loadBalancerSourceRanges']
+
+    for current_lb_ip in current_lb_ips:
+        if current_lb_ip not in ips_to_remove_cidr:
+            new_lb_ips.append(current_lb_ip)
+
+    patch_body = {"spec": {"loadBalancerSourceRanges": new_lb_ips}}
+    os.system(f"kubectl patch service -p '{json.dumps(patch_body)}' {service}")
+
+
 def whitelist_service_ip(ip, service):
     ip_to_whitelist = f'{ip}/32'
 
