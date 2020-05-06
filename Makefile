@@ -5,4 +5,4 @@ flake:
 	pipenv run flake8
 
 check:
-	pipenv check
+	PIPENV_PYUP_API_KEY="" pipenv check
