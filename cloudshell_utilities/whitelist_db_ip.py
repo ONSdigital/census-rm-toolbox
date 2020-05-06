@@ -15,7 +15,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def whitelist_ip(new_ip, new_name, project):
+def whitelist_db_ip(new_ip, new_name, project):
     stream = os.popen('gcloud auth print-access-token')
     access_token = str(stream.read())
     access_token = access_token.replace('\n', '')
@@ -41,9 +41,31 @@ def whitelist_ip(new_ip, new_name, project):
             print(f'IP already whitelisted')
 
 
+def whitelist_db_list(whitelist, project):
+    authorized_networks = []
+
+    for item in whitelist:
+        authorized_networks.append({'value': f"{item['ip']}/32", 'name': item['name'], 'kind': 'sql#aclEntry'})
+
+    stream = os.popen('gcloud auth print-access-token')
+    access_token = str(stream.read())
+    access_token = access_token.replace('\n', '')
+
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response = requests.get(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances",
+                            headers=headers)
+    response.raise_for_status()
+
+    for item in response.json()['items']:
+        patch_data = json.dumps({'settings': {'ipConfiguration': {'authorizedNetworks': authorized_networks}}})
+        response = requests.patch(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances/{item['name']}", patch_data,
+                                  headers=headers)
+        response.raise_for_status()
+
+
 def main():
     args = parse_arguments()
-    whitelist_ip(f'{args.ip}/32', f'{args.name} WFH', args.project)
+    whitelist_db_ip(f'{args.ip}/32', f'{args.name} WFH', args.project)
 
 
 if __name__ == '__main__':
