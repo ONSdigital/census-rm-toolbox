@@ -10,19 +10,26 @@ if [[ -z "$2" ]]; then
 fi
 CONFIG_FILE=$2
 
-pushd "${0%/*}" || exit 1
 
-CURRENT_PROJECT=$(gcloud config get-value project 2> /dev/null)
-echo Current project is $CURRENT_PROJECT
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Mac OSX
+  pushd "${0%/*}" || exit 1
 
-gcloud auth application-default login
+  CURRENT_PROJECT=$(gcloud config get-value project 2> /dev/null)
+  echo Current project is $CURRENT_PROJECT
+
+  gcloud auth application-default login
+fi
 
 gcloud config set project $TARGET_PROJECT
 gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $TARGET_PROJECT
 pipenv run python whitelist.py $TARGET_PROJECT $CONFIG_FILE || exit 1
 
-gcloud config set project $CURRENT_PROJECT
-gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $CURRENT_PROJECT
-echo Restored current project to $(gcloud config get-value project 2> /dev/null)
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  # Mac OSX
+  gcloud config set project $CURRENT_PROJECT
+  gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $CURRENT_PROJECT
+  echo Restored current project to $(gcloud config get-value project 2> /dev/null)
+fi
 
 popd || exit
