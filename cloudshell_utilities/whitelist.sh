@@ -23,7 +23,7 @@ fi
 
 gcloud config set project $TARGET_PROJECT
 gcloud container clusters get-credentials rm-k8s-cluster --region europe-west2 --project $TARGET_PROJECT
-pipenv run python whitelist.py $TARGET_PROJECT $CONFIG_FILE || exit 1
+python whitelist.py $TARGET_PROJECT $CONFIG_FILE || exit 1
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   # Mac OSX
