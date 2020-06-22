@@ -41,9 +41,9 @@ def create_questionnaire_linked_message():
         }
     }
 
-    print(f'Here is the generated message:')
+    print('Here is the generated message:')
     print(json.dumps(message, sort_keys=True, indent=4))
-    print(f'Do you want to publish it?')
+    print('Do you want to publish it?')
     do_publish = input()
 
     if do_publish != 'yes':
