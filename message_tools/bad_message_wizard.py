@@ -259,7 +259,7 @@ def show_bad_message_metadata():
 def show_bad_message_metadata_for_hash(message_hash):
     selected_bad_message_metadata = get_bad_message_metadata(message_hash)
     if not selected_bad_message_metadata:
-        print(colored(f'Message not found', 'red'))
+        print(colored('Message not found', 'red'))
         print('')
         return
     pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata)

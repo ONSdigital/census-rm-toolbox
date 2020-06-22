@@ -1,9 +1,9 @@
 import argparse
 import json
 
-from whitelist_db_ip import whitelist_db_list
-from whitelist_service_ip import whitelist_service_ip_list
-from whitelist_cluster_ip import whitelist_cluster_list
+from cloudshell_utilities.whitelist_cluster_ip import whitelist_cluster_list
+from cloudshell_utilities.whitelist_db_ip import whitelist_db_list
+from cloudshell_utilities.whitelist_service_ip import whitelist_service_ip_list
 
 
 def parse_arguments():

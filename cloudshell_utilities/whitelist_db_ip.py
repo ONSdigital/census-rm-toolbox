@@ -36,9 +36,9 @@ def whitelist_db_ip(new_ip, new_name, project):
             response = requests.patch(f"{GOOGLE_API_SQL_PROJECTS}/{project}/instances/{item['name']}", patch_data,
                                       headers=headers)
             response.raise_for_status()
-            print(f'IP successfully whitelisted')
+            print('IP successfully whitelisted')
         else:
-            print(f'IP already whitelisted')
+            print('IP already whitelisted')
 
 
 def whitelist_db_list(whitelist, project):
