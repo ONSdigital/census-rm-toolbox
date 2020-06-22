@@ -1,5 +1,5 @@
 while [ 1 ]
 do
-    python poison_message_queue_finder.py
+    python monitoring/poison_message_queue_finder.py
     sleep 15s
 done

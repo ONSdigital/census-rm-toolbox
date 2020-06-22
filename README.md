@@ -246,7 +246,7 @@ in the format of `fulfilments-<date>.csv`.
 ### Weekend Fulfilment count
 
 To run the fulfilment count for the weekend run:
-```python
+```bash
 weekendfulfilment <DB_USERNAME>
 ```
 You'll be prompted for your password and once entered, it will generate fulfilment counts for the last 3 days.
