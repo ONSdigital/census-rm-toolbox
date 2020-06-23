@@ -1,5 +1,5 @@
 while [ 1 ]
 do
-    python monitoring/regional_counts.py
+    python -m monitoring.regional_counts
     sleep 1h
 done
