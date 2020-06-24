@@ -12,7 +12,7 @@ install:
   - pipenv install --dev --deploy
 
 script:
-  - make flake check
+  - make test
 
 env:
   global:

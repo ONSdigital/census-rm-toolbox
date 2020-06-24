@@ -6,3 +6,6 @@ flake:
 
 check:
 	PIPENV_PYUP_API_KEY="" pipenv check
+
+test: flake check
+	pipenv run pytest
