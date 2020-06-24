@@ -33,7 +33,7 @@ def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, 
     if last_expected_batch < 99:
         expected_number_of_database_counts += 1
 
-        # When
+    # When
     selected_batches = reminder_batch.select_batches(starting_batch, empty_classifiers, max_cases)
 
     # Then
