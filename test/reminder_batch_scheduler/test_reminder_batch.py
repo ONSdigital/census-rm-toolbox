@@ -1,9 +1,52 @@
 import json
+from unittest.mock import patch
 
 import pytest
 
 from reminder_batch_scheduler import reminder_batch
 from test import test_helper
+
+
+@pytest.mark.parametrize(
+    'starting_batch, last_expected_batch, max_cases, mocked_batch_count', [
+        (1, 0, 1, 2),
+        (1, 1, 10, 10),
+        (1, 2, 25, 10),
+        (1, 3, 30, 10),
+        (10, 19, 100, 10),
+        (1, 99, 1000, 10),
+        (1, 24, 2500000, 100001)
+    ])
+@patch('reminder_batch_scheduler.reminder_batch.execute_sql_query')
+def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, max_cases, mocked_batch_count):
+    # Given
+    # Mock the database to return a constant count
+    patch_execute_sql.return_value = ((mocked_batch_count,),)
+
+    # We can use empty classifiers because the DB bit is mocked
+    empty_classifiers = {}
+
+    expected_batches = [str(batch) for batch in list(range(starting_batch, last_expected_batch + 1))]
+
+    # The DB should be checked until the count exceeds the expected count or batch 99 is hit
+    expected_number_of_database_counts = last_expected_batch - starting_batch + 1
+    if last_expected_batch < 99:
+        expected_number_of_database_counts += 1
+
+        # When
+    selected_batches = reminder_batch.select_batches(starting_batch, empty_classifiers, max_cases)
+
+    # Then
+    for count in selected_batches.values():
+        test_helper.assertEqual(mocked_batch_count, count,
+                                'The correct batch count should be stored for each selected batch')
+
+    test_helper.assertEqual(expected_batches, list(selected_batches.keys()),
+                            'The selected print batches should be every value between our expected first and last'
+                            ' (as strings)')
+
+    test_helper.assertEqual(expected_number_of_database_counts, patch_execute_sql.call_count,
+                            'The number of database counts should match our expectation')
 
 
 @pytest.mark.parametrize('wave_classifiers, expected_query', [
