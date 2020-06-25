@@ -18,6 +18,7 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
     for batch, count in selected_batches.items():
         print('batch:', batch, 'count:', count)
     print('Total:', sum(selected_batches.values()))
+    print('Final batch included:', selected_batches.keys()[-1])
     print('Classifiers for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
         print("action_type:", action_type, "classifiers:", action_type_classifiers)
@@ -125,7 +126,7 @@ def parse_arguments():
                         help='The batch number to start counting at',
                         required=True,
                         type=int,
-                        choices=range(0, 100))
+                        choices=range(1, 100))
     parser.add_argument('--max_cases',
                         help='Maximum number cases which would be included in the rules (default 2,500,000)',
                         type=int,

@@ -2,6 +2,46 @@
 
 The most bestestest tools for make running the census big success wow.
 
+## Batched reminder scheduling
+To comply with a limit on the number of cases we can send for reminder print materials in one day, some reminder runs are split into batches and spread in a wave over multiple days. 
+To ensure we maximize our use of said limit, we need to maximize how many batches of cases we include in each day of this wave. The reminder batching script in this repo counts the cases that would be included from each batch and adds them to a rolling total, pulling batches in until the limit is hit.
+The script can then just output the classifiers including these batches, or insert the action rules for them itself depending on the options it is run with.
+
+### Running the reminder batch scheduler
+#### Without setting up action rules
+This is useful to get preliminary counts of the cases included.
+
+Run the script with 
+```bash 
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER>
+```
+This should output the case count for each print batch until it hits the max.
+
+#### Setting up the action rules
+**WARNING:** This will insert the action rules into the action database. Be sure you want to schedule these materials for print.
+
+Run the script with the `--insert_rules` flag.
+
+The action plan ID also becomes necessary to schedule the rule correctly.
+```bash
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert_rules --action_plan_id <ACTION_PLAN_ID>
+```
+You will be prompted to supply a date time for each action rule, these must be supplied in [rfc3339 format](https://tools.ietf.org/html/rfc3339).
+Once the script succeeds the action rules should be present in the action database. 
+
+**IMPORTANT:** The output should tell you the final batch included, you may need to keep this in order to start from the next batch the following day.
+
+#### Specifying max cases
+The max cases for a day defaults to 2,500,000. You may need to lower this limit to compensate for other print materials that day.
+Use the flag `--max_cases <MAX_CASES>`
+
+e.g.
+```bash
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --max_cases 2000000
+```
+```bash
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert_rules --action_plan_id <ACTION_PLAN_ID> --max_cases 1000000 
+```
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash
