@@ -17,6 +17,7 @@ google-cloud-pubsub = "*"
 psycopg2-binary = "*"
 google-cloud-storage = "*"
 python-dateutil = "*"
+tonyg-rfc3339 = "*"
 
 [requires]
 python_version = "3.7"

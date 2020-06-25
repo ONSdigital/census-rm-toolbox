@@ -1,3 +1,9 @@
+"""
+Derived from:
+https://collaborate2.ons.gov.uk/confluence/display/SDC/RMC-293+-+Print+reminder+letters+and+questionnaires
+https://collaborate2.ons.gov.uk/confluence/display/SDC/RM+Census+Initial+Contact+Run+Book+-+2021
+"""
+
 ACTION_TYPES_FOR_WAVE = {
     1: ['P_RL_1RL1_1', 'P_RL_1RL2B_1'],
     2: ['P_RL_2RL1', 'P_RL_2RL2B'],

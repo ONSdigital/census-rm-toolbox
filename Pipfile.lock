@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b4b275c99236dcfbe462394694b0b545751bb1b9fd38583a8f5e103155c38632"
+            "sha256": "6207f917a663b1c2036e9e7c92c9a27919fb0d7dc3bc2419bad766515d600ef2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -328,6 +328,13 @@
             ],
             "index": "pypi",
             "version": "==1.1.0"
+        },
+        "tonyg-rfc3339": {
+            "hashes": [
+                "sha256:e424e7b4ddf2a2f5c70d7317faecf9b69b7da099c9fc08d046c3ac679dd30d3d"
+            ],
+            "index": "pypi",
+            "version": "==0.1"
         },
         "uritemplate": {
             "hashes": [

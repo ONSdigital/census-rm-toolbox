@@ -2,6 +2,7 @@ import json
 from unittest.mock import patch
 
 import pytest
+import rfc3339
 
 from reminder_batch_scheduler import reminder_batch
 from test import test_helper
@@ -17,7 +18,7 @@ from test import test_helper
         (1, 99, 1000, 10),
         (1, 24, 2500000, 100001)
     ])
-@patch('reminder_batch_scheduler.reminder_batch.execute_sql_query')
+@patch('reminder_batch_scheduler.reminder_batch.execute_parametrized_sql_query')
 def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, max_cases, mocked_batch_count):
     # Given
     # Mock the database to return a constant count
@@ -49,7 +50,7 @@ def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, 
                             'The number of database counts should match our expectation')
 
 
-@pytest.mark.parametrize('wave_classifiers, expected_query', [
+@pytest.mark.parametrize('wave_classifiers, expected_query, expected_params', [
     # Test cases
     # Simple treatment code classifier
     ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2']},
@@ -57,7 +58,9 @@ def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, 
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
       "AND case_type != 'HI' "
-      "AND treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2');")),
+      "AND treatment_code IN %s;"),
+     (('HH_DUMMY1', 'HH_DUMMY2'),),
+     ),
 
     # Classifier with just one value
     ({'survey_launched': ['f']},
@@ -65,7 +68,8 @@ def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, 
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
       "AND case_type != 'HI' "
-      "AND survey_launched = 'f';")),
+      "AND survey_launched IN %s;"),
+     (('f',),)),
 
     # Mix of classifiers
     ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2'],
@@ -74,11 +78,13 @@ def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, 
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
       "AND case_type != 'HI' "
-      "AND treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched = 'f';")),
+      "AND treatment_code IN %s AND survey_launched IN %s;"),
+     (('HH_DUMMY1', 'HH_DUMMY2'), ('f',)),),
 ])
-def test_build_batch_count_query(wave_classifiers, expected_query):
-    actual_query = reminder_batch.build_batch_count_query(wave_classifiers)
-    test_helper.assertEqual(actual_query, expected_query, 'Generated batch query should match expectation')
+def test_build_batch_count_query(wave_classifiers, expected_query, expected_params):
+    actual_query, actual_params = reminder_batch.build_batch_count_query(wave_classifiers)
+    test_helper.assertEqual(expected_query, actual_query, 'Generated batch query should match expectation')
+    test_helper.assertEqual(expected_params, actual_params, 'Generated batch query parameters should match expectation')
 
 
 @pytest.mark.parametrize('wave, print_batches, expected_classifiers', [
@@ -142,3 +148,40 @@ def test_build_action_rule_classifiers(wave, print_batches, expected_classifiers
 
     test_helper.assertEqual(action_rule_classifiers, expected_classifiers,
                             'Generated classifiers should match expected')
+
+
+@patch('reminder_batch_scheduler.reminder_batch.input')
+def test_generate_action_rules(patched_input):
+    # Given
+    action_plan_id = 'test_action_plan_id'
+    action_type = 'DUMMY_TEST'
+    action_rule_classifiers = {action_type: {'treatment_code': ['DUMMY1', 'DUMMY2']}}
+    mock_input_date = '2020-06-25T12:22:30+00:00'
+    patched_input.return_value = mock_input_date
+
+    # When
+    action_rules = reminder_batch.generate_action_rules(action_rule_classifiers, action_plan_id)
+
+    action_rule_id = list(action_rules.values())[0][1][0]
+    parsed_mock_date = rfc3339.parse_datetime(mock_input_date)
+    expected_action_rules = {action_type: (
+        f"INSERT INTO actionv2.action_rule "
+        f"(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
+        f"VALUES (%s, %s, %s, %s, %s, %s);",
+        (action_rule_id, action_type, action_rule_classifiers[action_type], parsed_mock_date, action_plan_id, False)
+    )}
+
+    # Then
+    test_helper.assertEqual(expected_action_rules, action_rules,
+                            'The generated action rules should match our expectations')
+
+
+@patch('reminder_batch_scheduler.reminder_batch.input')
+def test_generate_action_rules_bad_date(patched_input):
+    # Given
+    mock_input_date = 'unparseable_gibberish'
+    patched_input.return_value = mock_input_date
+
+    # When, then a value error is raised because
+    with pytest.raises(ValueError):
+        reminder_batch.generate_action_rules({'test': {'a': ['b']}}, None)

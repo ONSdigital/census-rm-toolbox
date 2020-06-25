@@ -1,11 +1,16 @@
 import argparse
 import json
+import uuid
+
+import rfc3339
+from termcolor import colored
 
 from reminder_batch_scheduler import constants
-from utilities.db_helper import execute_sql_query
+from utilities import db_helper
+from utilities.db_helper import execute_sql_query_with_write, execute_parametrized_sql_query
 
 
-def main(wave: int, starting_batch: int, max_cases: int, create_rules: bool = False):
+def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = False, action_plan_id: uuid.UUID = None):
     wave_classifiers = constants.WAVE_CLASSIFIERS[wave]
     selected_batches = select_batches(starting_batch, wave_classifiers, max_cases)
     action_rule_classifiers = build_action_rule_classifiers(wave, list(selected_batches.keys()))
@@ -18,26 +23,30 @@ def main(wave: int, starting_batch: int, max_cases: int, create_rules: bool = Fa
     for action_type, action_type_classifiers in action_rule_classifiers.items():
         print("action_type:", action_type, "classifiers:", action_type_classifiers)
 
-    action_rules = generate_action_rules(wave, selected_batches)
-    if create_rules:
+    if insert_rules:
+        action_rules = generate_action_rules(action_rule_classifiers, action_plan_id)
+        print('Generated action rules:')
+        for action_rule in action_rules.values():
+            print(action_rule)
+        confirm_insert_rules()
         insert_action_rules(action_rules)
+        print("All action rules inserted")
 
 
 def count_batch_cases(batch, wave_classifiers):
-    wave_classifiers['print_batch'] = [batch]
+    wave_classifiers['print_batch'] = [str(batch)]
 
-    batch_count_query = build_batch_count_query(wave_classifiers)
-    result = execute_sql_query(batch_count_query)
+    batch_count_query, query_values = build_batch_count_query(wave_classifiers)
+    result = execute_parametrized_sql_query(batch_count_query, query_values)
     return result[0][0]
 
 
 def build_batch_count_query(wave_classifiers):
     classifier_sql_filters = ['']
+    query_param_values = []
     for classifier, values in wave_classifiers.items():
-        if len(values) > 1:
-            classifier_sql_filters.append(f" {classifier} IN {tuple(values)}")
-        else:
-            classifier_sql_filters.append(f" {classifier} = '{values[0]}'")
+        classifier_sql_filters.append(f" {classifier} IN %s")
+        query_param_values.append(tuple(values))
     classifiers_query_filters = ' AND'.join(classifier_sql_filters)
 
     return ("SELECT COUNT(*) FROM actionv2.cases "
@@ -46,7 +55,7 @@ def build_batch_count_query(wave_classifiers):
             "AND skeleton = 'f' "
             "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
             "AND case_type != 'HI'"
-            f"{classifiers_query_filters};")
+            f"{classifiers_query_filters};"), tuple(query_param_values)
 
 
 def build_action_rule_classifiers(wave, selected_batches):
@@ -75,22 +84,34 @@ def select_batches(starting_batch, wave_classifiers, max_cases):
     return selected_batches
 
 
-def confirm_create_rules(create_rules):
-    if create_rules:
-        confirmation = input('WARNING: Create rules will write the the action rules to the database. Continue? [Y/n] ')
-        if confirmation != 'Y' or confirmation.lower() != 'yes':
-            print('Aborting')
-            exit(1)
+def confirm_insert_rules():
+    confirmation = input(
+        colored('WARNING: Inserting rules will write the the action rules to the database, '
+                'resulting in materials being sent for print. \nContinue? [Y/n] ', color='red'))
+    if confirmation != 'Y' and confirmation.lower() != 'yes':
+        print('Aborting')
+        exit(1)
 
 
-def generate_action_rules(wave, selected_batches):
-    # TODO
-    pass
+def generate_action_rules(action_rule_classifiers, action_plan_id):
+    action_rules = {}
+    for action_type, classifiers in action_rule_classifiers.items():
+        raw_trigger_date_time = input(f'Input trigger date time for action type {action_type} (RFC3339): ')
+        trigger_date_time = rfc3339.parse_datetime(raw_trigger_date_time)
+        action_rules[action_type] = (
+            f"INSERT INTO actionv2.action_rule "
+            f"(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
+            f"VALUES (%s, %s, %s, %s, %s, %s);",
+            (str(uuid.uuid4()), action_type, classifiers, trigger_date_time, str(action_plan_id), False)
+        )
+    return action_rules
 
 
 def insert_action_rules(action_rules):
-    # TODO
-    pass
+    with db_helper.open_write_cursor() as db_cursor:
+        for action_type, action_rule in action_rules.items():
+            print("Inserting action rule for", action_type)
+            db_helper.execute_sql_query_with_write(db_cursor, action_rule[0], action_rule[1])
 
 
 def parse_arguments():
@@ -106,19 +127,26 @@ def parse_arguments():
                         required=True,
                         type=int,
                         choices=range(0, 100))
-    parser.add_argument('--create_rules',
-                        help='!!! Set up the action rules !!!',
-                        required=False,
-                        action='store_true')
     parser.add_argument('--max_cases',
                         help='Maximum number cases which would be included in the rules (default 2,500,000)',
                         type=int,
                         default=2500000,
                         required=False)
+    parser.add_argument('--insert_rules',
+                        help='!!! Insert the generated rules into the action database !!!',
+                        required=False,
+                        action='store_true')
+    parser.add_argument('--action_plan_id',
+                        help='Action plan ID, only required when inserting action rules',
+                        required=False,
+                        default=None,
+                        type=uuid.UUID)
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_arguments()
-    confirm_create_rules(args.create_rules)
-    main(args.wave, args.starting_batch, args.max_cases, args.create_rules)
+    if args.insert_rules and not args.action_plan_id:
+        print("Cannot run with insert action rules option without an action plan ID")
+        exit(1)
+    main(args.wave, args.starting_batch, args.max_cases, args.insert_rules, args.action_plan_id)
