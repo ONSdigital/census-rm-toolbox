@@ -18,7 +18,7 @@ from test import test_helper
         (1, 99, 1000, 10),
         (1, 24, 2500000, 100001)
     ])
-@patch('reminder_batch_scheduler.reminder_batch.execute_parametrized_sql_query')
+@patch('reminder_batch_scheduler.reminder_batch.db_helper.execute_parametrized_sql_query')
 def test_select_batches(patch_execute_sql, starting_batch, last_expected_batch, max_cases, mocked_batch_count):
     # Given
     # Mock the database to return a constant count

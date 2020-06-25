@@ -7,7 +7,6 @@ from termcolor import colored
 
 from reminder_batch_scheduler import constants
 from utilities import db_helper
-from utilities.db_helper import execute_sql_query_with_write, execute_parametrized_sql_query
 
 
 def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = False, action_plan_id: uuid.UUID = None):
@@ -37,7 +36,7 @@ def count_batch_cases(batch, wave_classifiers):
     wave_classifiers['print_batch'] = [str(batch)]
 
     batch_count_query, query_values = build_batch_count_query(wave_classifiers)
-    result = execute_parametrized_sql_query(batch_count_query, query_values)
+    result = db_helper.execute_parametrized_sql_query(batch_count_query, query_values)
     return result[0][0]
 
 
