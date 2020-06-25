@@ -99,9 +99,9 @@ def generate_action_rules(action_rule_classifiers, action_plan_id):
         raw_trigger_date_time = input(f'Input trigger date time for action type {action_type} (RFC3339): ')
         trigger_date_time = rfc3339.parse_datetime(raw_trigger_date_time)
         action_rules[action_type] = (
-            f"INSERT INTO actionv2.action_rule "
-            f"(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
-            f"VALUES (%s, %s, %s, %s, %s, %s);",
+            "INSERT INTO actionv2.action_rule "
+            "(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
+            "VALUES (%s, %s, %s, %s, %s, %s);",
             (str(uuid.uuid4()), action_type, classifiers, trigger_date_time, str(action_plan_id), False)
         )
     return action_rules

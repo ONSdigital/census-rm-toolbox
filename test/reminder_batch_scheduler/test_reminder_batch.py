@@ -165,9 +165,9 @@ def test_generate_action_rules(patched_input):
     action_rule_id = list(action_rules.values())[0][1][0]
     parsed_mock_date = rfc3339.parse_datetime(mock_input_date)
     expected_action_rules = {action_type: (
-        f"INSERT INTO actionv2.action_rule "
-        f"(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
-        f"VALUES (%s, %s, %s, %s, %s, %s);",
+        "INSERT INTO actionv2.action_rule "
+        "(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
+        "VALUES (%s, %s, %s, %s, %s, %s);",
         (action_rule_id, action_type, action_rule_classifiers[action_type], parsed_mock_date, action_plan_id, False)
     )}
 
