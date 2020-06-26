@@ -1,3 +1,3 @@
 import unittest
 
-test_helper = unittest.TestCase()
+unittest_helper = unittest.TestCase()

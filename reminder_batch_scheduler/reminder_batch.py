@@ -15,12 +15,11 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
     action_rule_classifiers = build_action_rule_classifiers(wave, list(selected_batches.keys()))
 
     print()
-    print('Selected batch counts:')
-    for batch, count in selected_batches.items():
-        print('batch:', batch, 'count:', count)
-    print()
-    print('Total:', sum(selected_batches.values()))
+    if not selected_batches:
+        print('The starting batch was too big, cannot fit any batches into the limit:', max_cases)
+        return
     print('Final batch included:', list(selected_batches.keys())[-1])
+    print('Total cases:', sum(selected_batches.values()))
     print()
     print('Classifiers JSON for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
@@ -32,7 +31,8 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
         print('Generated action rules:')
         for action_rule in action_rules.values():
             print(action_rule)
-        confirm_insert_rules()
+        if not confirm_insert_rules():
+            return
         insert_action_rules(action_rules)
         print("All action rules inserted")
 
@@ -76,8 +76,8 @@ def select_batches(starting_batch, wave_classifiers, max_cases):
     selected_batches = {}
 
     for batch in range(starting_batch, 100):
-        print('Counting batch:', batch)
         batch_case_count = count_batch_cases(batch, wave_classifiers)
+        print(f'Batch: {batch}, Count: {batch_case_count}')
         if total_cases + batch_case_count > max_cases:
             break
         total_cases += batch_case_count
@@ -91,8 +91,8 @@ def confirm_insert_rules():
         colored('WARNING: Inserting rules will write the the action rules to the database, '
                 'resulting in materials being sent for print. \nContinue? [Y/n] ', color='red'))
     if confirmation != 'Y' and confirmation.lower() != 'yes':
-        print('Aborting')
-        exit(1)
+        return False
+    return True
 
 
 def generate_action_rules(action_rule_classifiers, action_plan_id):
