@@ -8,7 +8,7 @@ import rfc3339
 from reminder_batch_scheduler import reminder_batch
 from test import unittest_helper
 
-test_cases = [
+TEST_CASES = [
     # starting_batch, expected_number_of_batches, max_cases, count_per_batch
     (1, 0, 1, 2),
     (1, 1, 10, 10),
@@ -22,10 +22,11 @@ test_cases = [
     (1, 0, 2500000, 2500001),
     (50, 0, 2500000, 2500001),
 ]
+TEST_DATE_TIME = rfc3339.parse_datetime('2020-06-26T06:39:34+00:00')
 
 
 @pytest.mark.parametrize(
-    'starting_batch, expected_number_of_batches, max_cases, count_per_batch', test_cases)
+    'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
 @patch('reminder_batch_scheduler.reminder_batch.db_helper')
 def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_cases, count_per_batch):
     # Given
@@ -42,24 +43,25 @@ def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_c
 
 
 @pytest.mark.parametrize(
-    'starting_batch, expected_number_of_batches, max_cases, count_per_batch', test_cases)
+    'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
 @patch('reminder_batch_scheduler.reminder_batch.db_helper')
 @patch('reminder_batch_scheduler.reminder_batch.input')
 def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expected_number_of_batches, max_cases,
                            count_per_batch):
     # Given
     patch_db_helper.execute_parametrized_sql_query.return_value = ((count_per_batch,),)
-    patch_input.side_effect = ['2020-06-26T06:39:34+00:00', '2020-06-26T06:39:34+00:00', 'Y']
+    patch_input.return_value = 'Y'
     expected_number_of_database_counts = get_expected_number_of_database_counts(expected_number_of_batches)
 
     # When
-    reminder_batch.main(1, starting_batch, max_cases, insert_rules=True, action_plan_id=uuid.uuid4())
+    reminder_batch.main(1, starting_batch, max_cases, insert_rules=True, action_plan_id=uuid.uuid4(),
+                        trigger_date_time=TEST_DATE_TIME)
 
     # Then
     unittest_helper.assertEqual(expected_number_of_database_counts,
                                 patch_db_helper.execute_parametrized_sql_query.call_count)
     if expected_number_of_batches:
-        unittest_helper.assertEqual(3, patch_input.call_count)
+        patch_input.assert_called_once()
         unittest_helper.assertEqual(2, patch_db_helper.execute_sql_query_with_write.call_count)
 
 
@@ -69,18 +71,19 @@ def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expecte
 def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_string):
     # Given
     patch_db_helper.execute_parametrized_sql_query.return_value = ((1,),)
-    patch_input.side_effect = ['2020-06-26T06:39:34+00:00', '2020-06-26T06:39:34+00:00', confirmation_string]
+    patch_input.return_value = confirmation_string
 
     # When
     reminder_batch.main(1, 1, 1, insert_rules=True, action_plan_id=uuid.uuid4())
 
     # Then
+    patch_input.assert_called_once()
     patch_db_helper.open_write_cursor.assert_not_called()
     patch_db_helper.execute_sql_query_with_write.assert_not_called()
 
 
 @pytest.mark.parametrize(
-    'starting_batch, expected_number_of_batches, max_cases, count_per_batch', test_cases)
+    'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
 @patch('reminder_batch_scheduler.reminder_batch.db_helper.execute_parametrized_sql_query')
 def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_batches, max_cases, count_per_batch):
     # Given
@@ -212,41 +215,26 @@ def test_build_action_rule_classifiers(wave, print_batches, expected_classifiers
                                 'Generated classifiers should match expected')
 
 
-@patch('reminder_batch_scheduler.reminder_batch.input')
-def test_generate_action_rules(patched_input):
+def test_generate_action_rules():
     # Given
     action_plan_id = 'test_action_plan_id'
     action_type = 'DUMMY_TEST'
     action_rule_classifiers = {action_type: {'treatment_code': ['DUMMY1', 'DUMMY2']}}
-    mock_input_date = '2020-06-25T12:22:30+00:00'
-    patched_input.return_value = mock_input_date
 
     # When
-    action_rules = reminder_batch.generate_action_rules(action_rule_classifiers, action_plan_id)
+    action_rules = reminder_batch.generate_action_rules(action_rule_classifiers, action_plan_id, TEST_DATE_TIME)
 
     action_rule_id = list(action_rules.values())[0][1][0]
-    parsed_mock_date = rfc3339.parse_datetime(mock_input_date)
     expected_action_rules = {action_type: (
         "INSERT INTO actionv2.action_rule "
         "(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
         "VALUES (%s, %s, %s, %s, %s, %s);",
-        (action_rule_id, action_type, action_rule_classifiers[action_type], parsed_mock_date, action_plan_id, False)
+        (action_rule_id, action_type, action_rule_classifiers[action_type], TEST_DATE_TIME, action_plan_id, False)
     )}
 
     # Then
     unittest_helper.assertEqual(expected_action_rules, action_rules,
                                 'The generated action rules should match our expectations')
-
-
-@patch('reminder_batch_scheduler.reminder_batch.input')
-def test_generate_action_rules_bad_date(patched_input):
-    # Given
-    mock_input_date = 'unparseable_gibberish'
-    patched_input.return_value = mock_input_date
-
-    # When, then a value error is raised because
-    with pytest.raises(ValueError):
-        reminder_batch.generate_action_rules({'test': {'a': ['b']}}, None)
 
 
 def get_expected_number_of_database_counts(expected_number_of_batches):

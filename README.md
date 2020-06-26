@@ -20,27 +20,27 @@ This should output the case count for each print batch until it hits the max.
 #### Setting up the action rules
 **WARNING:** This will insert the action rules into the action database. Be sure you want to schedule these materials for print.
 
-Run the script with the `--insert_rules` flag.
+Run the script with the `--insert-rules` flag.
 
-The action plan ID also becomes necessary to schedule the rule correctly.
+The`--action-plan-id` and `--trigger-date-time` also become necessary to schedule the rule correctly.
+The trigger date time must be supplied in [rfc3339 format](https://tools.ietf.org/html/rfc3339).
 ```bash
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert_rules --action_plan_id <ACTION_PLAN_ID>
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert-rules --action-plan-id=<ACTION_PLAN_ID> --trigger-date-time=<DATE_TIME>
 ```
-You will be prompted to supply a date time for each action rule, these must be supplied in [rfc3339 format](https://tools.ietf.org/html/rfc3339).
 Once the script succeeds the action rules should be present in the action database. 
 
 **IMPORTANT:** The output should tell you the final batch included, you may need to keep this in order to start from the next batch the following day.
 
 #### Specifying max cases
 The max cases for a day defaults to 2,500,000. You may need to lower this limit to compensate for other print materials that day.
-Use the flag `--max_cases <MAX_CASES>`
+Use the flag `--max-cases <MAX_CASES>`
 
 e.g.
 ```bash
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --max_cases 2000000
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --max-cases 2000000
 ```
 ```bash
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert_rules --action_plan_id <ACTION_PLAN_ID> --max_cases 1000000 
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert-rules --action-plan-id=<ACTION_PLAN_ID> --trigger-date-time=<DATE_TIME> --max-cases=1000000 
 ```
 ## Questionnaire Linking
 On dev-toolbox run
