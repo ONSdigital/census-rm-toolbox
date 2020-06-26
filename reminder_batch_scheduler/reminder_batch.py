@@ -44,6 +44,7 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
         print('Reminder wave:', colored(wave, "red"))
         print('Action types:', colored(constants.ACTION_TYPES_FOR_WAVE[wave], "red"))
         print('Print batches:', colored(f'{starting_batch} - {final_batch}', 'red'))
+        print('Trigger date time:', colored(trigger_date_time.isoformat(), 'red'))
         print('Current total cases:', colored(total_cases, "red"))
         if not confirm_insert_rules():
             print(colored('ABORTING', 'red'))
@@ -173,7 +174,8 @@ def parse_arguments():
 if __name__ == '__main__':
     args = parse_arguments()
     if args.insert_rules and (not args.action_plan_id or not args.trigger_date_time):
-        print("Cannot run with insert action rules option without an action plan ID or trigger date time")
+        print("Cannot run with insert action rules option without both '--action-plan-id' and '--trigger-date-time',"
+              " try '-h' for help")
         exit(1)
     try:
         parsed_trigger_date_time = parse_trigger_date_time(args.trigger_date_time)
