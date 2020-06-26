@@ -16,11 +16,14 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
 
     print()
     if not selected_batches:
-        print('The starting batch was too big, cannot fit any batches into the limit:', max_cases)
+        print('The starting batch was too big, cannot fit any batches in the limit of', max_cases)
         return
-    print('Final batch included:', list(selected_batches.keys())[-1])
-    print('Total cases:', sum(selected_batches.values()))
+
+    final_batch = list(selected_batches.keys())[-1]
+    total_cases = sum(selected_batches.values())
     print()
+    print(f'Selected print batches: {starting_batch} - {final_batch}')
+    print('Current total cases:', total_cases)
     print('Classifiers JSON for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
         print()
@@ -34,6 +37,12 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
         print('Generated action rules:')
         for action_rule in action_rules.values():
             print(action_rule)
+        print('')
+        print('About to insert action rules for:')
+        print('Reminder wave:', colored(wave, "red"))
+        print('Action types:', colored(constants.ACTION_TYPES_FOR_WAVE[wave], "red"))
+        print('Print batches:', colored(f'{starting_batch} - {final_batch}', 'red'))
+        print('Current total cases:', colored(total_cases, "red"))
         if not confirm_insert_rules():
             print(colored('ABORTING', 'red'))
             return
@@ -93,7 +102,7 @@ def select_batches(starting_batch, wave_classifiers, max_cases):
 
 def confirm_insert_rules():
     confirmation = input(
-        colored('WARNING: Inserting rules will write the the action rules to the database, '
+        colored('WARNING: You are about to write the the action rules to the database, '
                 'resulting in materials being sent for print. \nContinue? [Y/n] ', color='red'))
     if confirmation != 'Y' and confirmation.lower() != 'yes':
         return False
