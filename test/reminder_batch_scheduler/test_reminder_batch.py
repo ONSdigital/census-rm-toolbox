@@ -75,6 +75,7 @@ def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_st
     reminder_batch.main(1, 1, 1, insert_rules=True, action_plan_id=uuid.uuid4())
 
     # Then
+    patch_db_helper.open_write_cursor.assert_not_called()
     patch_db_helper.execute_sql_query_with_write.assert_not_called()
 
 
