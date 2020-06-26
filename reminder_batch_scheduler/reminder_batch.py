@@ -14,18 +14,21 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
     selected_batches = select_batches(starting_batch, wave_classifiers, max_cases)
     action_rule_classifiers = build_action_rule_classifiers(wave, list(selected_batches.keys()))
 
+    print()
     print('Selected batch counts:')
     for batch, count in selected_batches.items():
         print('batch:', batch, 'count:', count)
+    print()
     print('Total:', sum(selected_batches.values()))
     print('Final batch included:', list(selected_batches.keys())[-1])
+    print()
     print('Classifiers JSON for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
-        print('action_type:', action_type)
-        print('classifiers JSON:', action_type_classifiers)
+        print(f'{action_type}: {action_type_classifiers}')
 
     if insert_rules:
         action_rules = generate_action_rules(action_rule_classifiers, action_plan_id)
+        print()
         print('Generated action rules:')
         for action_rule in action_rules.values():
             print(action_rule)
@@ -72,16 +75,13 @@ def select_batches(starting_batch, wave_classifiers, max_cases):
     total_cases = 0
     selected_batches = {}
 
-    batch = starting_batch
-
-    while batch <= 99:
+    for batch in range(starting_batch, 100):
         print('Counting batch:', batch)
         batch_case_count = count_batch_cases(batch, wave_classifiers)
         if total_cases + batch_case_count > max_cases:
             break
         total_cases += batch_case_count
         selected_batches[str(batch)] = batch_case_count
-        batch += 1
 
     return selected_batches
 
