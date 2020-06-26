@@ -19,9 +19,10 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
         print('batch:', batch, 'count:', count)
     print('Total:', sum(selected_batches.values()))
     print('Final batch included:', list(selected_batches.keys())[-1])
-    print('Classifiers for each action type:')
+    print('Classifiers JSON for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
-        print("action_type:", action_type, "classifiers:", action_type_classifiers)
+        print('action_type:', action_type)
+        print('classifiers JSON:', action_type_classifiers)
 
     if insert_rules:
         action_rules = generate_action_rules(action_rule_classifiers, action_plan_id)
