@@ -75,6 +75,7 @@ def select_batches(starting_batch, wave_classifiers, max_cases):
     batch = starting_batch
 
     while batch <= 99:
+        print('Counting batch:', batch)
         batch_case_count = count_batch_cases(batch, wave_classifiers)
         if total_cases + batch_case_count > max_cases:
             break
