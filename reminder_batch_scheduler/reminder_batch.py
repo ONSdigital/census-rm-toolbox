@@ -23,7 +23,10 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
     print()
     print('Classifiers JSON for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
-        print(f'{action_type}: {action_type_classifiers}')
+        print()
+        print(f'Action type: {action_type}')
+        print('Classifiers JSON:')
+        print(action_type_classifiers)
 
     if insert_rules:
         action_rules = generate_action_rules(action_rule_classifiers, action_plan_id)
@@ -32,9 +35,11 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
         for action_rule in action_rules.values():
             print(action_rule)
         if not confirm_insert_rules():
+            print(colored('ABORTING', 'red'))
             return
         insert_action_rules(action_rules)
-        print("All action rules inserted")
+        print()
+        print(colored("All action rules inserted", 'green'))
 
 
 def count_batch_cases(batch, wave_classifiers):
