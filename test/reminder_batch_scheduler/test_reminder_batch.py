@@ -121,7 +121,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
     ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2']},
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
-      "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
+      "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
       "AND treatment_code IN %s;"),
@@ -132,7 +132,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
     ({'survey_launched': ['f']},
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
-      "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
+      "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
       "AND survey_launched IN %s;"),
@@ -143,7 +143,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       'survey_launched': ['f']},
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
-      "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
+      "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
       "AND treatment_code IN %s AND survey_launched IN %s;"),
