@@ -3,7 +3,7 @@ import argparse
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
-from remove_cloudshell_ip import remove_cloudshell_whitelist_entries
+from cloudshell_utilities.remove_cloudshell_ip import remove_cloudshell_whitelist_entries
 
 
 def parse_arguments():
@@ -56,7 +56,7 @@ def whitelist_cluster_ip(project_id, ip_address, suffix, name):
         if ip_address:
             print("Successfully Whitelisted IP ")
     else:
-        print(f'IP already whitelisted')
+        print('IP already whitelisted')
 
 
 def whitelist_cluster_list(project_id, whitelist):

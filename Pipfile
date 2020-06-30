@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+pytest-cov = "*"
 
 [packages]
 google-api-python-client = "*"
@@ -16,6 +17,7 @@ google-cloud-pubsub = "*"
 psycopg2-binary = "*"
 google-cloud-storage = "*"
 python-dateutil = "*"
+tonyg-rfc3339 = "*"
 
 [requires]
 python_version = "3.7"

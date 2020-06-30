@@ -89,15 +89,15 @@ def main():
     args = parse_arguments()
 
     if args.action == 'MOVE' and args.destination_queue_name is None:
-        print(colored(f'ERROR: Must specify destination queue name', 'red'))
+        print(colored('ERROR: Must specify destination queue name', 'red'))
         return
 
     if args.message_hash_search and args.search:
-        print(colored(f'ERROR: Cannot mix message search and specific message actions', 'red'))
+        print(colored('ERROR: Cannot mix message search and specific message actions', 'red'))
         return
 
     if args.message_hash_search and args.action is None:
-        print(colored(f'ERROR: Must specify an action for specific message: DELETE, MOVE or VIEW', 'red'))
+        print(colored('ERROR: Must specify an action for specific message: DELETE, MOVE or VIEW', 'red'))
         return
 
     with RabbitContext(queue_name=args.source_queue_name) as rabbit:
@@ -106,7 +106,7 @@ def main():
         message_limit = min(queue_qty, 100)
 
         if queue_qty == 0:
-            print(colored(f'Queue is empty', 'red'))
+            print(colored('Queue is empty', 'red'))
             return
 
         rabbit.start_listening_for_messages(functools.partial(message_callback_function, message_limit=message_limit,
@@ -118,7 +118,7 @@ def main():
     global FOUND_MESSAGES
 
     if args.message_hash_search and FOUND_MESSAGES == 0:
-        print(colored(f'ERROR: Could not find specified message', 'red'))
+        print(colored('ERROR: Could not find specified message', 'red'))
 
     if args.search and FOUND_MESSAGES == 0:
         print(colored(f'ERROR: Could not find any messages containing "{args.search}"', 'red'))

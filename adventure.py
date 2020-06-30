@@ -89,7 +89,7 @@ def display_current_location(current_location, inventory):
         object_description = (f'There is {an(current_location["object"])} lying nearby. This is not the object you are '
                               f'looking for.')
     else:
-        object_description = f'There is nothing here worth picking up. You already have a pretty full knapsack anyway.'
+        object_description = 'There is nothing here worth picking up. You already have a pretty full knapsack anyway.'
 
     if len(inventory) > 0:
         knapsack_contents = f'Your knapsack contains {", ".join(inventory)}.'
