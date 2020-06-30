@@ -153,6 +153,7 @@ def parse_arguments():
                         choices=range(1, 100))
     parser.add_argument('-a', '--action-plan-id',
                         help='Action plan UUID',
+                        required=True,
                         type=uuid.UUID)
     parser.add_argument('--max-cases',
                         help='Maximum number cases which would be included in the rules (default 2,500,000)',
