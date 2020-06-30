@@ -74,7 +74,7 @@ def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_st
     patch_input.return_value = confirmation_string
 
     # When
-    reminder_batch.main(1, 1, 1, insert_rules=True, action_plan_id=uuid.uuid4())
+    reminder_batch.main(1, 1, 1, insert_rules=True, action_plan_id=uuid.uuid4(), trigger_date_time=TEST_DATE_TIME)
 
     # Then
     patch_input.assert_called_once()
