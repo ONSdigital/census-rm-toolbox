@@ -23,6 +23,7 @@ TEST_CASES = [
     (50, 0, 2500000, 2500001),
 ]
 TEST_DATE_TIME = rfc3339.parse_datetime('2020-06-26T06:39:34+00:00')
+TEST_ACTION_PLAN_ID = uuid.UUID('6597821B-4D6A-48C4-B249-45C010A57EB1')
 
 
 @pytest.mark.parametrize(
@@ -34,7 +35,7 @@ def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_c
     expected_number_of_database_counts = get_expected_number_of_database_counts(expected_number_of_batches)
 
     # When
-    reminder_batch.main(1, starting_batch, max_cases)
+    reminder_batch.main(1, starting_batch, max_cases, TEST_ACTION_PLAN_ID)
 
     # Then
     unittest_helper.assertEqual(expected_number_of_database_counts,
@@ -54,7 +55,7 @@ def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expecte
     expected_number_of_database_counts = get_expected_number_of_database_counts(expected_number_of_batches)
 
     # When
-    reminder_batch.main(1, starting_batch, max_cases, insert_rules=True, action_plan_id=uuid.uuid4(),
+    reminder_batch.main(1, starting_batch, max_cases, TEST_ACTION_PLAN_ID, insert_rules=True,
                         trigger_date_time=TEST_DATE_TIME)
 
     # Then
@@ -74,7 +75,7 @@ def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_st
     patch_input.return_value = confirmation_string
 
     # When
-    reminder_batch.main(1, 1, 1, insert_rules=True, action_plan_id=uuid.uuid4(), trigger_date_time=TEST_DATE_TIME)
+    reminder_batch.main(1, 1, 1, TEST_ACTION_PLAN_ID, insert_rules=True, trigger_date_time=TEST_DATE_TIME)
 
     # Then
     patch_input.assert_called_once()
@@ -99,7 +100,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
     expected_number_of_database_counts = get_expected_number_of_database_counts(expected_number_of_batches)
 
     # When
-    selected_batches = reminder_batch.select_batches(starting_batch, empty_classifiers, max_cases)
+    selected_batches = reminder_batch.select_batches(starting_batch, empty_classifiers, max_cases, TEST_ACTION_PLAN_ID)
 
     # Then
     for count in selected_batches.values():
@@ -122,8 +123,9 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
       "AND case_type != 'HI' "
+      "AND action_plan_id = %s "
       "AND treatment_code IN %s;"),
-     (('HH_DUMMY1', 'HH_DUMMY2'),),
+     (TEST_ACTION_PLAN_ID, ('HH_DUMMY1', 'HH_DUMMY2'),),
      ),
 
     # Classifier with just one value
@@ -132,8 +134,9 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
       "AND case_type != 'HI' "
+      "AND action_plan_id = %s "
       "AND survey_launched IN %s;"),
-     (('f',),)),
+     (TEST_ACTION_PLAN_ID, ('f',),)),
 
     # Mix of classifiers
     ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2'],
@@ -142,11 +145,12 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
       "AND case_type != 'HI' "
+      "AND action_plan_id = %s "
       "AND treatment_code IN %s AND survey_launched IN %s;"),
-     (('HH_DUMMY1', 'HH_DUMMY2'), ('f',)),),
+     (TEST_ACTION_PLAN_ID, ('HH_DUMMY1', 'HH_DUMMY2'), ('f',)),),
 ])
 def test_build_batch_count_query(wave_classifiers, expected_query, expected_params):
-    actual_query, actual_params = reminder_batch.build_batch_count_query(wave_classifiers)
+    actual_query, actual_params = reminder_batch.build_batch_count_query(wave_classifiers, TEST_ACTION_PLAN_ID)
     unittest_helper.assertEqual(expected_query, actual_query, 'Generated batch query should match expectation')
     unittest_helper.assertEqual(expected_params, actual_params,
                                 'Generated batch query parameters should match expectation')

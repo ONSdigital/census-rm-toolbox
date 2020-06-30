@@ -13,7 +13,7 @@ This is useful to get preliminary counts of the cases included.
 
 Run the script with 
 ```bash 
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER>
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID>
 ```
 This should output the case count for each print batch until it hits the max.
 
@@ -22,10 +22,10 @@ This should output the case count for each print batch until it hits the max.
 
 Run the script with the `--insert-rules` flag.
 
-The`--action-plan-id` and `--trigger-date-time` also become necessary to schedule the rule correctly.
+The `--trigger-date-time` also become necessary to schedule the rule correctly.
 The trigger date time must be supplied in [rfc3339 format](https://tools.ietf.org/html/rfc3339).
 ```bash
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert-rules --action-plan-id=<ACTION_PLAN_ID> --trigger-date-time=<DATE_TIME>
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --insert-rules --trigger-date-time=<DATE_TIME>
 ```
 Once the script succeeds the action rules should be present in the action database. 
 
@@ -37,10 +37,10 @@ Use the flag `--max-cases <MAX_CASES>`
 
 e.g.
 ```bash
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --max-cases 2000000
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --max-cases 2000000
 ```
 ```bash
-reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> --insert-rules --action-plan-id=<ACTION_PLAN_ID> --trigger-date-time=<DATE_TIME> --max-cases=1000000 
+reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --insert-rules --trigger-date-time=<DATE_TIME> --max-cases=1000000 
 ```
 ## Questionnaire Linking
 On dev-toolbox run

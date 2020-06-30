@@ -10,10 +10,10 @@ from reminder_batch_scheduler import constants
 from utilities import db_helper
 
 
-def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = False, action_plan_id: uuid.UUID = None,
+def main(wave: int, starting_batch: int, max_cases: int, action_plan_id: uuid.UUID, insert_rules: bool = False,
          trigger_date_time: datetime = None):
     wave_classifiers = constants.WAVE_CLASSIFIERS[wave]
-    selected_batches = select_batches(starting_batch, wave_classifiers, max_cases)
+    selected_batches = select_batches(starting_batch, wave_classifiers, max_cases, action_plan_id)
     action_rule_classifiers = build_action_rule_classifiers(wave, list(selected_batches.keys()))
 
     print()
@@ -54,17 +54,17 @@ def main(wave: int, starting_batch: int, max_cases: int, insert_rules: bool = Fa
         print(colored("All action rules inserted", 'green'))
 
 
-def count_batch_cases(batch, wave_classifiers):
+def count_batch_cases(batch, wave_classifiers, action_plan_id):
     wave_classifiers['print_batch'] = [str(batch)]
 
-    batch_count_query, query_values = build_batch_count_query(wave_classifiers)
+    batch_count_query, query_values = build_batch_count_query(wave_classifiers, action_plan_id)
     result = db_helper.execute_parametrized_sql_query(batch_count_query, query_values)
     return result[0][0]
 
 
-def build_batch_count_query(wave_classifiers):
+def build_batch_count_query(wave_classifiers, action_plan_id):
     classifier_sql_filters = ['']
-    query_param_values = []
+    query_param_values = [action_plan_id]
     for classifier, values in wave_classifiers.items():
         classifier_sql_filters.append(f" {classifier} IN %s")
         query_param_values.append(tuple(values))
@@ -75,7 +75,8 @@ def build_batch_count_query(wave_classifiers):
             "AND address_invalid = 'f' "
             "AND skeleton = 'f' "
             "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
-            "AND case_type != 'HI'"
+            "AND case_type != 'HI' "
+            "AND action_plan_id = %s"
             f"{classifiers_query_filters};"), tuple(query_param_values)
 
 
@@ -88,13 +89,13 @@ def build_action_rule_classifiers(wave, selected_batches):
     return action_rule_classifiers
 
 
-def select_batches(starting_batch, wave_classifiers, max_cases):
+def select_batches(starting_batch, wave_classifiers, max_cases, action_plan_id):
     total_cases = 0
     selected_batches = {}
 
     # NB: The max print batch number is 99, range excludes the stop value
     for batch in range(starting_batch, 100):
-        batch_case_count = count_batch_cases(batch, wave_classifiers)
+        batch_case_count = count_batch_cases(batch, wave_classifiers, action_plan_id)
         print(f'Batch: {batch}, Count: {batch_case_count}')
         if total_cases + batch_case_count > max_cases:
             break
@@ -150,6 +151,9 @@ def parse_arguments():
                         required=True,
                         type=int,
                         choices=range(1, 100))
+    parser.add_argument('-a', '--action-plan-id',
+                        help='Action plan UUID',
+                        type=uuid.UUID)
     parser.add_argument('--max-cases',
                         help='Maximum number cases which would be included in the rules (default 2,500,000)',
                         type=int,
@@ -159,11 +163,6 @@ def parse_arguments():
                         help='!!! Insert the generated rules into the action database !!!',
                         required=False,
                         action='store_true')
-    parser.add_argument('--action-plan-id',
-                        help='Action plan UUID (required when inserting action rules)',
-                        required=False,
-                        default=None,
-                        type=uuid.UUID)
     parser.add_argument('--trigger-date-time',
                         help='Action rules trigger date time in RFC3339 format (required when inserting action rules)',
                         required=False,
@@ -173,9 +172,8 @@ def parse_arguments():
 
 if __name__ == '__main__':
     args = parse_arguments()
-    if args.insert_rules and (not args.action_plan_id or not args.trigger_date_time):
-        print("Cannot run with insert action rules option without both '--action-plan-id' and '--trigger-date-time',"
-              " try '-h' for help")
+    if args.insert_rules and not args.trigger_date_time:
+        print("Cannot insert action rules without '--trigger-date-time' try '-h' for help")
         exit(1)
     try:
         parsed_trigger_date_time = parse_trigger_date_time(args.trigger_date_time)
@@ -186,6 +184,6 @@ if __name__ == '__main__':
     main(args.wave,
          args.starting_batch,
          args.max_cases,
-         insert_rules=args.insert_rules,
          action_plan_id=args.action_plan_id,
+         insert_rules=args.insert_rules,
          trigger_date_time=parsed_trigger_date_time)
