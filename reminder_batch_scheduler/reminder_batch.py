@@ -64,7 +64,7 @@ def count_batch_cases(batch, wave_classifiers, action_plan_id):
 
 def build_batch_count_query(wave_classifiers, action_plan_id):
     classifier_sql_filters = ['']
-    query_param_values = [action_plan_id]
+    query_param_values = [str(action_plan_id)]
     for classifier, values in wave_classifiers.items():
         classifier_sql_filters.append(f" {classifier} IN %s")
         query_param_values.append(tuple(values))

@@ -125,7 +125,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
       "AND treatment_code IN %s;"),
-     (TEST_ACTION_PLAN_ID, ('HH_DUMMY1', 'HH_DUMMY2'),),
+     (str(TEST_ACTION_PLAN_ID), ('HH_DUMMY1', 'HH_DUMMY2'),),
      ),
 
     # Classifier with just one value
@@ -136,7 +136,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
       "AND survey_launched IN %s;"),
-     (TEST_ACTION_PLAN_ID, ('f',),)),
+     (str(TEST_ACTION_PLAN_ID), ('f',),)),
 
     # Mix of classifiers
     ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2'],
@@ -147,7 +147,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
       "AND treatment_code IN %s AND survey_launched IN %s;"),
-     (TEST_ACTION_PLAN_ID, ('HH_DUMMY1', 'HH_DUMMY2'), ('f',)),),
+     (str(TEST_ACTION_PLAN_ID), ('HH_DUMMY1', 'HH_DUMMY2'), ('f',)),),
 ])
 def test_build_batch_count_query(wave_classifiers, expected_query, expected_params):
     actual_query, actual_params = reminder_batch.build_batch_count_query(wave_classifiers, TEST_ACTION_PLAN_ID)
