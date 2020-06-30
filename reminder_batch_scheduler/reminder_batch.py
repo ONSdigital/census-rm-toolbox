@@ -74,7 +74,7 @@ def build_batch_count_query(wave_classifiers, action_plan_id):
             "WHERE receipt_received = 'f' "
             "AND address_invalid = 'f' "
             "AND skeleton = 'f' "
-            "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL'"
+            "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
             "AND case_type != 'HI' "
             "AND action_plan_id = %s"
             f"{classifiers_query_filters};"), tuple(query_param_values)
