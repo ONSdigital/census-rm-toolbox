@@ -3,7 +3,7 @@ import argparse
 from googleapiclient import discovery
 from oauth2client.client import GoogleCredentials
 
-from cloudshell_utilities.remove_cloudshell_ip import remove_cloudshell_whitelist_entries
+from remove_cloudshell_ip import remove_cloudshell_whitelist_entries
 
 
 def parse_arguments():
