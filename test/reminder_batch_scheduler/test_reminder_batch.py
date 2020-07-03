@@ -1,4 +1,3 @@
-import json
 import uuid
 from unittest.mock import patch
 
@@ -24,6 +23,7 @@ TEST_CASES = [
 ]
 TEST_DATE_TIME = rfc3339.parse_datetime('2020-06-26T06:39:34+00:00')
 TEST_ACTION_PLAN_ID = uuid.UUID('6597821B-4D6A-48C4-B249-45C010A57EB1')
+TEST_BATCH_COUNT = "','".join([str(i) for i in range(1, 99)])
 
 
 @pytest.mark.parametrize(
@@ -92,7 +92,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
     patch_execute_sql.return_value = ((count_per_batch,),)
 
     # We can use empty classifiers because the DB bit is mocked
-    empty_classifiers = {}
+    empty_classifiers = {"where_clause": ""}
 
     expected_batches = [str(batch) for batch in
                         list(range(starting_batch, starting_batch + expected_number_of_batches))]
@@ -118,36 +118,35 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
 @pytest.mark.parametrize('wave_classifiers, expected_query, expected_params', [
     # Test cases
     # Simple treatment code classifier
-    ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2']},
+    ({'where_clause': "treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2')"},
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
-      "AND treatment_code IN %s;"),
-     (str(TEST_ACTION_PLAN_ID), ('HH_DUMMY1', 'HH_DUMMY2'),),
+      "AND treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2');"),
+     (str(TEST_ACTION_PLAN_ID),),
      ),
 
     # Classifier with just one value
-    ({'survey_launched': ['f']},
+    ({'where_clause': "survey_launched IN ('f')"},
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
-      "AND survey_launched IN %s;"),
-     (str(TEST_ACTION_PLAN_ID), ('f',),)),
+      "AND survey_launched IN ('f');"),
+     (str(TEST_ACTION_PLAN_ID),)),
 
     # Mix of classifiers
-    ({'treatment_code': ['HH_DUMMY1', 'HH_DUMMY2'],
-      'survey_launched': ['f']},
+    ({'where_clause': "treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f')"},
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
-      "AND treatment_code IN %s AND survey_launched IN %s;"),
-     (str(TEST_ACTION_PLAN_ID), ('HH_DUMMY1', 'HH_DUMMY2'), ('f',)),),
+      "AND treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f');"),
+     (str(TEST_ACTION_PLAN_ID),)),
 ])
 def test_build_batch_count_query(wave_classifiers, expected_query, expected_params):
     actual_query, actual_params = reminder_batch.build_batch_count_query(wave_classifiers, TEST_ACTION_PLAN_ID)
@@ -158,58 +157,20 @@ def test_build_batch_count_query(wave_classifiers, expected_query, expected_para
 
 @pytest.mark.parametrize('wave, print_batches, expected_classifiers', [
     (1, ['1', '2', '3'], {
-        'P_RL_1RL1_1': json.dumps({
-            'treatment_code': [
-                'HH_LP1E', 'HH_LP2E'
-            ],
-            'survey_launched': [
-                'f'
-            ],
-            'print_batch': ['1', '2', '3'],
-        }),
-        'P_RL_1RL2B_1': json.dumps({
-            'treatment_code': [
-                'HH_LP1W', 'HH_LP2W'
-            ],
-            'survey_launched': [
-                'f'
-            ],
-            'print_batch': ['1', '2', '3'],
-        })
+        'P_RL_1RL1_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
+                       " AND survey_launched = 'f' AND print_batch IN ('1','2','3')",
+        'P_RL_1RL2B_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
+                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')"
     }),
     (2, ['1'], {
-        'P_RL_2RL1': json.dumps({
-            'treatment_code': [
-                'HH_LP1E', 'HH_LP2E'
-            ],
-            'survey_launched': [
-                'f'
-            ],
-            'print_batch': ['1'],
-        }),
-        'P_RL_2RL2B': json.dumps({
-            'treatment_code': [
-                'HH_LP1W', 'HH_LP2W'
-            ],
-            'survey_launched': [
-                'f'
-            ],
-            'print_batch': ['1'],
-        })
+        'P_RL_2RL1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
+                     " AND survey_launched = 'f' AND print_batch IN ('1')",
+        'P_RL_2RL2B': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
+                      " AND survey_launched = 'f' AND print_batch IN ('1')"
     }),
-    (3, list(range(1, 99)), {
-        'P_QU_H1': json.dumps({
-            'treatment_code': [
-                'HH_LP1E'
-            ],
-            'print_batch': list(range(1, 99)),
-        }),
-        'P_QU_H2': json.dumps({
-            'treatment_code': [
-                'HH_LP1W'
-            ],
-            'print_batch': list(range(1, 99)),
-        })
+    (3, [str(i) for i in range(1, 99)], {
+        'P_QU_H1': f'''case_type != 'HI' AND treatment_code IN ('HH_LP1E') AND print_batch IN ('{TEST_BATCH_COUNT}')''',
+        'P_QU_H2': f'''case_type != 'HI' AND treatment_code IN ('HH_LP1W') AND print_batch IN ('{TEST_BATCH_COUNT}')'''
     }),
 ])
 def test_build_action_rule_classifiers(wave, print_batches, expected_classifiers):
@@ -223,7 +184,7 @@ def test_generate_action_rules():
     # Given
     action_plan_id = 'test_action_plan_id'
     action_type = 'DUMMY_TEST'
-    action_rule_classifiers = {action_type: {'treatment_code': ['DUMMY1', 'DUMMY2']}}
+    action_rule_classifiers = {action_type: "treatment_code IN ('DUMMY1', 'DUMMY2')"}
 
     # When
     action_rules = reminder_batch.generate_action_rules(action_rule_classifiers, action_plan_id, TEST_DATE_TIME)
@@ -231,7 +192,7 @@ def test_generate_action_rules():
     action_rule_id = list(action_rules.values())[0][1][0]
     expected_action_rules = {action_type: (
         "INSERT INTO actionv2.action_rule "
-        "(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
+        "(id, action_type, user_defined_where_clause, trigger_date_time, action_plan_id, has_triggered) "
         "VALUES (%s, %s, %s, %s, %s, %s);",
         (action_rule_id, action_type, action_rule_classifiers[action_type], TEST_DATE_TIME, action_plan_id, False)
     )}
