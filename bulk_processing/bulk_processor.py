@@ -12,13 +12,16 @@ class BulkProcessor(Processor):
 
     def process_file(self, file):
         file_csv = self.read_file(file)
-        for row in file_csv:
+        for i, row in enumerate(file_csv):
+            # Example bad row
+            if file == 'Example_bad_row.csv' and i == 1:
+                row = {'example': 'bad'}
             row_ok, error_detail = super().validate_row(row)
             if not row_ok:
                 self.write_error_row(row, error_detail)
             self.send_event_message(super().build_event_message(row))
             self.write_success_row(row)
-        self.remove_original_file()
+        self.remove_original_file(file)
 
     def read_file(self, file):
         """Return an example that quacks like a csv dict reader"""
@@ -40,8 +43,8 @@ class BulkProcessor(Processor):
     def send_event_message(self, event_message):
         print(f'sending message, routing: {self.routing_key}, message: {event_message}')
 
-    def remove_original_file(self):
-        print(f'deleting file: {self.file_name_format}')
+    def remove_original_file(self, file):
+        print(f'deleting file: {file}')
 
     def run(self):
         files_to_process = super().check_for_files_to_process()
@@ -51,5 +54,5 @@ class BulkProcessor(Processor):
             file_ok, error_detail = super().validate_file(file)
             if not file_ok:
                 self.write_error_row(None, error_detail)
-                return
+                continue
             self.process_file(file)
