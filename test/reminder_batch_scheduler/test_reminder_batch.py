@@ -92,7 +92,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
     patch_execute_sql.return_value = ((count_per_batch,),)
 
     # We can use empty classifiers because the DB bit is mocked
-    empty_classifiers = {"where_clause": ""}
+    empty_classifiers = ""
 
     expected_batches = [str(batch) for batch in
                         list(range(starting_batch, starting_batch + expected_number_of_batches))]
@@ -118,7 +118,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
 @pytest.mark.parametrize('wave_classifiers, expected_query, expected_params', [
     # Test cases
     # Simple treatment code classifier
-    ({'where_clause': "treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2')"},
+    ("treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2')",
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
@@ -129,7 +129,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
      ),
 
     # Classifier with just one value
-    ({'where_clause': "survey_launched IN ('f')"},
+    ("survey_launched IN ('f')",
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
@@ -139,7 +139,7 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
      (str(TEST_ACTION_PLAN_ID),)),
 
     # Mix of classifiers
-    ({'where_clause': "treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f')"},
+    ("treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f')",
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
@@ -192,7 +192,7 @@ def test_generate_action_rules():
     action_rule_id = list(action_rules.values())[0][1][0]
     expected_action_rules = {action_type: (
         "INSERT INTO actionv2.action_rule "
-        "(id, action_type, user_defined_where_clause, trigger_date_time, action_plan_id, has_triggered) "
+        "(id, action_type, classifiers_clause, trigger_date_time, action_plan_id, has_triggered) "
         "VALUES (%s, %s, %s, %s, %s, %s);",
         (action_rule_id, action_type, action_rule_classifiers[action_type], TEST_DATE_TIME, action_plan_id, False)
     )}
