@@ -1,5 +1,4 @@
 import argparse
-import json
 import uuid
 from datetime import datetime
 
@@ -26,11 +25,11 @@ def main(wave: int, starting_batch: int, max_cases: int, action_plan_id: uuid.UU
     print()
     print(f'Selected print batches: {starting_batch} - {final_batch}')
     print('Current total cases:', total_cases)
-    print('Classifiers JSON for each action type:')
+    print('Classifiers for each action type:')
     for action_type, action_type_classifiers in action_rule_classifiers.items():
         print()
         print(f'Action type: {action_type}')
-        print('Classifiers JSON:')
+        print('Classifiers clause:')
         print(action_type_classifiers)
 
     if insert_rules:
@@ -55,20 +54,14 @@ def main(wave: int, starting_batch: int, max_cases: int, action_plan_id: uuid.UU
 
 
 def count_batch_cases(batch, wave_classifiers, action_plan_id):
-    wave_classifiers['print_batch'] = [str(batch)]
-
     batch_count_query, query_values = build_batch_count_query(wave_classifiers, action_plan_id)
     result = db_helper.execute_parametrized_sql_query(batch_count_query, query_values)
     return result[0][0]
 
 
 def build_batch_count_query(wave_classifiers, action_plan_id):
-    classifier_sql_filters = ['']
     query_param_values = [str(action_plan_id)]
-    for classifier, values in wave_classifiers.items():
-        classifier_sql_filters.append(f" {classifier} IN %s")
-        query_param_values.append(tuple(values))
-    classifiers_query_filters = ' AND'.join(classifier_sql_filters)
+    classifiers_query_filters = f" AND {wave_classifiers}"
 
     return ("SELECT COUNT(*) FROM actionv2.cases "
             "WHERE receipt_received = 'f' "
@@ -83,9 +76,10 @@ def build_batch_count_query(wave_classifiers, action_plan_id):
 def build_action_rule_classifiers(wave, selected_batches):
     action_rule_classifiers = {}
     for action_type in constants.ACTION_TYPES_FOR_WAVE[wave]:
-        classifiers = constants.ACTION_TYPE_CLASSIFIERS[action_type]
-        classifiers['print_batch'] = selected_batches
-        action_rule_classifiers[action_type] = json.dumps(classifiers)
+        select_batch = "','".join(selected_batches)
+        classifiers = f"case_type != 'HI' AND {constants.ACTION_TYPE_CLASSIFIERS[action_type]} " \
+                      f"AND print_batch IN ('{select_batch}')"
+        action_rule_classifiers[action_type] = classifiers
     return action_rule_classifiers
 
 
@@ -119,7 +113,7 @@ def generate_action_rules(action_rule_classifiers, action_plan_id, trigger_date_
     for action_type, classifiers in action_rule_classifiers.items():
         action_rules[action_type] = (
             "INSERT INTO actionv2.action_rule "
-            "(id, action_type, classifiers, trigger_date_time, action_plan_id, has_triggered) "
+            "(id, action_type, classifiers_clause, trigger_date_time, action_plan_id, has_triggered) "
             "VALUES (%s, %s, %s, %s, %s, %s);",
             (str(uuid.uuid4()), action_type, classifiers, trigger_date_time, str(action_plan_id), False)
         )
