@@ -1,0 +1,15 @@
+source /home/toolbox/aliases.sh
+/home/toolbox/splashscreen.sh
+PS1="[$PROJECT_NAME]-TOOLZ🔥> "
+export PATH=/home/toolbox:$PATH
+
+echo Who are you, oh wise and wonderful toolbox user?
+read current_user
+echo Nice to see you again, $current_user
+
+mkdir -p ~/.audit/${current_user,,}
+echo $(date --iso-8601=ns) >> ~/.audit/${current_user,,}/login.log
+
+export CURRENT_USER=${current_user,,}
+export HISTFILE=~/.audit/${current_user,,}/bash_history-$(date --iso-8601=ns).log
+export HISTTIMEFORMAT="%F %T "
