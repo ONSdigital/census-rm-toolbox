@@ -115,41 +115,45 @@ def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_ba
                                 'The number of database counts should match our expectation')
 
 
-@pytest.mark.parametrize('wave_classifiers, expected_query, expected_params', [
+@pytest.mark.parametrize('batch, wave_classifiers, expected_query, expected_params', [
     # Test cases
     # Simple treatment code classifier
-    ("treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2')",
+    (1, "treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2')",
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
-      "AND treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2');"),
-     (str(TEST_ACTION_PLAN_ID),),
+      "AND treatment_code IN ('HH_DUMMY1', 'HH_DUMMY2') "
+      "AND print_batch = %s;"),
+     (str(TEST_ACTION_PLAN_ID), '1'),
      ),
 
     # Classifier with just one value
-    ("survey_launched IN ('f')",
+    (10, "survey_launched IN ('f')",
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
-      "AND survey_launched IN ('f');"),
-     (str(TEST_ACTION_PLAN_ID),)),
+      "AND survey_launched IN ('f') "
+      "AND print_batch = %s;"),
+     (str(TEST_ACTION_PLAN_ID), '10')),
 
     # Mix of classifiers
-    ("treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f')",
+    (99, "treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f')",
      ("SELECT COUNT(*) FROM actionv2.cases "
       "WHERE receipt_received = 'f' AND address_invalid = 'f' AND skeleton = 'f' "
       "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
       "AND case_type != 'HI' "
       "AND action_plan_id = %s "
-      "AND treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') AND survey_launched IN ('f');"),
-     (str(TEST_ACTION_PLAN_ID),)),
+      "AND treatment_code in ('HH_DUMMY1', 'HH_DUMMY2') "
+      "AND survey_launched IN ('f') "
+      "AND print_batch = %s;"),
+     (str(TEST_ACTION_PLAN_ID), '99')),
 ])
-def test_build_batch_count_query(wave_classifiers, expected_query, expected_params):
-    actual_query, actual_params = reminder_batch.build_batch_count_query(wave_classifiers, TEST_ACTION_PLAN_ID)
+def test_build_batch_count_query(batch, wave_classifiers, expected_query, expected_params):
+    actual_query, actual_params = reminder_batch.build_batch_count_query(batch, wave_classifiers, TEST_ACTION_PLAN_ID)
     unittest_helper.assertEqual(expected_query, actual_query, 'Generated batch query should match expectation')
     unittest_helper.assertEqual(expected_params, actual_params,
                                 'Generated batch query parameters should match expectation')
