@@ -25,11 +25,10 @@ class BulkProcessor(Processor):
 
     def read_file(self, file):
         """Return an example that quacks like a csv dict reader"""
-        field_names = super().get_fieldnames()
         return [
             {
                 field_name: str(i) + f'_{file}_example_data_{field_name}' for field_name in
-                field_names
+                super(BulkProcessor, self).get_fieldnames()
             }
             for i in range(10)
         ]
