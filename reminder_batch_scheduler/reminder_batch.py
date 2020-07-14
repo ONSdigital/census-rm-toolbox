@@ -54,14 +54,14 @@ def main(wave: int, starting_batch: int, max_cases: int, action_plan_id: uuid.UU
 
 
 def count_batch_cases(batch, wave_classifiers, action_plan_id):
-    batch_count_query, query_values = build_batch_count_query(wave_classifiers, action_plan_id)
+    batch_count_query, query_values = build_batch_count_query(batch, wave_classifiers, action_plan_id)
     result = db_helper.execute_parametrized_sql_query(batch_count_query, query_values)
     return result[0][0]
 
 
-def build_batch_count_query(wave_classifiers, action_plan_id):
-    query_param_values = [str(action_plan_id)]
-    classifiers_query_filters = f" AND {wave_classifiers}"
+def build_batch_count_query(batch, wave_classifiers, action_plan_id):
+    query_param_values = (str(action_plan_id), str(batch))
+    classifiers_query_filters = f"AND {wave_classifiers}"
 
     return ("SELECT COUNT(*) FROM actionv2.cases "
             "WHERE receipt_received = 'f' "
@@ -69,8 +69,9 @@ def build_batch_count_query(wave_classifiers, action_plan_id):
             "AND skeleton = 'f' "
             "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
             "AND case_type != 'HI' "
-            "AND action_plan_id = %s"
-            f"{classifiers_query_filters};"), tuple(query_param_values)
+            "AND action_plan_id = %s "
+            f"{classifiers_query_filters} "
+            f"AND print_batch = %s;"), query_param_values
 
 
 def build_action_rule_classifiers(wave, selected_batches):
