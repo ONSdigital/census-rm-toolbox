@@ -1,8 +1,9 @@
+from collections import namedtuple
 from typing import Iterable
 
-import psycopg2
-
 from utilities.db_helper import execute_parametrized_sql_query
+
+ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
 
 
 class Invalid(Exception):

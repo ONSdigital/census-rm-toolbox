@@ -1,66 +1,31 @@
 import argparse
-import csv
 import json
 import uuid
-from collections import namedtuple
 from datetime import datetime
-from pathlib import Path
 
-from bulk_processing.validators import set_equal, Invalid, in_set, case_exists_by_id
-from utilities.rabbit_context import RabbitContext
-
-ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
+from bulk_processing.bulk_processor import BulkProcessor
+from bulk_processing.processor_interface import Processor
+from bulk_processing.validators import set_equal, Invalid, in_set, case_exists_by_id, ValidationFailure
 
 
-class RefusalProcessor:
+class RefusalProcessor(Processor):
+    FILE_PREFIX = 'refusal_'
+    ROUTING_KEY = 'event.respondent.refusal'
+    EXCHANGE = 'events'
 
     def __init__(self):
-        # TODO
-        self.working_dir = Path('bulk_refusals')
-        self.success_file = self.working_dir.joinpath('succeeded_refusal_140720.csv')
-        self.failure_file = self.working_dir.joinpath('failed_refusal_140720.csv')
-        self.failure_reasons_file = self.working_dir.joinpath('failure_reasons_refusal_140720.csv')
+
         self.schema = {
             "case_id": [case_exists_by_id()],
             "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
         }
 
-    def write_row_failures_to_files(self, failed_row, failures):
-        with open(self.failure_file, 'a') as append_failure_file:
-            append_failure_file.write(','.join(failed_row.values()))
-            append_failure_file.write('\n')
-        with open(self.failure_reasons_file, 'a') as append_failure_reasons_file:
-            append_failure_reasons_file.write(', '.join(str(failure.description) for failure in failures))
-            append_failure_reasons_file.write('\n')
-
-    def write_row_success_to_file(self, succeeded_row):
-        with open(self.success_file, 'a') as append_success_file:
-            append_success_file.write(','.join(succeeded_row.values()))
-            append_success_file.write('\n')
-
-    def find_header_validation_failures(self, header):
+    def find_format_validation_failures(self, header):
         valid_header = set(self.schema.keys())
         try:
             set_equal(valid_header)(header)
         except Invalid as invalid:
             return ValidationFailure(line_number=1, column=None, description=str(invalid))
-
-    def find_refusal_validation_failures(self, refusal_file_reader) -> list:
-        failures = []
-        for line_number, row in enumerate(refusal_file_reader, 2):
-            row_failures = self.find_row_validation_failures(line_number, row)
-            failures.extend(row_failures)
-            if row_failures:
-                self.write_row_failures_to_files(row, row_failures)
-            else:
-                self.create_rabbit_refusal_messages(row)
-                self.write_row_success_to_file(row)
-            if not line_number % 10000:
-                print(f"Validation progress: {str(line_number).rjust(8)} lines checked, "
-                      f"Failures: {len(failures)}", end='\r', flush=True)
-        print(f"Validation progress: {str(line_number).rjust(8)} lines checked, "
-              f"Failures: {len(failures)}")
-        return failures
 
     def find_row_validation_failures(self, line_number, row):
         failures = []
@@ -72,21 +37,8 @@ class RefusalProcessor:
                     failures.append(ValidationFailure(line_number, column, invalid))
         return failures
 
-    def process_refusal(self, refusal_file_path):
-        try:
-            with open(refusal_file_path, encoding="utf-8") as refusal_file:
-                refusal_file_reader = csv.DictReader(refusal_file, delimiter=',')
-                header_failures = self.find_header_validation_failures(refusal_file_reader.fieldnames)
-                if header_failures:
-                    return [header_failures]
-                return self.find_refusal_validation_failures(refusal_file_reader)
-        except UnicodeDecodeError as err:
-            return [
-                ValidationFailure(line_number=None, column=None,
-                                  description=f'Invalid file encoding, requires utf-8, error: {err}')]
-
-    def create_rabbit_refusal_messages(self, successful_rows):
-        message = {
+    def build_event_messages(self, row):
+        return [{
             "event": {
                 "type": "REFUSAL_RECEIVED",
                 "source": "RM",
@@ -96,17 +48,18 @@ class RefusalProcessor:
             },
             "payload": {
                 "refusal": {
-                    "type": successful_rows['refusal_type'],
+                    "type": row['refusal_type'],
                     "collectionCase": {
-                        "id": successful_rows['case_id']
+                        "id": row['case_id']
                     }
                 }
             }
-        }
+        }]
 
-        with RabbitContext() as rabbit:
-            rabbit.publish_message(json.dumps(message), 'application/json', None, exchange='events',
-                                   routing_key='event.respondent.refusal')
+    def publish_event_messages(self, event_messages, rabbit):
+        for message in event_messages:
+            rabbit.publish_message(json.dumps(message), 'application/json', None, exchange=self.EXCHANGE,
+                                   routing_key=self.ROUTING_KEY)
             print('Successfully published')
 
 
@@ -145,7 +98,8 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    failures = RefusalProcessor().process_refusal(args.refusal_file_path)
+    # failures = BulkProcessor(RefusalProcessor()).test_run(args.refusal_file_path)
+    failures = BulkProcessor(RefusalProcessor()).run()
     if failures:
         print_failures(failures)
         print(f'{args.refusal_file_path} is not valid ❌')
