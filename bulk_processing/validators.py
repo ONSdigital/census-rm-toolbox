@@ -1,5 +1,7 @@
 from typing import Iterable
 
+import psycopg2
+
 from utilities.db_helper import execute_parametrized_sql_query
 
 
@@ -112,7 +114,14 @@ def ce_u_has_expected_capacity():
 
 
 def case_exists_by_id():
-    def validate(case_id, **kwargs):
-        if not execute_parametrized_sql_query(f"SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1", (case_id,)):
-            raise Invalid(f'case_id {case_id} does not exist')
+    def validate(case_id, **_):
+        invalid_message = f'Case ID "{case_id}" does not exist in RM'
+        try:
+            case_id_exists = execute_parametrized_sql_query(f"SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
+                                                            (case_id,))
+        except Exception:
+            raise Invalid(invalid_message)
+        if not case_id_exists:
+            raise Invalid(invalid_message)
+
     return validate

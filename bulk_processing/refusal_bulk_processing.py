@@ -1,6 +1,7 @@
 import argparse
 import csv
 from collections import namedtuple
+from pathlib import Path
 
 from bulk_processing.validators import set_equal, Invalid, in_set, case_exists_by_id
 
@@ -10,9 +11,28 @@ ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'd
 class RefusalProcessor:
 
     def __init__(self):
-        self.schema = {"case_id": [case_exists_by_id()],
-                       "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
-                       }
+        # TODO
+        self.working_dir = Path('bulk_refusals')
+        self.success_file = self.working_dir.joinpath('succeeded_refusal_140720.csv')
+        self.failure_file = self.working_dir.joinpath('failed_refusal_140720.csv')
+        self.failure_reasons_file = self.working_dir.joinpath('failure_reasons_refusal_140720.csv')
+        self.schema = {
+            "case_id": [case_exists_by_id()],
+            "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
+        }
+
+    def write_row_failures_to_files(self, failed_row, failures):
+        with open(self.failure_file, 'a') as append_failure_file:
+            append_failure_file.write(','.join(failed_row.values()))
+            append_failure_file.write('\n')
+        with open(self.failure_reasons_file, 'a') as append_failure_reasons_file:
+            append_failure_reasons_file.write(', '.join(str(failure.description) for failure in failures))
+            append_failure_reasons_file.write('\n')
+
+    def write_row_success_to_file(self, succeeded_row):
+        with open(self.success_file, 'a') as append_success_file:
+            append_success_file.write(','.join(succeeded_row.values()))
+            append_success_file.write('\n')
 
     def find_header_validation_failures(self, header):
         valid_header = set(self.schema.keys())
@@ -24,7 +44,12 @@ class RefusalProcessor:
     def find_refusal_validation_failures(self, refusal_file_reader) -> list:
         failures = []
         for line_number, row in enumerate(refusal_file_reader, 2):
-            failures.extend(self.find_row_validation_failures(line_number, row))
+            row_failures = self.find_row_validation_failures(line_number, row)
+            failures.extend(row_failures)
+            if row_failures:
+                self.write_row_failures_to_files(row, row_failures)
+            else:
+                self.write_row_success_to_file(row)
             if not line_number % 10000:
                 print(f"Validation progress: {str(line_number).rjust(8)} lines checked, "
                       f"Failures: {len(failures)}", end='\r', flush=True)
