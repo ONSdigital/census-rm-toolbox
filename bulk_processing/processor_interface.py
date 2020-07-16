@@ -23,6 +23,10 @@ class Processor(ABC):
 
     @property
     @abstractmethod
+    def project_id(self): pass
+
+    @property
+    @abstractmethod
     def bucket_name(self): pass
 
     @abstractmethod

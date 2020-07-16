@@ -1,7 +1,7 @@
 from collections import namedtuple
 from typing import Iterable
 
-from utilities.db_helper import execute_parametrized_sql_query
+from utilities.db_helper import execute_in_connection
 
 ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
 
@@ -30,11 +30,11 @@ def set_equal(expected_set):
 
 
 def case_exists_by_id():
-    def validate(case_id, **_):
+    def validate(case_id, **kwargs):
         invalid_message = f'Case ID "{case_id}" does not exist in RM'
         try:
-            case_id_exists = execute_parametrized_sql_query("SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
-                                                            (case_id,))
+            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
+                                                   (case_id,), conn=kwargs['db_connection'])
         except Exception:
             raise Invalid(invalid_message)
         if not case_id_exists:

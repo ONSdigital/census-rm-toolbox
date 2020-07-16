@@ -12,6 +12,7 @@ class RefusalProcessor(Processor):
     routing_key = os.getenv('REFUSAL_EVENT_ROUTING_KEY', 'event.respondent.refusal')
     exchange = os.getenv('EVENTS_EXCHANGE', 'events')
     bucket_name = os.getenv('BULK_REFUSAL_BUCKET_NAME')
+    project_id = os.getenv('PROJECT_ID')
     schema = {
         "case_id": [case_exists_by_id()],
         "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]

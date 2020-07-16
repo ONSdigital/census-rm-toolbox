@@ -45,23 +45,23 @@ def test_set_equal_invalid():
         set_equal_validator(['a', 'b', 'c', 'blah'])
 
 
-@patch('bulk_processing.validators.execute_parametrized_sql_query')
+@patch('bulk_processing.validators.execute_in_connection')
 def test_case_exists_by_id_succeeds(mock_execute_method):
     # Given
     mock_execute_method.return_value = [(1,)]
     # When
     case_exists_validator = validators.case_exists_by_id()
 
-    case_exists_validator("valid_uuid")
+    case_exists_validator("valid_uuid", db_connection='db_connection')
 
     # Then no invalid exception is raised
 
 
-@patch('bulk_processing.validators.execute_parametrized_sql_query')
+@patch('bulk_processing.validators.execute_in_connection')
 def test_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []
     # When, then raises
     with pytest.raises(validators.Invalid):
         case_exists_validator = validators.case_exists_by_id()
-        case_exists_validator("invalid_uuid")
+        case_exists_validator("invalid_uuid", db_connection='db_connection')

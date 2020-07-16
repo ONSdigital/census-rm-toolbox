@@ -14,6 +14,17 @@ def execute_sql_query(sql_query):
     return cursor.fetchall()
 
 
+def connect_to_read_replica():
+    return psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
+                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+
+
+def execute_in_connection(*args, conn=None):
+    cursor = conn.cursor()
+    cursor.execute(*args)
+    return cursor.fetchall()
+
+
 def execute_parametrized_sql_query(sql_query, values: tuple):
     conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
                             f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")

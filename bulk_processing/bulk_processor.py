@@ -8,6 +8,7 @@ from google.cloud import storage
 
 from bulk_processing.processor_interface import Processor
 from bulk_processing.validators import set_equal, Invalid, ValidationFailure
+from utilities.db_helper import connect_to_read_replica
 from utilities.rabbit_context import RabbitContext
 
 
@@ -16,8 +17,10 @@ class BulkProcessor:
         self.working_dir = Path(os.getenv('BULK_WORKING_DIRECTORY', 'bulk_working_directory'))
 
         self.processor = processor
-        self.storage_client = storage.Client()
+        self.storage_client = storage.Client(project=self.processor.project_id)
         self.storage_bucket = self.storage_client.bucket(self.processor.bucket_name)
+        self.rabbit = None
+        self.db_connection = None
 
     def process_file(self, file_to_process, success_file, failure_file, failure_reasons_file):
         try:
@@ -40,17 +43,16 @@ class BulkProcessor:
     def process_rows(self, file_reader, success_file, failure_file, failure_reasons_file):
         failure_count = 0
         success_count = 0
-        with RabbitContext() as rabbit:
-            for line_number, row in enumerate(file_reader, 2):
-                row_failures = self.find_row_validation_failures(line_number, row)
-                if row_failures:
-                    failure_count += len(row_failures)
-                    self.write_row_failures_to_files(row, row_failures, failure_file, failure_reasons_file)
-                else:
-                    success_count += 1
-                    event_messages = self.processor.build_event_messages(row)
-                    self.publish_messages(event_messages, rabbit)
-                    self.write_row_success_to_file(row, success_file)
+        for line_number, row in enumerate(file_reader, 2):
+            row_failures = self.find_row_validation_failures(line_number, row)
+            if row_failures:
+                failure_count += len(row_failures)
+                self.write_row_failures_to_files(row, row_failures, failure_file, failure_reasons_file)
+            else:
+                success_count += 1
+                event_messages = self.processor.build_event_messages(row)
+                self.publish_messages(event_messages, self.rabbit)
+                self.write_row_success_to_file(row, success_file)
         print(f'Processing results: {line_number} lines processed, '
               f'Failures: {failure_count}')
         return success_count, failure_count
@@ -77,7 +79,7 @@ class BulkProcessor:
         for column, validators in self.processor.schema.items():
             for validator in validators:
                 try:
-                    validator(row[column], row=row)
+                    validator(row[column], row=row, db_connection=self.db_connection)
                 except Invalid as invalid:
                     failures.append(ValidationFailure(line_number, column, invalid))
         return failures
@@ -110,31 +112,34 @@ class BulkProcessor:
     def run(self):
         print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
               f' with prefix {repr(self.processor.file_prefix)}')
-        blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name, prefix=self.processor.file_prefix)
+        with connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
+            blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
+                                                              prefix=self.processor.file_prefix)
 
-        for blob_to_process in blobs_to_process:
-            print(f'Processing file: {blob_to_process.name}')
-            file_to_process = self.working_dir.joinpath(blob_to_process.name)
+            for blob_to_process in blobs_to_process:
+                print(f'Processing file: {blob_to_process.name}')
+                file_to_process = self.working_dir.joinpath(blob_to_process.name)
 
-            with open(file_to_process, 'wb') as open_file_to_process:
-                self.storage_client.download_blob_to_file(blob_to_process, open_file_to_process)
+                with open(file_to_process, 'wb') as open_file_to_process:
+                    self.storage_client.download_blob_to_file(blob_to_process, open_file_to_process)
 
-            success_file, failure_file, failure_reasons_file = self.initialise_results_files(file_to_process.name)
-            successes, failures = self.process_file(file_to_process, success_file, failure_file, failure_reasons_file)
+                success_file, failure_file, failure_reasons_file = self.initialise_results_files(file_to_process.name)
+                successes, failures = self.process_file(file_to_process, success_file, failure_file,
+                                                        failure_reasons_file)
 
-            # Only upload files which contain data
-            files_to_upload = []
-            if successes:
-                files_to_upload.append(success_file)
-            if failures:
-                files_to_upload.append(failure_file)
-                files_to_upload.append(failure_reasons_file)
-            self.upload_files_to_bucket(files_to_upload)
+                # Only upload files which contain data
+                files_to_upload = []
+                if successes:
+                    files_to_upload.append(success_file)
+                if failures:
+                    files_to_upload.append(failure_file)
+                    files_to_upload.append(failure_reasons_file)
+                self.upload_files_to_bucket(files_to_upload)
 
-            blob_to_process.delete()
-            self.delete_local_files((file_to_process, success_file, failure_file, failure_reasons_file))
+                blob_to_process.delete()
+                self.delete_local_files((file_to_process, success_file, failure_file, failure_reasons_file))
 
-            print(f'Finished processing file: {blob_to_process.name}')
+                print(f'Finished processing file: {blob_to_process.name}')
 
     def upload_files_to_bucket(self, files: Collection[Path]):
         for file_to_upload in files:
