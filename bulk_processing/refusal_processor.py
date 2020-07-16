@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import uuid
 from datetime import datetime
 
@@ -9,16 +10,14 @@ from bulk_processing.validators import set_equal, Invalid, in_set, case_exists_b
 
 
 class RefusalProcessor(Processor):
-    FILE_PREFIX = 'refusal_'
-    ROUTING_KEY = 'event.respondent.refusal'
-    EXCHANGE = 'events'
-
-    def __init__(self):
-
-        self.schema = {
-            "case_id": [case_exists_by_id()],
-            "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
-        }
+    file_prefix = os.getenv('BULK_REFUSAL_FILE_PREFIX', 'refusal_')
+    routing_key = os.getenv('REFUSAL_EVENT_ROUTING_KEY', 'event.respondent.refusal')
+    exchange = os.getenv('EVENTS_EXCHANGE', 'events')
+    bucket_name = os.getenv('BULK_REFUSAL_BUCKET_NAME', 'census-rm-adamhawtin-perf1-bulk-test')
+    schema = {
+        "case_id": [case_exists_by_id()],
+        "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
+    }
 
     def find_format_validation_failures(self, header):
         valid_header = set(self.schema.keys())
@@ -90,20 +89,20 @@ def print_failures_summary(failures, print_limit):
             print(build_failure_log(failure))
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description='Load a sample file into response management.')
-    parser.add_argument('refusal_file_path', help='path to the refusal file', type=str)
-    return parser.parse_args()
+# def parse_arguments():
+#     parser = argparse.ArgumentParser(description='Load a sample file into response management.')
+#     parser.add_argument('refusal_file_path', help='path to the refusal file', type=str)
+#     return parser.parse_args()
 
 
 def main():
-    args = parse_arguments()
+    # args = parse_arguments()
     # failures = BulkProcessor(RefusalProcessor()).test_run(args.refusal_file_path)
-    failures = BulkProcessor(RefusalProcessor()).run()
-    if failures:
-        print_failures(failures)
-        print(f'{args.refusal_file_path} is not valid ❌')
-    print(f'Success! {args.refusal_file_path} passed validation ✅')
+    BulkProcessor(RefusalProcessor()).run()
+    # if failures:
+    #     print_failures(failures)
+    #     print(f'{args.refusal_file_path} is not valid ❌')
+    # print(f'Success! {args.refusal_file_path} passed validation ✅')
 
 
 if __name__ == "__main__":

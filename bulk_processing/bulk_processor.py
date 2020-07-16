@@ -1,6 +1,8 @@
 import csv
 import json
+import os
 from pathlib import Path
+from typing import Collection
 
 from google.cloud import storage
 
@@ -10,13 +12,11 @@ from utilities.rabbit_context import RabbitContext
 
 class BulkProcessor:
     def __init__(self, processor: Processor):
-        # TODO make configurable
-        self.working_dir = Path('bulk_refusals')
-        self.bucket_name = 'census-rm-adamhawtin-perf1-bulk-test'
+        self.working_dir = Path(os.getenv('BULK_WORKING_DIRECTORY', 'bulk_working_directory'))
 
         self.processor = processor
         self.storage_client = storage.Client()
-        self.storage_bucket = self.storage_client.bucket(self.bucket_name)
+        self.storage_bucket = self.storage_client.bucket(self.processor.bucket_name)
 
     def process_file(self, file_to_process, success_file, failure_file, failure_reasons_file):
         try:
@@ -28,6 +28,7 @@ class BulkProcessor:
                 return self.process_rows(file_reader, success_file, failure_file, failure_reasons_file)
         except UnicodeDecodeError as err:
             self.write_file_encoding_error_files(err, failure_file, failure_reasons_file, file_to_process)
+            return 0, 1  # success_count, failure_count
 
     def write_file_encoding_error_files(self, err, failure_file, failure_reasons_file, file_to_process):
         failure_blob = self.storage_bucket.blob(failure_file.name)
@@ -49,17 +50,22 @@ class BulkProcessor:
                     event_messages = self.processor.build_event_messages(row)
                     self.publish_messages(event_messages, rabbit)
                     self.write_row_success_to_file(row, success_file)
-        print(f"Validation progress: {str(line_number).rjust(8)} lines processed, "
-              f"Failures: {failure_count}")
+        print(f'Processing results: {line_number} lines processed, '
+              f'Failures: {failure_count}')
         return success_count, failure_count
 
-    def build_file_paths(self, file_to_process_name):
-        success_file = self.working_dir.joinpath(f'succeeded_{file_to_process_name}')
+    def initialise_results_files(self, file_to_process_name):
+        header_row = ','.join(column for column in self.processor.schema.keys()) + '\n'
+        success_file = self.working_dir.joinpath(f'processed_{file_to_process_name}')
+        success_file.write_text(header_row)
         failure_file = self.working_dir.joinpath(f'failed_{file_to_process_name}')
+        failure_file.write_text(header_row)
         failure_reasons_file = self.working_dir.joinpath(f'failure_reasons_{file_to_process_name}')
+        failure_reasons_file.touch()
         return success_file, failure_file, failure_reasons_file
 
-    def write_row_failures_to_files(self, failed_row, failures, failure_file, failure_reasons_file):
+    @staticmethod
+    def write_row_failures_to_files(failed_row, failures, failure_file, failure_reasons_file):
         with open(failure_file, 'a') as append_failure_file:
             append_failure_file.write(','.join(failed_row.values()))
             append_failure_file.write('\n')
@@ -67,35 +73,57 @@ class BulkProcessor:
             append_failure_reasons_file.write(', '.join(str(failure.description) for failure in failures))
             append_failure_reasons_file.write('\n')
 
-    def write_row_success_to_file(self, succeeded_row, success_file):
+    @staticmethod
+    def write_row_success_to_file(succeeded_row, success_file):
         with open(success_file, 'a') as append_success_file:
             append_success_file.write(','.join(succeeded_row.values()))
             append_success_file.write('\n')
 
     def publish_messages(self, messages, rabbit):
         for message in messages:
-            rabbit.publish_message(json.dumps(message), 'application/json', None, exchange=self.processor.EXCHANGE,
-                                   routing_key=self.processor.ROUTING_KEY)
+            rabbit.publish_message(
+                message=json.dumps(message),
+                content_type='application/json',
+                headers=None,
+                exchange=self.processor.exchange,
+                routing_key=self.processor.routing_key
+            )
 
     def run(self):
-        blobs_to_process = self.storage_client.list_blobs(self.bucket_name, prefix=self.processor.FILE_PREFIX)
+        print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
+              f' with prefix {repr(self.processor.file_prefix)}')
+        blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name, prefix=self.processor.file_prefix)
+
         for blob_to_process in blobs_to_process:
+            print(f'Processing file: {blob_to_process.name}')
             file_to_process = self.working_dir.joinpath(blob_to_process.name)
+
             with open(file_to_process, 'wb') as open_file_to_process:
                 self.storage_client.download_blob_to_file(blob_to_process, open_file_to_process)
-            success_file, failure_file, failure_reasons_file = self.build_file_paths(file_to_process.name)
+
+            success_file, failure_file, failure_reasons_file = self.initialise_results_files(file_to_process.name)
             successes, failures = self.process_file(file_to_process, success_file, failure_file, failure_reasons_file)
+
+            # Only upload files which contain data
             files_to_upload = []
             if successes:
                 files_to_upload.append(success_file)
             if failures:
                 files_to_upload.append(failure_file)
                 files_to_upload.append(failure_reasons_file)
-
             self.upload_files_to_bucket(files_to_upload)
-            blob_to_process.delete()
 
-    def upload_files_to_bucket(self, files):
-        for file in files:
-            file_blob = self.storage_bucket.blob(file.name)
-            file_blob.upload_from_filename(str(file))
+            blob_to_process.delete()
+            self.delete_local_files((file_to_process, success_file, failure_file, failure_reasons_file))
+
+            print(f'Finished processing file: {blob_to_process.name}')
+
+    def upload_files_to_bucket(self, files: Collection[Path]):
+        for file_to_upload in files:
+            file_blob = self.storage_bucket.blob(file_to_upload.name)
+            file_blob.upload_from_filename(str(file_to_upload))
+
+    @staticmethod
+    def delete_local_files(files: Collection[Path]):
+        for file_to_delete in files:
+            file_to_delete.unlink()

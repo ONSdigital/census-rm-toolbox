@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from bulk_processing.refusal_bulk_processing import RefusalProcessor
+from bulk_processing.refusal_processor import RefusalProcessor
 
 
 def test_refusal_validation_headers():
