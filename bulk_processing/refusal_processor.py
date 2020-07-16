@@ -19,23 +19,6 @@ class RefusalProcessor(Processor):
         "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
     }
 
-    def find_format_validation_failures(self, header):
-        valid_header = set(self.schema.keys())
-        try:
-            set_equal(valid_header)(header)
-        except Invalid as invalid:
-            return ValidationFailure(line_number=1, column=None, description=str(invalid))
-
-    def find_row_validation_failures(self, line_number, row):
-        failures = []
-        for column, validators in self.schema.items():
-            for validator in validators:
-                try:
-                    validator(row[column], row=row)
-                except Invalid as invalid:
-                    failures.append(ValidationFailure(line_number, column, invalid))
-        return failures
-
     def build_event_messages(self, row):
         return [{
             "event": {

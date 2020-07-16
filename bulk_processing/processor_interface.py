@@ -26,10 +26,4 @@ class Processor(ABC):
     def bucket_name(self): pass
 
     @abstractmethod
-    def find_format_validation_failures(self, header): pass
-
-    @abstractmethod
-    def find_row_validation_failures(self, line_number, row): pass
-
-    @abstractmethod
     def build_event_messages(self, row): pass
