@@ -62,6 +62,6 @@ def test_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []
     # When, then raises
-    with pytest.raises(validators.Invalid) as exc:
+    with pytest.raises(validators.Invalid):
         case_exists_validator = validators.case_exists_by_id()
         case_exists_validator("invalid_uuid")
