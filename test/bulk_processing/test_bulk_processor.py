@@ -65,7 +65,8 @@ def test_run_success_failure_mix(patch_storage, tmp_path):
 
     def no_invalid(value, **_):
         if value == 'invalid':
-            raise Invalid(f"Value cannot be 'invalid'")
+            raise Invalid("Value cannot be 'invalid'")
+            raise Invalid("Value cannot be 'invalid'")
 
     mock_processor.schema = {'header': [no_invalid]}
     mock_processor.build_event_messages.return_value = []

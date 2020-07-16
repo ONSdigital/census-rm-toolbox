@@ -33,7 +33,7 @@ def case_exists_by_id():
     def validate(case_id, **_):
         invalid_message = f'Case ID "{case_id}" does not exist in RM'
         try:
-            case_id_exists = execute_parametrized_sql_query(f"SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
+            case_id_exists = execute_parametrized_sql_query("SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
                                                             (case_id,))
         except Exception:
             raise Invalid(invalid_message)
