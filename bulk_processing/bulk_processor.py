@@ -1,6 +1,5 @@
 import csv
 import json
-import os
 import shutil
 from pathlib import Path
 from typing import Collection
@@ -9,13 +8,14 @@ from google.cloud import storage
 
 from bulk_processing.processor_interface import Processor
 from bulk_processing.validators import set_equal, Invalid, ValidationFailure
+from config import Config
 from utilities.db_helper import connect_to_read_replica
 from utilities.rabbit_context import RabbitContext
 
 
 class BulkProcessor:
     def __init__(self, processor: Processor):
-        self.working_dir = Path(os.getenv('BULK_WORKING_DIRECTORY', 'bulk_working_directory'))
+        self.working_dir = Config.BULK_WORKING_DIRECTORY
 
         self.processor = processor
         self.storage_client = storage.Client(project=self.processor.project_id)

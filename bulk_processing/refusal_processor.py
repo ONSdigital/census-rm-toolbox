@@ -1,18 +1,18 @@
-import os
 import uuid
 from datetime import datetime
 
 from bulk_processing.bulk_processor import BulkProcessor
 from bulk_processing.processor_interface import Processor
 from bulk_processing.validators import in_set, case_exists_by_id, is_uuid
+from config import Config
 
 
 class RefusalProcessor(Processor):
-    file_prefix = os.getenv('BULK_REFUSAL_FILE_PREFIX', 'refusal_')
-    routing_key = os.getenv('REFUSAL_EVENT_ROUTING_KEY', 'event.respondent.refusal')
-    exchange = os.getenv('EVENTS_EXCHANGE', 'events')
-    bucket_name = os.getenv('BULK_REFUSAL_BUCKET_NAME')
-    project_id = os.getenv('PROJECT_ID')
+    file_prefix = Config.BULK_REFUSAL_FILE_PREFIX
+    routing_key = Config.REFUSAL_EVENT_ROUTING_KEY
+    exchange = Config.EVENTS_EXCHANGE
+    bucket_name = Config.BULK_REFUSAL_BUCKET_NAME
+    project_id = Config.BULK_REFUSAL_PROJECT_ID
     schema = {
         "case_id": [is_uuid(), case_exists_by_id()],
         "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
