@@ -11,12 +11,19 @@ def execute_sql_query(sql_query):
                             f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
     cursor = conn.cursor()
     cursor.execute(sql_query)
-    return cursor.fetchall()
+    result = cursor.fetchall()
+    conn.close()
+    return result
 
 
+@contextlib.contextmanager
 def connect_to_read_replica():
-    return psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+    try:
+        conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
+                                f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+        yield conn
+    finally:
+        conn.close()
 
 
 def execute_in_connection(*args, conn=None):
@@ -30,7 +37,9 @@ def execute_parametrized_sql_query(sql_query, values: tuple):
                             f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
     cursor = conn.cursor()
     cursor.execute(sql_query, values)
-    return cursor.fetchall()
+    result = cursor.fetchall()
+    conn.close()
+    return result
 
 
 def execute_sql_query_with_write(cursor, sql_query, values: tuple):

@@ -4,7 +4,7 @@ from datetime import datetime
 
 from bulk_processing.bulk_processor import BulkProcessor
 from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import in_set, case_exists_by_id
+from bulk_processing.validators import in_set, case_exists_by_id, is_uuid
 
 
 class RefusalProcessor(Processor):
@@ -14,7 +14,7 @@ class RefusalProcessor(Processor):
     bucket_name = os.getenv('BULK_REFUSAL_BUCKET_NAME')
     project_id = os.getenv('PROJECT_ID')
     schema = {
-        "case_id": [case_exists_by_id()],
+        "case_id": [is_uuid(), case_exists_by_id()],
         "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
     }
 

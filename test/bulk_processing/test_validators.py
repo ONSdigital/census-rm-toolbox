@@ -1,3 +1,4 @@
+import uuid
 from unittest.mock import patch
 
 import pytest
@@ -65,3 +66,17 @@ def test_case_exists_by_id_fails(mock_execute_method):
     with pytest.raises(validators.Invalid):
         case_exists_validator = validators.case_exists_by_id()
         case_exists_validator("invalid_uuid", db_connection='db_connection')
+
+
+@pytest.mark.parametrize('value,is_valid', [
+    (str(uuid.uuid4()), True),
+    ('559eea4d-5251-4b4b-b36f-5beaaf48c5f3', True),
+    ('definitely_not_a_uuid', False)])
+def test_is_uuid(value, is_valid):
+    is_uuid_validator = validators.is_uuid()
+    if is_valid:
+        # No exception should be raised
+        is_uuid_validator(value)
+    else:
+        with pytest.raises(validators.Invalid):
+            is_uuid_validator(value)

@@ -1,6 +1,7 @@
 import csv
 import json
 import os
+import shutil
 from pathlib import Path
 from typing import Collection
 
@@ -26,19 +27,19 @@ class BulkProcessor:
         try:
             with open(file_to_process, encoding="utf-8") as open_file_to_process:
                 file_reader = csv.DictReader(open_file_to_process, delimiter=',')
-                format_validation_failures = self.find_header_validation_failures(file_reader.fieldnames)
-                if format_validation_failures:
+                header_validation_failures = self.find_header_validation_failures(file_reader.fieldnames)
+                if header_validation_failures:
+                    self.write_failure_reasons_to_file([header_validation_failures], failure_reasons_file)
                     return 0, 1  # success_count, failure_count
                 return self.process_rows(file_reader, success_file, failure_file, failure_reasons_file)
         except UnicodeDecodeError as err:
             self.write_file_encoding_error_files(err, failure_file, failure_reasons_file, file_to_process)
             return 0, 1  # success_count, failure_count
 
-    def write_file_encoding_error_files(self, err, failure_file, failure_reasons_file, file_to_process):
-        failure_blob = self.storage_bucket.blob(failure_file.name)
-        failure_blob.upload_from_filename(file_to_process)
-        failure_reasons_blob = self.storage_bucket.blob(failure_reasons_file.name)
-        failure_reasons_blob.upload_from_string(f'Invalid file encoding, requires utf-8, error: {err}')
+    @staticmethod
+    def write_file_encoding_error_files(err, failure_file, failure_reasons_file, file_to_process):
+        shutil.copy(file_to_process, failure_file)
+        failure_reasons_file.write_text(f'Invalid file encoding, requires utf-8, error: {err}')
 
     def process_rows(self, file_reader, success_file, failure_file, failure_reasons_file):
         failure_count = 0
@@ -84,11 +85,14 @@ class BulkProcessor:
                     failures.append(ValidationFailure(line_number, column, invalid))
         return failures
 
-    @staticmethod
-    def write_row_failures_to_files(failed_row, failures, failure_file, failure_reasons_file):
+    def write_row_failures_to_files(self, failed_row, failures, failure_file, failure_reasons_file):
         with open(failure_file, 'a') as append_failure_file:
             append_failure_file.write(','.join(failed_row.values()))
             append_failure_file.write('\n')
+        self.write_failure_reasons_to_file(failures, failure_reasons_file)
+
+    @staticmethod
+    def write_failure_reasons_to_file(failures, failure_reasons_file):
         with open(failure_reasons_file, 'a') as append_failure_reasons_file:
             append_failure_reasons_file.write(', '.join(str(failure.description) for failure in failures))
             append_failure_reasons_file.write('\n')

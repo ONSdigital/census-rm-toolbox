@@ -1,3 +1,4 @@
+import uuid
 from collections import namedtuple
 from typing import Iterable
 
@@ -25,6 +26,16 @@ def set_equal(expected_set):
             raise Invalid((f"Values don't match expected set, "
                            f'missing values: {expected_set.difference(value_as_set)}, '
                            f'unexpected values: {value_as_set.difference(expected_set)}'))
+
+    return validate
+
+
+def is_uuid():
+    def validate(value, **_kwargs):
+        try:
+            uuid.UUID(value, version=4)
+        except Exception:
+            raise Invalid(f'Case ID {value} does not exist, it is not a valid UUID')
 
     return validate
 

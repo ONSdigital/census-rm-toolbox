@@ -4,12 +4,12 @@ import pytest
 
 
 @pytest.fixture
-def patching_rabbit():
-    with patch('bulk_processing.bulk_processor.RabbitContext') as patch_rabbit:
-        yield patch_rabbit
+def patch_rabbit():
+    with patch('bulk_processing.bulk_processor.RabbitContext') as patched_rabbit:
+        yield patched_rabbit
 
 
 @pytest.fixture
-def patching_storage():
-    with patch('bulk_processing.bulk_processor.storage') as patch_storage:
-        yield patch_storage
+def patch_storage():
+    with patch('bulk_processing.bulk_processor.storage') as patched_storage:
+        yield patched_storage
