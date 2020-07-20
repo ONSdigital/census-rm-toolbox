@@ -23,6 +23,29 @@ class BulkProcessor:
         self.rabbit = None
         self.db_connection = None
 
+    def run(self):
+        print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
+              f' with prefix {repr(self.processor.file_prefix)}')
+        with db_helper.connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
+            blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
+                                                              prefix=self.processor.file_prefix)
+
+            for blob_to_process in blobs_to_process:
+                self.process_bulk_file_from_bucket(blob_to_process)
+
+    def process_bulk_file_from_bucket(self, blob_to_process):
+        print(f'Processing file: {blob_to_process.name}')
+        file_to_process = self.download_file_to_process(blob_to_process)
+        success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
+        successes, errors = self.process_file(file_to_process, success_file, error_file,
+                                              error_detail_file)
+        print(f'Uploading results from processing file: {blob_to_process.name}')
+        self.upload_results(successes, errors, success_file, error_file, error_detail_file)
+        print(f'Deleting remote file: {blob_to_process.name}')
+        blob_to_process.delete()
+        self.delete_local_files((file_to_process, success_file, error_file, error_detail_file))
+        print(f'Finished processing file: {blob_to_process.name}')
+
     def process_file(self, file_to_process, success_file, error_file, error_detail_file):
         try:
             with open(file_to_process, encoding="utf-8") as open_file_to_process:
@@ -113,37 +136,22 @@ class BulkProcessor:
                 routing_key=self.processor.routing_key
             )
 
-    def run(self):
-        print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
-              f' with prefix {repr(self.processor.file_prefix)}')
-        with db_helper.connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
-            blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
-                                                              prefix=self.processor.file_prefix)
+    def download_file_to_process(self, blob_to_process):
+        file_to_process = self.working_dir.joinpath(blob_to_process.name)
 
-            for blob_to_process in blobs_to_process:
-                print(f'Processing file: {blob_to_process.name}')
-                file_to_process = self.working_dir.joinpath(blob_to_process.name)
+        with open(file_to_process, 'wb') as open_file_to_process:
+            self.storage_client.download_blob_to_file(blob_to_process, open_file_to_process)
+        return file_to_process
 
-                with open(file_to_process, 'wb') as open_file_to_process:
-                    self.storage_client.download_blob_to_file(blob_to_process, open_file_to_process)
-
-                success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
-                successes, errors = self.process_file(file_to_process, success_file, error_file,
-                                                      error_detail_file)
-
-                # Only upload files which contain data
-                files_to_upload = []
-                if successes:
-                    files_to_upload.append(success_file)
-                if errors:
-                    files_to_upload.append(error_file)
-                    files_to_upload.append(error_detail_file)
-                self.upload_files_to_bucket(files_to_upload)
-
-                blob_to_process.delete()
-                self.delete_local_files((file_to_process, success_file, error_file, error_detail_file))
-
-                print(f'Finished processing file: {blob_to_process.name}')
+    def upload_results(self, successes, errors, success_file, error_file, error_detail_file):
+        # Only upload files which contain data, we don't want to make empty error or success files
+        files_to_upload = []
+        if successes:
+            files_to_upload.append(success_file)
+        if errors:
+            files_to_upload.append(error_file)
+            files_to_upload.append(error_detail_file)
+        self.upload_files_to_bucket(files_to_upload)
 
     def upload_files_to_bucket(self, files: Collection[Path]):
         for file_to_upload in files:
@@ -151,6 +159,7 @@ class BulkProcessor:
             file_blob.upload_from_filename(str(file_to_upload))
 
     @staticmethod
-    def delete_local_files(files: Collection[Path]):
-        for file_to_delete in files:
+    def delete_local_files(files_to_delete: Collection[Path]):
+        print(f'Deleting local files: {files_to_delete}')
+        for file_to_delete in files_to_delete:
             file_to_delete.unlink()
