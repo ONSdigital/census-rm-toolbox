@@ -63,7 +63,7 @@ The file should be placed in the configured bulk refusals bucket with a name mat
 ```shell script
 bulkrefusals
 ```
-Rows which are successfully processed will be added to `processed_refusals_*.csv` and failures be appended to `failed_refusals_*.csv` with the corresponding failure reasons written to `failure_reasons_refusals_*.csv`.
+Rows which are successfully processed will be added to `PROCESSED_refusals_*.csv` and errored rows be appended to `ERROR_refusals_*.csv` with the corresponding error details written to `ERROR_DETAIL_refusals_*.csv`.
 
 
 ## Questionnaire Linking
