@@ -58,8 +58,11 @@ class BulkProcessor:
                 header_validation_failures = self.find_header_validation_errors(file_reader.fieldnames)
 
                 if header_validation_failures:
+                    print(f'File: {file_to_process.name}, header row is invalid')
                     self.write_error_details_to_file([header_validation_failures], error_detail_file)
                     return 0, 1  # success_count, error_count
+
+                self.write_header_ok_to_file(error_detail_file)
 
                 return self.process_rows(file_reader, success_file, error_file, error_detail_file)
 
@@ -75,7 +78,7 @@ class BulkProcessor:
     def process_rows(self, file_reader, success_file, error_file, error_detail_file):
         error_count = 0
         success_count = 0
-        for line_number, row in enumerate(file_reader, 2):
+        for line_number, row in enumerate(file_reader, 1):
             row_errors = self.find_row_validation_errors(line_number, row)
             if row_errors:
                 error_count += len(row_errors)
@@ -129,6 +132,11 @@ class BulkProcessor:
             append_error_detail_file.write('\n')
 
     @staticmethod
+    def write_header_ok_to_file(error_detail_file):
+        with open(error_detail_file, 'a') as append_error_detail_file:
+            append_error_detail_file.write('Header row is valid\n')
+
+    @staticmethod
     def write_row_success_to_file(succeeded_row, success_file):
         with open(success_file, 'a') as append_success_file:
             append_success_file.write(','.join(succeeded_row.values()))
@@ -171,3 +179,4 @@ class BulkProcessor:
         print(f'Deleting local files: {files_to_delete}')
         for file_to_delete in files_to_delete:
             file_to_delete.unlink()
+

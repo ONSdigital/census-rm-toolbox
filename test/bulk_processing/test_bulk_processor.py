@@ -7,7 +7,8 @@ from bulk_processing.bulk_processor import BulkProcessor
 from bulk_processing.processor_interface import Processor
 from bulk_processing.validators import Invalid
 
-resources_path = Path(__file__).parent.joinpath('resources')
+RESOURCE_PATH = Path(__file__).parent.joinpath('resources')
+HEADER_IS_VALID = 'Header row is valid\n'
 
 
 def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
@@ -18,7 +19,7 @@ def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
     bulk_processor = BulkProcessor(mock_processor)
     bulk_processor.working_dir = tmp_path
     bulk_processor.rabbit = patch_rabbit
-    test_file = resources_path.joinpath('bulk_test_file_success.csv')
+    test_file = RESOURCE_PATH.joinpath('bulk_test_file_success.csv')
 
     success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
     success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
@@ -29,7 +30,7 @@ def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
 
     assert success_file.read_text() == test_file.read_text()
     assert error_file.read_text() == header + '\n'
-    assert not error_detail_file.read_text()
+    assert error_detail_file.read_text() == HEADER_IS_VALID
 
     patch_rabbit.publish_message.assert_called_once_with(
         message=json.dumps({'header_1': 'foo', 'header_2': 'bar'}),
@@ -49,7 +50,7 @@ def test_process_file_success_failure_mix(patch_storage, patch_rabbit, tmp_path)
     bulk_processor = BulkProcessor(mock_processor)
     bulk_processor.working_dir = tmp_path
     bulk_processor.rabbit = patch_rabbit
-    test_file = resources_path.joinpath('bulk_test_file_success_failure_mix.csv')
+    test_file = RESOURCE_PATH.joinpath('bulk_test_file_success_failure_mix.csv')
 
     success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
     success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
@@ -60,7 +61,7 @@ def test_process_file_success_failure_mix(patch_storage, patch_rabbit, tmp_path)
 
     assert success_file.read_text() == header + '\n' + 'foo,bar' + '\n'
     assert error_file.read_text() == header + '\n' + 'invalid,bar' + '\n'
-    assert error_detail_file.read_text() == invalid_message + '\n'
+    assert error_detail_file.read_text() == HEADER_IS_VALID + invalid_message + '\n'
 
     patch_rabbit.publish_message.assert_called_once_with(
         message=json.dumps({'header_1': 'foo', 'header_2': 'bar'}),
@@ -76,7 +77,7 @@ def test_process_file_header_failure(patch_storage, patch_rabbit, tmp_path):
     mock_processor = setup_mock_processor(schema, None)
     bulk_processor = BulkProcessor(mock_processor)
     bulk_processor.working_dir = tmp_path
-    test_file = resources_path.joinpath('bulk_test_file_header_failure.csv')
+    test_file = RESOURCE_PATH.joinpath('bulk_test_file_header_failure.csv')
 
     success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
     success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
@@ -98,7 +99,7 @@ def test_process_file_encoding_failure(patch_storage, patch_rabbit, tmp_path):
     mock_processor = setup_mock_processor(schema, None)
     bulk_processor = BulkProcessor(mock_processor)
     bulk_processor.working_dir = tmp_path
-    test_file = resources_path.joinpath('bulk_test_file_encoding_failure.csv')
+    test_file = RESOURCE_PATH.joinpath('bulk_test_file_encoding_failure.csv')
 
     success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
     success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
