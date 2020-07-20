@@ -112,7 +112,7 @@ def test_process_file_encoding_failure(patch_storage, patch_rabbit, tmp_path):
     patch_rabbit.publish_message.assert_not_called()
 
 
-def test_run_validation_successful(patch_storage, patch_rabbit, tmp_path):
+def test_run_validation_successful(patch_storage, patch_rabbit, patch_db_helper, tmp_path):
     # Given
     test_message = {"test_message": "blah"}
     mock_processor = setup_mock_processor({'header_1': [], 'header_2': []}, test_message)
@@ -137,10 +137,11 @@ def test_run_validation_successful(patch_storage, patch_rabbit, tmp_path):
         message=json.dumps(test_message),
         content_type='application/json', headers=None,
         exchange=mock_processor.exchange, routing_key=mock_processor.routing_key)
+    patch_db_helper.connect_to_read_replica.assert_called_once()
     assert_no_left_over_files(tmp_path)
 
 
-def test_run_header_validation_fails(patch_storage, patch_rabbit, tmp_path):
+def test_run_header_validation_fails(patch_storage, patch_rabbit, patch_db_helper, tmp_path):
     # Given
     mock_processor = setup_mock_processor({'header': []}, None)
     bulk_processor = BulkProcessor(mock_processor)
@@ -163,11 +164,12 @@ def test_run_header_validation_fails(patch_storage, patch_rabbit, tmp_path):
     assert call(str(tmp_path.joinpath('failed_mock_blob_name'))) in mock_upload_calls
     assert call(str(tmp_path.joinpath('failure_reasons_mock_blob_name'))) in mock_upload_calls
     patch_rabbit.return_value.__enter__.return_value.publish_message.assert_not_called()
+    patch_db_helper.connect_to_read_replica.assert_called_once()
 
     assert_no_left_over_files(tmp_path)
 
 
-def test_run_success_failure_mix(patch_storage, patch_rabbit, tmp_path):
+def test_run_success_failure_mix(patch_storage, patch_rabbit, patch_db_helper, tmp_path):
     # Given
     test_message = {"test_message": "blah"}
 
@@ -198,6 +200,7 @@ def test_run_success_failure_mix(patch_storage, patch_rabbit, tmp_path):
         message=json.dumps(test_message),
         content_type='application/json', headers=None,
         exchange=mock_processor.exchange, routing_key=mock_processor.routing_key)
+    patch_db_helper.connect_to_read_replica.assert_called_once()
     assert_no_left_over_files(tmp_path)
 
 

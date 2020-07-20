@@ -9,7 +9,7 @@ from google.cloud import storage
 from bulk_processing.processor_interface import Processor
 from bulk_processing.validators import set_equal, Invalid, ValidationFailure
 from config import Config
-from utilities.db_helper import connect_to_read_replica
+from utilities import db_helper
 from utilities.rabbit_context import RabbitContext
 
 
@@ -71,7 +71,7 @@ class BulkProcessor:
     def find_header_validation_failures(self, header):
         valid_header = set(self.processor.schema.keys())
         try:
-            set_equal(valid_header)(header)
+            set_equal(valid_header, label='headers')(header)
         except Invalid as invalid:
             return ValidationFailure(line_number=1, column=None, description=str(invalid))
 
@@ -116,7 +116,7 @@ class BulkProcessor:
     def run(self):
         print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
               f' with prefix {repr(self.processor.file_prefix)}')
-        with connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
+        with db_helper.connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
 

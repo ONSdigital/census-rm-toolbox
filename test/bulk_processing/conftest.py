@@ -13,3 +13,9 @@ def patch_rabbit():
 def patch_storage():
     with patch('bulk_processing.bulk_processor.storage') as patched_storage:
         yield patched_storage
+
+
+@pytest.fixture
+def patch_db_helper():
+    with patch('bulk_processing.bulk_processor.db_helper') as patched_db_helper:
+        yield patched_db_helper

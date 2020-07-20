@@ -5,10 +5,12 @@ import pytest
 
 from bulk_processing import validators
 
+test_label = 'test label'
+
 
 def test_in_set_valid():
     # Given
-    in_set_validator = validators.in_set({'a', 'b', 'c'})
+    in_set_validator = validators.in_set({'a', 'b', 'c'}, label=test_label)
 
     # When
     in_set_validator('a')
@@ -20,7 +22,7 @@ def test_in_set_valid():
 
 def test_in_set_invalid():
     # Given
-    in_set_validator = validators.in_set({'a'})
+    in_set_validator = validators.in_set({'a'}, label=test_label)
 
     # When, then raises
     with pytest.raises(validators.Invalid):
@@ -29,7 +31,7 @@ def test_in_set_invalid():
 
 def test_set_equal_valid():
     # Given
-    set_equal_validator = validators.set_equal({'a', 'b', 'c'})
+    set_equal_validator = validators.set_equal({'a', 'b', 'c'}, label=test_label)
 
     # When
     set_equal_validator(['a', 'b', 'c'])
@@ -39,7 +41,7 @@ def test_set_equal_valid():
 
 def test_set_equal_invalid():
     # Given
-    set_equal_validator = validators.set_equal({'a', 'b', 'c'})
+    set_equal_validator = validators.set_equal({'a', 'b', 'c'}, label=test_label)
 
     # When, then raises
     with pytest.raises(validators.Invalid):

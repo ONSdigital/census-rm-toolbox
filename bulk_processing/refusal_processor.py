@@ -15,7 +15,7 @@ class RefusalProcessor(Processor):
     project_id = Config.BULK_REFUSAL_PROJECT_ID
     schema = {
         "case_id": [is_uuid(), case_exists_by_id()],
-        "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"})]
+        "refusal_type": [in_set({"HARD_REFUSAL", "EXTRAORDINARY_REFUSAL"}, label='refusal types')]
     }
 
     def build_event_messages(self, row):
