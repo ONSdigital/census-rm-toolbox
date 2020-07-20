@@ -27,6 +27,7 @@ class BulkProcessor:
         print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
               f' with prefix {repr(self.processor.file_prefix)}')
         with db_helper.connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
+
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
 
@@ -39,22 +40,29 @@ class BulkProcessor:
         success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
         successes, errors = self.process_file(file_to_process, success_file, error_file,
                                               error_detail_file)
+
         print(f'Uploading results from processing file: {blob_to_process.name}')
         self.upload_results(successes, errors, success_file, error_file, error_detail_file)
+
         print(f'Deleting remote file: {blob_to_process.name}')
         blob_to_process.delete()
+
         self.delete_local_files((file_to_process, success_file, error_file, error_detail_file))
         print(f'Finished processing file: {blob_to_process.name}')
 
     def process_file(self, file_to_process, success_file, error_file, error_detail_file):
         try:
             with open(file_to_process, encoding="utf-8") as open_file_to_process:
+
                 file_reader = csv.DictReader(open_file_to_process, delimiter=',')
                 header_validation_failures = self.find_header_validation_errors(file_reader.fieldnames)
+
                 if header_validation_failures:
                     self.write_error_details_to_file([header_validation_failures], error_detail_file)
                     return 0, 1  # success_count, error_count
+
                 return self.process_rows(file_reader, success_file, error_file, error_detail_file)
+
         except UnicodeDecodeError as err:
             self.write_file_encoding_error_files(err, error_file, error_detail_file, file_to_process)
             return 0, 1  # success_count, error_count
