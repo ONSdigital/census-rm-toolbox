@@ -20,16 +20,16 @@ def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
     bulk_processor.rabbit = patch_rabbit
     test_file = resources_path.joinpath('bulk_test_file_success.csv')
 
-    success_file, failed_file, failure_reasons_file = bulk_processor.initialise_results_files(test_file.name)
-    success_count, failure_count = bulk_processor.process_file(test_file, success_file, failed_file,
-                                                               failure_reasons_file)
+    success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
+    success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
+                                                               error_detail_file)
 
-    assert not failure_count, 'Should have no processing failures'
+    assert not failure_count, 'Should have no processing errors'
     assert success_count == 1, 'Should successfully process one row'
 
     assert success_file.read_text() == test_file.read_text()
-    assert failed_file.read_text() == header + '\n'
-    assert not failure_reasons_file.read_text()
+    assert error_file.read_text() == header + '\n'
+    assert not error_detail_file.read_text()
 
     patch_rabbit.publish_message.assert_called_once_with(
         message=json.dumps({'header_1': 'foo', 'header_2': 'bar'}),
@@ -51,16 +51,16 @@ def test_process_file_success_failure_mix(patch_storage, patch_rabbit, tmp_path)
     bulk_processor.rabbit = patch_rabbit
     test_file = resources_path.joinpath('bulk_test_file_success_failure_mix.csv')
 
-    success_file, failed_file, failure_reasons_file = bulk_processor.initialise_results_files(test_file.name)
-    success_count, failure_count = bulk_processor.process_file(test_file, success_file, failed_file,
-                                                               failure_reasons_file)
+    success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
+    success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
+                                                               error_detail_file)
 
     assert failure_count == 1, 'Should fail to process one row'
     assert success_count == 1, 'Should successfully process one row'
 
     assert success_file.read_text() == header + '\n' + 'foo,bar' + '\n'
-    assert failed_file.read_text() == header + '\n' + 'invalid,bar' + '\n'
-    assert failure_reasons_file.read_text() == invalid_message + '\n'
+    assert error_file.read_text() == header + '\n' + 'invalid,bar' + '\n'
+    assert error_detail_file.read_text() == invalid_message + '\n'
 
     patch_rabbit.publish_message.assert_called_once_with(
         message=json.dumps({'header_1': 'foo', 'header_2': 'bar'}),
@@ -78,16 +78,16 @@ def test_process_file_header_failure(patch_storage, patch_rabbit, tmp_path):
     bulk_processor.working_dir = tmp_path
     test_file = resources_path.joinpath('bulk_test_file_header_failure.csv')
 
-    success_file, failed_file, failure_reasons_file = bulk_processor.initialise_results_files(test_file.name)
-    success_count, failure_count = bulk_processor.process_file(test_file, success_file, failed_file,
-                                                               failure_reasons_file)
+    success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
+    success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
+                                                               error_detail_file)
 
     assert failure_count == 1, 'Should fail to process one row'
     assert not success_count, 'Should not successfully process any rows'
 
     assert success_file.read_text() == header + '\n'
-    assert failed_file.read_text() == header + '\n'
-    assert 'header_2' in failure_reasons_file.read_text()
+    assert error_file.read_text() == header + '\n'
+    assert 'header_2' in error_detail_file.read_text()
 
     patch_rabbit.publish_message.assert_not_called()
 
@@ -100,15 +100,15 @@ def test_process_file_encoding_failure(patch_storage, patch_rabbit, tmp_path):
     bulk_processor.working_dir = tmp_path
     test_file = resources_path.joinpath('bulk_test_file_encoding_failure.csv')
 
-    success_file, failed_file, failure_reasons_file = bulk_processor.initialise_results_files(test_file.name)
-    success_count, failure_count = bulk_processor.process_file(test_file, success_file, failed_file,
-                                                               failure_reasons_file)
+    success_file, error_file, error_detail_file = bulk_processor.initialise_results_files(test_file.name)
+    success_count, failure_count = bulk_processor.process_file(test_file, success_file, error_file,
+                                                               error_detail_file)
 
     assert failure_count == 1, 'Should have one failure when it tries to decode the file'
     assert not success_count, 'Should not successfully process any rows'
 
     assert success_file.read_text() == header + '\n'
-    assert 'Invalid file encoding, requires utf-8' in failure_reasons_file.read_text()
+    assert 'Invalid file encoding, requires utf-8' in error_detail_file.read_text()
     patch_rabbit.publish_message.assert_not_called()
 
 
@@ -132,7 +132,7 @@ def test_run_validation_successful(patch_storage, patch_rabbit, patch_db_helper,
     # Then
     mock_upload_to_bucket = patch_storage.Client.return_value.bucket.return_value.blob.return_value \
         .upload_from_filename
-    mock_upload_to_bucket.assert_called_once_with(str(tmp_path.joinpath('processed_mock_blob_name')))
+    mock_upload_to_bucket.assert_called_once_with(str(tmp_path.joinpath('PROCESSED_mock_blob_name')))
     patch_rabbit.return_value.__enter__.return_value.publish_message.assert_called_once_with(
         message=json.dumps(test_message),
         content_type='application/json', headers=None,
@@ -161,8 +161,8 @@ def test_run_header_validation_fails(patch_storage, patch_rabbit, patch_db_helpe
         .upload_from_filename
     mock_upload_calls = mock_upload_to_bucket.call_args_list
     assert len(mock_upload_calls) == 2, 'Upload to bucket should be called twice'
-    assert call(str(tmp_path.joinpath('failed_mock_blob_name'))) in mock_upload_calls
-    assert call(str(tmp_path.joinpath('failure_reasons_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('ERROR_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('ERROR_DETAIL_mock_blob_name'))) in mock_upload_calls
     patch_rabbit.return_value.__enter__.return_value.publish_message.assert_not_called()
     patch_db_helper.connect_to_read_replica.assert_called_once()
 
@@ -192,9 +192,9 @@ def test_run_success_failure_mix(patch_storage, patch_rabbit, patch_db_helper, t
         upload_from_filename
     mock_upload_calls = mock_upload_to_bucket.call_args_list
     assert len(mock_upload_calls) == 3, 'Upload to bucket should be called twice'
-    assert call(str(tmp_path.joinpath('processed_mock_blob_name'))) in mock_upload_calls
-    assert call(str(tmp_path.joinpath('failed_mock_blob_name'))) in mock_upload_calls
-    assert call(str(tmp_path.joinpath('failure_reasons_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('PROCESSED_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('ERROR_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('ERROR_DETAIL_mock_blob_name'))) in mock_upload_calls
 
     patch_rabbit.return_value.__enter__.return_value.publish_message.assert_called_once_with(
         message=json.dumps(test_message),

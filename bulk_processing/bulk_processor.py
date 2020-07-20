@@ -23,79 +23,79 @@ class BulkProcessor:
         self.rabbit = None
         self.db_connection = None
 
-    def process_file(self, file_to_process, success_file, failure_file, failure_reasons_file):
+    def process_file(self, file_to_process, success_file, error_file, error_detail_file):
         try:
             with open(file_to_process, encoding="utf-8") as open_file_to_process:
                 file_reader = csv.DictReader(open_file_to_process, delimiter=',')
-                header_validation_failures = self.find_header_validation_failures(file_reader.fieldnames)
+                header_validation_failures = self.find_header_validation_errors(file_reader.fieldnames)
                 if header_validation_failures:
-                    self.write_failure_reasons_to_file([header_validation_failures], failure_reasons_file)
-                    return 0, 1  # success_count, failure_count
-                return self.process_rows(file_reader, success_file, failure_file, failure_reasons_file)
+                    self.write_error_details_to_file([header_validation_failures], error_detail_file)
+                    return 0, 1  # success_count, error_count
+                return self.process_rows(file_reader, success_file, error_file, error_detail_file)
         except UnicodeDecodeError as err:
-            self.write_file_encoding_error_files(err, failure_file, failure_reasons_file, file_to_process)
-            return 0, 1  # success_count, failure_count
+            self.write_file_encoding_error_files(err, error_file, error_detail_file, file_to_process)
+            return 0, 1  # success_count, error_count
 
     @staticmethod
-    def write_file_encoding_error_files(err, failure_file, failure_reasons_file, file_to_process):
-        shutil.copy(file_to_process, failure_file)
-        failure_reasons_file.write_text(f'Invalid file encoding, requires utf-8, error: {err}')
+    def write_file_encoding_error_files(err, error_file, error_detail_file, file_to_process):
+        shutil.copy(file_to_process, error_file)
+        error_detail_file.write_text(f'Invalid file encoding, requires utf-8, error: {err}')
 
-    def process_rows(self, file_reader, success_file, failure_file, failure_reasons_file):
-        failure_count = 0
+    def process_rows(self, file_reader, success_file, error_file, error_detail_file):
+        error_count = 0
         success_count = 0
         for line_number, row in enumerate(file_reader, 2):
-            row_failures = self.find_row_validation_failures(line_number, row)
-            if row_failures:
-                failure_count += len(row_failures)
-                self.write_row_failures_to_files(row, row_failures, failure_file, failure_reasons_file)
+            row_errors = self.find_row_validation_errors(line_number, row)
+            if row_errors:
+                error_count += len(row_errors)
+                self.write_row_errors_to_files(row, row_errors, error_file, error_detail_file)
             else:
                 success_count += 1
                 event_messages = self.processor.build_event_messages(row)
                 self.publish_messages(event_messages, self.rabbit)
                 self.write_row_success_to_file(row, success_file)
-        print(f'Processing results: {line_number} lines processed, '
-              f'Failures: {failure_count}')
-        return success_count, failure_count
+        print(f'Processing results: {line_number} rows processed, '
+              f'Failures: {error_count}')
+        return success_count, error_count
 
     def initialise_results_files(self, file_to_process_name):
         header_row = ','.join(column for column in self.processor.schema.keys()) + '\n'
-        success_file = self.working_dir.joinpath(f'processed_{file_to_process_name}')
+        success_file = self.working_dir.joinpath(f'PROCESSED_{file_to_process_name}')
         success_file.write_text(header_row)
-        failure_file = self.working_dir.joinpath(f'failed_{file_to_process_name}')
-        failure_file.write_text(header_row)
-        failure_reasons_file = self.working_dir.joinpath(f'failure_reasons_{file_to_process_name}')
-        failure_reasons_file.touch()
-        return success_file, failure_file, failure_reasons_file
+        error_file = self.working_dir.joinpath(f'ERROR_{file_to_process_name}')
+        error_file.write_text(header_row)
+        error_detail_file = self.working_dir.joinpath(f'ERROR_DETAIL_{file_to_process_name}')
+        error_detail_file.touch()
+        return success_file, error_file, error_detail_file
 
-    def find_header_validation_failures(self, header):
+    def find_header_validation_errors(self, header):
         valid_header = set(self.processor.schema.keys())
         try:
             set_equal(valid_header, label='headers')(header)
         except Invalid as invalid:
             return ValidationFailure(line_number=1, column=None, description=str(invalid))
 
-    def find_row_validation_failures(self, line_number, row):
-        failures = []
+    def find_row_validation_errors(self, line_number, row):
+        errors = []
         for column, validators in self.processor.schema.items():
             for validator in validators:
                 try:
                     validator(row[column], row=row, db_connection=self.db_connection)
                 except Invalid as invalid:
-                    failures.append(ValidationFailure(line_number, column, invalid))
-        return failures
+                    errors.append(ValidationFailure(line_number, column, invalid))
+        return errors
 
-    def write_row_failures_to_files(self, failed_row, failures, failure_file, failure_reasons_file):
-        with open(failure_file, 'a') as append_failure_file:
-            append_failure_file.write(','.join(failed_row.values()))
-            append_failure_file.write('\n')
-        self.write_failure_reasons_to_file(failures, failure_reasons_file)
+    def write_row_errors_to_files(self, errored_row, errors, error_file, error_detail_file):
+        with open(error_file, 'a') as append_error_file:
+            append_error_file.write(','.join(errored_row.values()))
+            append_error_file.write('\n')
+        self.write_error_details_to_file(errors, error_detail_file)
 
     @staticmethod
-    def write_failure_reasons_to_file(failures, failure_reasons_file):
-        with open(failure_reasons_file, 'a') as append_failure_reasons_file:
-            append_failure_reasons_file.write(', '.join(str(failure.description) for failure in failures))
-            append_failure_reasons_file.write('\n')
+    def write_error_details_to_file(errors, error_detail_file):
+        with open(error_detail_file, 'a') as append_error_detail_file:
+            append_error_detail_file.write(', '.join(str(error.description) for error in errors))
+            append_error_detail_file.write('\n')
 
     @staticmethod
     def write_row_success_to_file(succeeded_row, success_file):
@@ -127,21 +127,21 @@ class BulkProcessor:
                 with open(file_to_process, 'wb') as open_file_to_process:
                     self.storage_client.download_blob_to_file(blob_to_process, open_file_to_process)
 
-                success_file, failure_file, failure_reasons_file = self.initialise_results_files(file_to_process.name)
-                successes, failures = self.process_file(file_to_process, success_file, failure_file,
-                                                        failure_reasons_file)
+                success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
+                successes, errors = self.process_file(file_to_process, success_file, error_file,
+                                                      error_detail_file)
 
                 # Only upload files which contain data
                 files_to_upload = []
                 if successes:
                     files_to_upload.append(success_file)
-                if failures:
-                    files_to_upload.append(failure_file)
-                    files_to_upload.append(failure_reasons_file)
+                if errors:
+                    files_to_upload.append(error_file)
+                    files_to_upload.append(error_detail_file)
                 self.upload_files_to_bucket(files_to_upload)
 
                 blob_to_process.delete()
-                self.delete_local_files((file_to_process, success_file, failure_file, failure_reasons_file))
+                self.delete_local_files((file_to_process, success_file, error_file, error_detail_file))
 
                 print(f'Finished processing file: {blob_to_process.name}')
 

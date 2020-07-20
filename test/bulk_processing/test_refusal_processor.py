@@ -32,7 +32,7 @@ def test_build_event_messages(case_id, refusal_type):
 def test_refusal_validation_headers(_patched_storage_client):
     refusal_headers = {"case_id", "refusal_type"}
 
-    result = BulkProcessor(RefusalProcessor()).find_header_validation_failures(refusal_headers)
+    result = BulkProcessor(RefusalProcessor()).find_header_validation_errors(refusal_headers)
 
     assert result is None
 
@@ -41,7 +41,7 @@ def test_refusal_validation_headers(_patched_storage_client):
 def test_refusal_validation_headers_fails_refusal_type(_patched_storage_client):
     refusal_headers = {"case_id", "refusal_pyte"}
 
-    result = BulkProcessor(RefusalProcessor()).find_header_validation_failures(refusal_headers)
+    result = BulkProcessor(RefusalProcessor()).find_header_validation_errors(refusal_headers)
 
     assert result.line_number == 1
     assert "refusal_pyte" in result.description
@@ -52,7 +52,7 @@ def test_refusal_validation_headers_fails_refusal_type(_patched_storage_client):
 def test_refusal_validation_headers_fails_case_id(_patched_storage_client):
     refusal_headers = {"not_a_case_id", "refusal_type"}
 
-    result = BulkProcessor(RefusalProcessor()).find_header_validation_failures(refusal_headers)
+    result = BulkProcessor(RefusalProcessor()).find_header_validation_errors(refusal_headers)
 
     assert result.line_number == 1
     assert "not_a_case_id" in result.description
@@ -61,7 +61,7 @@ def test_refusal_validation_headers_fails_case_id(_patched_storage_client):
 
 @patch('bulk_processing.bulk_processor.storage')
 def test_refusal_validation_headers_fails_empty(_patched_storage_client):
-    result = BulkProcessor(RefusalProcessor()).find_header_validation_failures({})
+    result = BulkProcessor(RefusalProcessor()).find_header_validation_errors({})
 
     assert result.line_number == 1
     assert "refusal_type" in result.description
