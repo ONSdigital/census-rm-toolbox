@@ -27,7 +27,6 @@ class BulkProcessor:
         print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
               f' with prefix {repr(self.processor.file_prefix)}')
         with db_helper.connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
-
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
 
@@ -179,4 +178,3 @@ class BulkProcessor:
         print(f'Deleting local files: {files_to_delete}')
         for file_to_delete in files_to_delete:
             file_to_delete.unlink()
-
