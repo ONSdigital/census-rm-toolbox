@@ -5,6 +5,7 @@ from datetime import datetime
 import rfc3339
 from termcolor import colored
 
+from config import Config
 from reminder_batch_scheduler import constants
 from utilities import db_helper
 
@@ -55,7 +56,8 @@ def main(wave: int, starting_batch: int, max_cases: int, action_plan_id: uuid.UU
 
 def count_batch_cases(batch, wave_classifiers, action_plan_id):
     batch_count_query, query_values = build_batch_count_query(batch, wave_classifiers, action_plan_id)
-    result = db_helper.execute_parametrized_sql_query(batch_count_query, query_values)
+    result = db_helper.execute_parametrized_sql_query(batch_count_query, query_values, Config.DB_HOST_ACTION,
+                                                      Config.DB_ACTION_CERTIFICATES)
     return result[0][0]
 
 
@@ -122,7 +124,7 @@ def generate_action_rules(action_rule_classifiers, action_plan_id, trigger_date_
 
 
 def insert_action_rules(action_rules):
-    with db_helper.open_write_cursor() as db_cursor:
+    with db_helper.open_write_cursor(Config.DB_HOST_ACTION, Config.DB_ACTION_CERTIFICATES) as db_cursor:
         for action_type, action_rule in action_rules.items():
             print("Inserting action rule for", action_type)
             db_helper.execute_sql_query_with_write(db_cursor, action_rule[0], action_rule[1])

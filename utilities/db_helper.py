@@ -6,17 +6,17 @@ from termcolor import colored
 from config import Config
 
 
-def execute_sql_query(sql_query):
-    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+def execute_sql_query(sql_query, db_host=Config.DB_HOST, extra_options=""):
+    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{db_host}' "
+                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}{extra_options}")
     cursor = conn.cursor()
     cursor.execute(sql_query)
     return cursor.fetchall()
 
 
-def execute_parametrized_sql_query(sql_query, values: tuple):
-    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
+def execute_parametrized_sql_query(sql_query, values: tuple, db_host=Config.DB_HOST, extra_options=""):
+    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{db_host}' "
+                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}{extra_options}")
     cursor = conn.cursor()
     cursor.execute(sql_query, values)
     return cursor.fetchall()
@@ -29,9 +29,9 @@ def execute_sql_query_with_write(cursor, sql_query, values: tuple):
 
 
 @contextlib.contextmanager
-def open_write_cursor():
-    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST_WRITE}' "
-                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT_WRITE}'{Config.DB_USESSL}")
+def open_write_cursor(db_host=Config.DB_HOST, extra_options=""):
+    conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{db_host}' "
+                            f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}{extra_options}")
     cursor = conn.cursor()
     try:
         yield cursor
