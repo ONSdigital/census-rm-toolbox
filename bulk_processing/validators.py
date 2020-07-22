@@ -1,6 +1,6 @@
 import uuid
 from collections import namedtuple
-from typing import Iterable
+from typing import Sequence
 
 from utilities.db_helper import execute_in_connection
 
@@ -19,14 +19,10 @@ def in_set(valid_value_set: set, label: str):
     return validate
 
 
-def set_equal(expected_set: set, label: str):
-    def validate(value: Iterable, **_kwargs) -> None:
-        value_as_set = set(value)
-        if value_as_set != expected_set:
-            raise Invalid((f"Values don't match expected set of {label}, "
-                           f'missing values: {expected_set.difference(value_as_set)}, '
-                           f'unexpected values: {value_as_set.difference(expected_set)}'))
-
+def header_equal(expected_fieldnames: list):
+    def validate(value: Sequence[str], **_kwargs) -> None:
+        if list(value) != list(expected_fieldnames):
+            raise Invalid(f'Header row does not match expected. Expected: {expected_fieldnames}, Got: {value}')
     return validate
 
 

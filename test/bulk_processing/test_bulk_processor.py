@@ -14,7 +14,7 @@ HEADER_IS_VALID = 'Header row is valid\n'
 def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
     schema = {'header_1': [], 'header_2': []}
     header = ','.join(key for key in schema.keys())
-    mock_processor = setup_mock_processor({'header_1': [], 'header_2': []}, None)
+    mock_processor = setup_mock_processor(schema, None)
     mock_processor.build_event_messages.side_effect = lambda row: [row]
     bulk_processor = BulkProcessor(mock_processor)
     bulk_processor.working_dir = tmp_path

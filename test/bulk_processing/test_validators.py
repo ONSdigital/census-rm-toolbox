@@ -29,23 +29,36 @@ def test_in_set_invalid():
         in_set_validator('abc')
 
 
-def test_set_equal_valid():
+@pytest.mark.parametrize('expected_header,header', [
+    (['a', 'b', 'c'], ['a', 'b', 'c']),
+    (['a', 'b', 'c'], ('a', 'b', 'c')),
+    (['a', 'b', 'c'], {'a': 'foo', 'b': 'bar', 'c': 'spam'}.keys()),
+    (['2', '1'], ('2', '1')),
+])
+def test_header_equal_valid(expected_header, header):
     # Given
-    set_equal_validator = validators.set_equal({'a', 'b', 'c'}, label=test_label)
+    set_equal_validator = validators.header_equal(expected_header)
 
     # When
-    set_equal_validator(['a', 'b', 'c'])
+    set_equal_validator(header)
 
     # Then no invalid exception is raised
 
 
-def test_set_equal_invalid():
+@pytest.mark.parametrize('expected_header,header', [
+    (['a', 'b', 'c'], ['a', 'b', 'c', 'blah']),
+    (['a', 'b', 'c'], ['a', 'c', 'b']),
+    (['a', 'b', 'c'], []),
+    (['a', 'b', 'c'], ['foo']),
+    ([], ['foo'])
+])
+def test_header_equal_invalid(expected_header, header):
     # Given
-    set_equal_validator = validators.set_equal({'a', 'b', 'c'}, label=test_label)
+    set_equal_validator = validators.header_equal(expected_header)
 
     # When, then raises
     with pytest.raises(validators.Invalid):
-        set_equal_validator(['a', 'b', 'c', 'blah'])
+        set_equal_validator(header)
 
 
 @patch('bulk_processing.validators.execute_in_connection')

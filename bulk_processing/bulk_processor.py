@@ -7,7 +7,7 @@ from typing import Collection
 from google.cloud import storage
 
 from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import set_equal, Invalid, ValidationFailure
+from bulk_processing.validators import header_equal, Invalid, ValidationFailure
 from config import Config
 from utilities import db_helper
 from utilities.rabbit_context import RabbitContext
@@ -102,9 +102,8 @@ class BulkProcessor:
         return success_file, error_file, error_detail_file
 
     def find_header_validation_errors(self, header):
-        valid_header = set(self.processor.schema.keys())
         try:
-            set_equal(valid_header, label='headers')(header)
+            header_equal(self.processor.schema.keys())(header)
         except Invalid as invalid:
             return ValidationFailure(line_number=1, column=None, description=str(invalid))
 
