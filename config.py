@@ -14,11 +14,16 @@ class Config:
     DB_PASSWORD = os.getenv('DB_PASSWORD', 'postgres')
     DB_HOST = os.getenv('DB_HOST', 'localhost')
     DB_HOST_WRITE = os.getenv('DB_HOST_RW', 'localhost')
+    DB_HOST_ACTION = os.getenv('DB_HOST_ACTION', 'localhost')
     DB_PORT = os.getenv('DB_PORT', '6432')
     DB_PORT_WRITE = os.getenv('DB_PORT_RW', '6432')
     DB_NAME = os.getenv('DB_NAME', 'postgres')
     DB_NAME_WRITE = os.getenv('DB_NAME_RW', 'postgres')
     DB_USESSL = os.getenv('DB_USESSL', '')
+    DB_ACTION_CERTIFICATES = os.getenv('DB_ACTION_CERTIFICATES',
+                                       (" sslmode=verify-ca sslrootcert=/home/toolbox/.postgresql-action/root.crt "
+                                        "sslcert=/home/toolbox/.postgresql-action/postgresql.crt "
+                                        "sslkey=/home/toolbox/.postgresql-action/postgresql.key"))
     CASEAPI_HOST = os.getenv('CASEAPI_HOST', 'localhost')
     CASEAPI_PORT = os.getenv('CASEAPI_PORT', '8161')
     EXCEPTIONMANAGER_HOST = os.getenv('EXCEPTIONMANAGER_HOST', 'localhost')
