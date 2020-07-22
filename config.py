@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 
 class Config:
@@ -30,3 +31,11 @@ class Config:
     EXCEPTIONMANAGER_URL = f'http://{EXCEPTIONMANAGER_HOST}:{EXCEPTIONMANAGER_PORT}'
     QID_MODULUS = os.getenv('QID_MODULUS', '1')
     QID_FACTOR = os.getenv('QID_FACTOR', '1')
+
+    BULK_WORKING_DIRECTORY = Path(os.getenv('BULK_WORKING_DIRECTORY', '/tmp'))
+
+    BULK_REFUSAL_FILE_PREFIX = os.getenv('BULK_REFUSAL_FILE_PREFIX', 'refusals_')
+    BULK_REFUSAL_BUCKET_NAME = os.getenv('BULK_REFUSAL_BUCKET_NAME')
+    BULK_REFUSAL_PROJECT_ID = os.getenv('BULK_REFUSAL_PROJECT_ID')
+    REFUSAL_EVENT_ROUTING_KEY = os.getenv('REFUSAL_EVENT_ROUTING_KEY', 'event.respondent.refusal')
+    EVENTS_EXCHANGE = os.getenv('EVENTS_EXCHANGE', 'events')

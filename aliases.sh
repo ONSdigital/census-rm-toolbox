@@ -23,6 +23,7 @@ alias qidlink='python questionnaire_linking.py'
 alias fulfilment='python -m monitoring.fulfilment_count'
 alias weekendfulfilment='python -m monitoring.weekend_fulfilment_count'
 alias reminderbatch='python -m reminder_batch_scheduler.reminder_batch'
+alias bulkrefusals='python -m bulk_processing.refusal_processor'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq

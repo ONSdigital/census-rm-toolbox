@@ -42,6 +42,30 @@ reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --
 ```bash
 reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --insert-rules --trigger-date-time=<DATE_TIME> --max-cases=1000000 
 ```
+
+## Bulk Processing
+### Bulk Refusals
+Bulk refusals files can be dropped in a bucket for processing, the file format required is 
+```csv
+case_id,refusal_type
+16400b37-e0fb-4cf4-9ddf-728abce92049,HARD_REFUSAL
+180e2636-d8e5-4949-bced-f7a0c532190c,EXTRAORDINARY_REFUSAL
+```
+Including the header row.
+
+The refusal type must be one of 
+```
+HARD_REFUSAL
+EXTRAORDINARY_REFUSAL
+```
+
+The file should be placed in the configured bulk refusals bucket with a name matching `refusals_*.csv`, then the processor can be run with
+```shell script
+bulkrefusals
+```
+Rows which are successfully processed will be added to `PROCESSED_refusals_*.csv` and errored rows be appended to `ERROR_refusals_*.csv` with the corresponding error details written to `ERROR_DETAIL_refusals_*.csv`.
+
+
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash
