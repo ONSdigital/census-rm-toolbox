@@ -112,7 +112,7 @@ class BulkProcessor:
         for column, validators in self.processor.schema.items():
             for validator in validators:
                 try:
-                    validator(row[column], row=row, db_connection=self.db_connection)
+                    validator(row[column], row=row, db_connection=self.db_connection, column=column)
                 except Invalid as invalid:
                     errors.append(ValidationFailure(line_number, column, invalid))
         return errors

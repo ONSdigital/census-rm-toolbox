@@ -73,7 +73,7 @@ def unique():
 def mandatory():
     def validate(value, **_kwargs):
         if not value or value.replace(" ", "") == '':
-            raise Invalid('Empty mandatory value')
+            raise Invalid(f'Empty mandatory value: {_kwargs["column"]}')
 
     return validate
 
