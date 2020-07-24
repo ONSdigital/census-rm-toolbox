@@ -177,6 +177,7 @@ def test_mandatory_invalid():
 
     assert 'Empty mandatory value: test_column' in exc.value.args[0]
 
+
 def test_numeric_valid():
     # Given
     numeric_validator = validators.numeric()
@@ -237,15 +238,6 @@ def test_lat_long_invalid_precision():
     # When, then raises
     with pytest.raises(validators.Invalid):
         lat_long_validator('123456.7')
-
-
-def test_set_equal_invalid():
-    # Given
-    set_equal_validator = validators.set_equal({'a', 'b', 'c'})
-
-    # When, then raises
-    with pytest.raises(validators.Invalid):
-        set_equal_validator(['a', 'b', 'c', 'blah'])
 
 
 def test_no_padding_whitespace_check_valid():

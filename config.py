@@ -1,5 +1,4 @@
 import os
-import uuid
 from pathlib import Path
 
 
@@ -44,7 +43,7 @@ class Config:
     BULK_NEW_ADDRESS_BUCKET_NAME = os.getenv('BULK_NEW_ADDRESS_BUCKET_NAME')
     BULK_NEW_ADDRESS_PROJECT_ID = os.getenv('BULK_NEW_ADDRESS_PROJECT_ID')
     NEW_ADDRESS_EVENT_ROUTING_KEY = os.getenv('NEW_ADDRESS_EVENT_ROUTING_KEY', 'case.sample.inbound')
-    COLLECTION_EXERCISE_ID = os.getenv('COLLECTION_EXERCISE_ID', str(uuid.uuid4()))  # TODO Remove hardcoded IDs
-    ACTION_PLAN_ID = os.getenv('ACTION_PLAN_ID', str(uuid.uuid4()))
+    COLLECTION_EXERCISE_ID = os.getenv('COLLECTION_EXERCISE_ID')  # TODO Remove hardcoded IDs
+    ACTION_PLAN_ID = os.getenv('ACTION_PLAN_ID')
 
     EVENTS_EXCHANGE = os.getenv('EVENTS_EXCHANGE', 'events')
