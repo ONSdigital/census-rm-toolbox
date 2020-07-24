@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pytest
 
-from bulk_processing import validators
+from toolbox.bulk_processing import validators
 
 test_label = 'test label'
 
@@ -61,7 +61,7 @@ def test_header_equal_invalid(expected_header, header):
         set_equal_validator(header)
 
 
-@patch('bulk_processing.validators.execute_in_connection')
+@patch('toolbox.bulk_processing.validators.execute_in_connection')
 def test_case_exists_by_id_succeeds(mock_execute_method):
     # Given
     mock_execute_method.return_value = [(1,)]
@@ -73,7 +73,7 @@ def test_case_exists_by_id_succeeds(mock_execute_method):
     # Then no invalid exception is raised
 
 
-@patch('bulk_processing.validators.execute_in_connection')
+@patch('toolbox.bulk_processing.validators.execute_in_connection')
 def test_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []
@@ -177,6 +177,7 @@ def test_mandatory_invalid():
 
     assert 'Empty mandatory value: test_column' in exc.value.args[0]
 
+
 def test_numeric_valid():
     # Given
     numeric_validator = validators.numeric()
@@ -237,15 +238,6 @@ def test_lat_long_invalid_precision():
     # When, then raises
     with pytest.raises(validators.Invalid):
         lat_long_validator('123456.7')
-
-
-def test_set_equal_invalid():
-    # Given
-    set_equal_validator = validators.set_equal({'a', 'b', 'c'})
-
-    # When, then raises
-    with pytest.raises(validators.Invalid):
-        set_equal_validator(['a', 'b', 'c', 'blah'])
 
 
 def test_no_padding_whitespace_check_valid():

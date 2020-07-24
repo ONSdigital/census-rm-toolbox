@@ -5,7 +5,7 @@ import urllib.parse
 import requests
 from requests.auth import HTTPBasicAuth
 
-from config import Config
+from toolbox.config import Config
 
 
 def parse_arguments():

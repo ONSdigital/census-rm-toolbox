@@ -1,6 +1,6 @@
 import json
 
-from utilities.db_helper import execute_sql_query
+from toolbox.utilities import execute_sql_query
 
 if __name__ == "__main__":
     sql_query = """

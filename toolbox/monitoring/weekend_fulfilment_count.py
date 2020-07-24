@@ -6,7 +6,7 @@ from getpass import getpass
 import psycopg2
 from dateutil.rrule import rrule, DAILY
 
-from config import Config
+from toolbox.config import Config
 
 
 def fulfilment_query(username, password):

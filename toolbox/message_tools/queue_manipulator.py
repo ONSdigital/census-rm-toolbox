@@ -6,7 +6,7 @@ import xml.dom.minidom
 
 from termcolor import colored
 
-from utilities.rabbit_context import RabbitContext
+from toolbox.utilities import RabbitContext
 
 SEEN_MESSAGES = 0
 FOUND_MESSAGES = 0

@@ -1,8 +1,9 @@
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace, latitude_longitude, \
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.processor_interface import Processor
+from toolbox.bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace, \
+    latitude_longitude, \
     in_set, region_matches_treatment_code, ce_u_has_expected_capacity
-from config import Config
+from toolbox.config import Config
 
 
 class NewAddressProcessor(Processor):

@@ -1,9 +1,9 @@
 from collections import OrderedDict
 from unittest.mock import patch
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.new_address_processor import NewAddressProcessor
-from config import Config
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.new_address_processor import NewAddressProcessor
+from toolbox.config import Config
 
 new_address_row = OrderedDict(
     [('UPRN', '25058243579'), ('ESTAB_UPRN', '46170434880'), ('ADDRESS_TYPE', 'HH'), ('ESTAB_TYPE', 'HOUSEHOLD'),
@@ -43,14 +43,14 @@ def test_new_address_processor_build_event_messages():
     assert events[0]['collectionExerciseId'] == Config.COLLECTION_EXERCISE_ID
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_new_address_validation(_patched_storage_client):
     result = BulkProcessor(NewAddressProcessor()).find_header_validation_errors(file_headers)
 
     assert result is None
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_new_address_validation_errors_doesnt_match(_patched_storage_client):
     result = BulkProcessor(NewAddressProcessor()).find_header_validation_errors(file_headers_errors)
 
@@ -58,7 +58,7 @@ def test_new_address_validation_errors_doesnt_match(_patched_storage_client):
     assert 'UPRN' in result.description
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_new_address_validation_headers_empty(_patched_storage_client):
     result = BulkProcessor(NewAddressProcessor()).find_header_validation_errors({})
 

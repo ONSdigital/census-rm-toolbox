@@ -3,7 +3,7 @@ import contextlib
 import psycopg2
 from termcolor import colored
 
-from config import Config
+from toolbox.config import Config
 
 
 def execute_sql_query(sql_query, db_host=Config.DB_HOST, extra_options=""):

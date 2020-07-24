@@ -3,9 +3,9 @@ from functools import partial
 from pathlib import Path
 from unittest.mock import Mock, call
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import Invalid
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.processor_interface import Processor
+from toolbox.bulk_processing.validators import Invalid
 
 RESOURCE_PATH = Path(__file__).parent.joinpath('resources')
 HEADER_IS_VALID = 'Header row is valid\n'

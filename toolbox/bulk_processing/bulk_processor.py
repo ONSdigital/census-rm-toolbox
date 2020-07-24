@@ -6,11 +6,11 @@ from typing import Collection
 
 from google.cloud import storage
 
-from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import header_equal, Invalid, ValidationFailure
-from config import Config
-from utilities import db_helper
-from utilities.rabbit_context import RabbitContext
+from toolbox.bulk_processing.processor_interface import Processor
+from toolbox.bulk_processing.validators import header_equal, Invalid, ValidationFailure
+from toolbox.config import Config
+from toolbox.utilities import db_helper
+from toolbox.utilities.rabbit_context import RabbitContext
 
 
 class BulkProcessor:

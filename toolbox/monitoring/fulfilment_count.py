@@ -4,7 +4,7 @@ from getpass import getpass
 
 import psycopg2
 
-from config import Config
+from toolbox.config import Config
 
 
 def parse_arguments():
