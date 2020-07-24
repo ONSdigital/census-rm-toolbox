@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from utilities import db_helper
+from toolbox.utilities import db_helper
 
 
 @patch('utilities.db_helper.psycopg2')

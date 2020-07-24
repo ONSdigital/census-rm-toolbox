@@ -10,7 +10,7 @@ from pika.spec import PERSISTENT_DELIVERY_MODE
 
 import qid_checksum_validator
 from config import Config
-from utilities.rabbit_context import RabbitContext
+from toolbox.utilities import RabbitContext
 
 CASE_REF_ERROR_COUNT = 0
 QID_ERROR_COUNT = 0
