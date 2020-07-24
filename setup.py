@@ -9,5 +9,5 @@ setuptools.setup(
     long_description=Path('README.md').read_text(),
     long_description_content_type="text/markdown",
     url="https://github.com/ONSdigital/census-rm-toolbox",
-    packages=setuptools.find_packages(),
+    packages=setuptools.find_packages(include=['bulk_processing', 'utilities']),
 )
