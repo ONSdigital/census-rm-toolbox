@@ -32,9 +32,9 @@ class NewAddressProcessor(Processor):
 
         'UPRN': [mandatory(), max_length(12), numeric(), no_padding_whitespace()],
         'ESTAB_UPRN': [mandatory(), max_length(12), numeric(), mandatory(), no_padding_whitespace()],
-        'ADDRESS_TYPE': [mandatory(), in_set({'HH', 'CE', 'SPG'}, label='address_types'), no_padding_whitespace()],
-        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='estab types'), max_length(255), no_padding_whitespace()],
-        'ADDRESS_LEVEL': [mandatory(), in_set({'E', 'U'}, label='address levels'), no_padding_whitespace()],
+        'ADDRESS_TYPE': [mandatory(), in_set({'HH', 'CE', 'SPG'}, label='ADDRESS_TYPE'), no_padding_whitespace()],
+        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='ESTAB_TYPE'), max_length(255), no_padding_whitespace()],
+        'ADDRESS_LEVEL': [mandatory(), in_set({'E', 'U'}, label='ADDRESS_LEVEL'), no_padding_whitespace()],
         'ABP_CODE': [mandatory(), max_length(6), no_padding_whitespace()],
         'ORGANISATION_NAME': [max_length(60), no_padding_whitespace()],
         'ADDRESS_LINE1': [mandatory(), max_length(60), no_padding_whitespace()],
@@ -51,13 +51,13 @@ class NewAddressProcessor(Processor):
         'REGION': [mandatory(), max_length(9), no_padding_whitespace(), region_matches_treatment_code()],
         'HTC_WILLINGNESS': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_WILLINGNESS'),
                             no_padding_whitespace()],
-        'HTC_DIGITAL': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='htc digital'),
+        'HTC_DIGITAL': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_DIGITAL'),
                         no_padding_whitespace()],
-        'TREATMENT_CODE': [mandatory(), in_set(TREATMENT_CODES, label='treatment codes'), no_padding_whitespace()],
+        'TREATMENT_CODE': [mandatory(), in_set(TREATMENT_CODES, label='TREATMENT_CODE'), no_padding_whitespace()],
         'FIELDCOORDINATOR_ID': [max_length(10), no_padding_whitespace()],
         'FIELDOFFICER_ID': [max_length(13), no_padding_whitespace()],
         'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace(), ce_u_has_expected_capacity()],
-        'CE_SECURE': [mandatory(), in_set({'0', '1'}, label='CE Secure'), no_padding_whitespace()],
+        'CE_SECURE': [mandatory(), in_set({'0', '1'}, label='CE_SECURE'), no_padding_whitespace()],
         'PRINT_BATCH': [numeric(), max_length(2), no_padding_whitespace()]
     }
     collection_exercise_id = Config.COLLECTION_EXERCISE_ID

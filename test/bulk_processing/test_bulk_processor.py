@@ -87,7 +87,7 @@ def test_process_file_header_failure(patch_storage, patch_rabbit, tmp_path):
     assert not success_count, 'Should not successfully process any rows'
 
     assert success_file.read_text() == header + '\n'
-    assert error_file.read_text() == header + '\n'
+    assert error_file.read_text() == test_file.read_text()
     assert 'header_2' in error_detail_file.read_text()
 
     patch_rabbit.publish_message.assert_not_called()

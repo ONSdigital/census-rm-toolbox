@@ -58,6 +58,7 @@ class BulkProcessor:
 
                 if header_validation_failures:
                     print(f'File: {file_to_process.name}, header row is invalid')
+                    shutil.copy(file_to_process, error_file)
                     self.write_error_details_to_file([header_validation_failures], error_detail_file)
                     return 0, 1  # success_count, error_count
 
