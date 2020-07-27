@@ -36,6 +36,14 @@ def is_uuid():
     return validate
 
 
+def max_length(max_len: int):
+    def validate(value, **_kwargs):
+        if len(value) > max_len:
+            raise Invalid(f'Value has length {len(value)}, exceeds max of {max_len}')
+
+    return validate
+
+
 def case_exists_by_id():
     def validate(case_id, **kwargs):
         try:

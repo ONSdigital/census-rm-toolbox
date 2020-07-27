@@ -29,6 +29,25 @@ def test_in_set_invalid():
         in_set_validator('abc')
 
 
+def test_max_length_valid():
+    # Given
+    max_length_validator = validators.max_length(10)
+
+    # When
+    max_length_validator("a" * 10)
+
+    # Then no invalid exception is raised
+
+
+def test_max_length_invalid():
+    # Given
+    max_length_validator = validators.max_length(10)
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        max_length_validator('a' * 11)
+
+
 @pytest.mark.parametrize('expected_header,header', [
     (['a', 'b', 'c'], ['a', 'b', 'c']),
     (['a', 'b', 'c'], ('a', 'b', 'c')),
