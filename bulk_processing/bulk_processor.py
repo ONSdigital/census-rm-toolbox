@@ -127,7 +127,8 @@ class BulkProcessor:
     @staticmethod
     def write_error_details_to_file(errors, error_detail_file):
         with open(error_detail_file, 'a') as append_error_detail_file:
-            append_error_detail_file.write(', '.join(str(error.description) for error in errors))
+            append_error_detail_file.write(
+                ' | '.join(f"[Column: {error.column}, Error: {str(error.description)}]" for error in errors))
             append_error_detail_file.write('\n')
 
     @staticmethod
