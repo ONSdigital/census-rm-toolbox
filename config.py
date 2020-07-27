@@ -45,5 +45,15 @@ class Config:
     NEW_ADDRESS_EVENT_ROUTING_KEY = os.getenv('NEW_ADDRESS_EVENT_ROUTING_KEY', 'case.sample.inbound')
     COLLECTION_EXERCISE_ID = os.getenv('COLLECTION_EXERCISE_ID')
     ACTION_PLAN_ID = os.getenv('ACTION_PLAN_ID')
+    ENVIRONMENT = os.getenv('ENVIRONMENT')
 
     EVENTS_EXCHANGE = os.getenv('EVENTS_EXCHANGE', 'events')
+
+
+class TestConfig(Config):
+    COLLECTION_EXERCISE_ID = os.getenv('COLLECTION_EXERCISE_ID', '88960972-38a5-438f-b543-cd9bb464f49a')
+    ACTION_PLAN_ID = os.getenv('ACTION_PLAN_ID', '88960972-38a5-438f-b543-cd9bb464f49a')
+
+
+if Config.ENVIRONMENT == 'TEST':
+    Config = TestConfig

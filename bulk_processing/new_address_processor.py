@@ -62,6 +62,10 @@ class NewAddressProcessor(Processor):
     }
     collection_exercise_id = Config.COLLECTION_EXERCISE_ID
     action_plan_id = Config.ACTION_PLAN_ID
+    if not action_plan_id:
+        raise RuntimeError('Missing ACTION_PLAN_ID configuration')
+    if not collection_exercise_id:
+        raise RuntimeError('Missing COLLECTION_EXERCISE_ID configuration')
 
     def build_event_messages(self, row):
         return [{'uprn': row['UPRN'], 'estabUprn': row['ESTAB_UPRN'],
