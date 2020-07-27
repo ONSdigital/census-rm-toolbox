@@ -59,17 +59,6 @@ def max_length(max_len: int):
     return validate
 
 
-def unique():
-    previous_values = set()
-
-    def validate(value, **_kwargs):
-        if value in previous_values:
-            raise Invalid(f'Value "{value}" is not unique')
-        previous_values.add(value)
-
-    return validate
-
-
 def mandatory():
     def validate(value, **_kwargs):
         if not value or value.replace(" ", "") == '':

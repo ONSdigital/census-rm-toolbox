@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from unittest.mock import patch
 
 from bulk_processing.bulk_processor import BulkProcessor
 from bulk_processing.new_address_processor import NewAddressProcessor
@@ -38,28 +37,26 @@ def test_new_address_processor_build_event_messages():
     events = new_address_processor.build_event_messages(new_address_row)
 
     # Then
-    assert len(events) == 1, 'Should build one and only 1 refusal event message'
+    assert len(events) == 1, 'Should build one and only 1 create sample event message'
     assert events[0]['bulkProcessed'] is True
     assert events[0]['collectionExerciseId'] == Config.COLLECTION_EXERCISE_ID
 
 
-@patch('bulk_processing.bulk_processor.storage')
-def test_new_address_validation(_patched_storage_client):
+def test_new_address_validation(patch_storage):
     result = BulkProcessor(NewAddressProcessor()).find_header_validation_errors(file_headers)
 
     assert result is None
 
 
-@patch('bulk_processing.bulk_processor.storage')
-def test_new_address_validation_errors_doesnt_match(_patched_storage_client):
+def test_new_address_validation_errors_doesnt_match(patch_storage):
     result = BulkProcessor(NewAddressProcessor()).find_header_validation_errors(file_headers_errors)
 
+    # ARID is no longer a column so using it as an example of causing the validation to fail.
     assert 'ARID' in result.description
     assert 'UPRN' in result.description
 
 
-@patch('bulk_processing.bulk_processor.storage')
-def test_new_address_validation_headers_empty(_patched_storage_client):
+def test_new_address_validation_headers_empty(patch_storage):
     result = BulkProcessor(NewAddressProcessor()).find_header_validation_errors({})
 
     assert 'UPRN' in result.description

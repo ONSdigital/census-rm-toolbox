@@ -116,47 +116,6 @@ def test_max_length_invalid():
         max_length_0_validator('a' * 11)
 
 
-def test_unique_valid():
-    # Given
-    unique_validator = validators.unique()
-
-    # When
-    unique_validator('1')
-    unique_validator('2')
-    unique_validator('3')
-    unique_validator('foo')
-    unique_validator('bar')
-
-    # Then no invalid exception is raised
-
-
-def test_unique_invalid():
-    # Given
-    unique_validator = validators.unique()
-
-    # When
-    unique_validator('1')
-    unique_validator('2')
-    unique_validator('3')
-    unique_validator('foo')
-
-    # Then raises
-    with pytest.raises(validators.Invalid):
-        unique_validator('1')
-
-
-def test_unique_validators_do_not_cross_validate():
-    # Given
-    unique_validator_1 = validators.unique()
-    unique_validator_2 = validators.unique()
-
-    # When
-    unique_validator_1('a')
-    unique_validator_2('a')
-
-    # Then no invalid exception is raised
-
-
 def test_mandatory_valid():
     # Given
     mandatory_validator = validators.mandatory()
