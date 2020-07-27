@@ -19,11 +19,12 @@ class InvalidAddressProcessor(Processor):
     }
 
     def build_event_messages(self, row):
+        address_resolution = "AR"
         return [{
             "event": {
                 "type": "ADDRESS_NOT_VALID",
                 "source": "RM_BULK_INVALID_ADDRESS_PROCESSOR",
-                "channel": "AR",
+                "channel": address_resolution,
                 "dateTime": datetime.utcnow().isoformat() + 'Z',
                 "transactionId": str(uuid.uuid4())
             },
