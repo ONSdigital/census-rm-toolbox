@@ -3,7 +3,7 @@ from datetime import datetime
 
 from bulk_processing.bulk_processor import BulkProcessor
 from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import case_exists_by_id, is_uuid, max_length
+from bulk_processing.validators import case_exists_by_id, is_uuid, max_length, mandatory
 from config import Config
 
 
@@ -15,7 +15,7 @@ class InvalidAddressProcessor(Processor):
     project_id = Config.BULK_INVALID_ADDRESS_PROJECT_ID
     schema = {
         "case_id": [is_uuid(), case_exists_by_id()],
-        "reason": [max_length(255)]
+        "reason": [mandatory(), max_length(255)]
     }
 
     def build_event_messages(self, row):
