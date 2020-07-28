@@ -95,3 +95,162 @@ def test_is_uuid(value, is_valid):
     else:
         with pytest.raises(validators.Invalid):
             is_uuid_validator(value)
+
+
+def test_max_length_valid():
+    # Given
+    max_length_validator = validators.max_length(10)
+
+    # When
+    max_length_validator('a' * 9)
+
+    # Then no invalid exception is raised
+
+
+def test_max_length_invalid():
+    # Given
+    max_length_0_validator = validators.max_length(10)
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        max_length_0_validator('a' * 11)
+
+
+def test_mandatory_valid():
+    # Given
+    mandatory_validator = validators.mandatory()
+
+    # When
+    mandatory_validator('a')
+
+    # Then no invalid exception is raised
+
+
+def test_mandatory_invalid():
+    # Given
+    mandatory_validator = validators.mandatory()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid) as exc:
+        mandatory_validator('', column='test_column')
+
+    assert 'Empty mandatory value: test_column' in exc.value.args[0]
+
+
+def test_numeric_valid():
+    # Given
+    numeric_validator = validators.numeric()
+
+    # When
+    numeric_validator('0123456789')
+
+    # Then no invalid exception is raised
+
+
+def test_numeric_invalid():
+    # Given
+    numeric_validator = validators.numeric()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        numeric_validator('a')
+
+    with pytest.raises(validators.Invalid):
+        numeric_validator('1.1')
+
+    with pytest.raises(validators.Invalid):
+        numeric_validator('_')
+
+
+def test_lat_long_valid():
+    # Given
+    lat_long_validator = validators.latitude_longitude(max_scale=5, max_precision=10)
+
+    # When
+    lat_long_validator('1234.5678')
+
+    # Then no invalid exception is raised
+
+
+def test_lat_long_invalid_format():
+    # Given
+    lat_long_validator = validators.latitude_longitude(max_scale=5, max_precision=10)
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        lat_long_validator('foo')
+
+
+def test_lat_long_invalid_scale():
+    # Given
+    lat_long_validator = validators.latitude_longitude(max_scale=5, max_precision=10)
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        lat_long_validator('1.567889')
+
+
+def test_lat_long_invalid_precision():
+    # Given
+    lat_long_validator = validators.latitude_longitude(max_scale=10, max_precision=5)
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        lat_long_validator('123456.7')
+
+
+def test_no_padding_whitespace_check_valid():
+    # Given
+    no_padding_whitespace_validator = validators.no_padding_whitespace()
+
+    # When
+    no_padding_whitespace_validator('')
+
+    # Then no invalid exception is raised
+
+
+def test_no_padding_whitespace_check_invalid():
+    # Given
+    no_padding_whitespace_validator = validators.no_padding_whitespace()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        no_padding_whitespace_validator('  ')
+
+
+def test_region_matches_treatment_code_valid():
+    # Given
+    region_matches_treatment_code_validator = validators.region_matches_treatment_code()
+
+    # When
+    region_matches_treatment_code_validator('E0000', row={'TREATMENT_CODE': 'HH_TESTE'})
+
+    # Then no invalid exception is raised
+
+
+def test_region_matches_treatment_code_invalid():
+    # Given
+    region_matches_treatment_code_validator = validators.region_matches_treatment_code()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        region_matches_treatment_code_validator('N0000', row={'TREATMENT_CODE': 'HH_TESTE'})
+
+
+def test_ce_u_has_expected_capacity_valid():
+    # Given
+    ce_u_has_expected_capacity_validator = validators.ce_u_has_expected_capacity()
+
+    # When
+    ce_u_has_expected_capacity_validator('5', row={'ADDRESS_TYPE': 'CE', 'ADDRESS_LEVEL': 'U'})
+
+    # Then no invalid exception is raised
+
+
+def test_ce_u_has_expected_capacity_invalid():
+    # Given
+    ce_u_has_expected_capacity_validator = validators.ce_u_has_expected_capacity()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        ce_u_has_expected_capacity_validator('a', row={'ADDRESS_TYPE': 'CE', 'ADDRESS_LEVEL': 'U'})

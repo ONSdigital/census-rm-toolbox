@@ -58,6 +58,7 @@ class BulkProcessor:
 
                 if header_validation_failures:
                     print(f'File: {file_to_process.name}, header row is invalid')
+                    shutil.copy(file_to_process, error_file)
                     self.write_error_details_to_file([header_validation_failures], error_detail_file)
                     return 0, 1  # success_count, error_count
 
@@ -112,7 +113,7 @@ class BulkProcessor:
         for column, validators in self.processor.schema.items():
             for validator in validators:
                 try:
-                    validator(row[column], row=row, db_connection=self.db_connection)
+                    validator(row[column], row=row, db_connection=self.db_connection, column=column)
                 except Invalid as invalid:
                     errors.append(ValidationFailure(line_number, column, invalid))
         return errors
@@ -126,7 +127,8 @@ class BulkProcessor:
     @staticmethod
     def write_error_details_to_file(errors, error_detail_file):
         with open(error_detail_file, 'a') as append_error_detail_file:
-            append_error_detail_file.write(', '.join(str(error.description) for error in errors))
+            append_error_detail_file.write(
+                ' | '.join(f"[Column: {error.column}, Error: {str(error.description)}]" for error in errors))
             append_error_detail_file.write('\n')
 
     @staticmethod
