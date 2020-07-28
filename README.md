@@ -65,6 +65,21 @@ bulkrefusals
 ```
 Rows which are successfully processed will be added to `PROCESSED_refusals_*.csv` and errored rows be appended to `ERROR_refusals_*.csv` with the corresponding error details written to `ERROR_DETAIL_refusals_*.csv`.
 
+### Bulk New Addresses
+Bulk new addresses can be dropped in a bucket for processing, the file format required is
+```csv
+UPRN,ESTAB_UPRN,ADDRESS_TYPE,ESTAB_TYPE,ADDRESS_LEVEL,ABP_CODE,ORGANISATION_NAME,ADDRESS_LINE1,ADDRESS_LINE2,ADDRESS_LINE3,TOWN_NAME,POSTCODE,LATITUDE,LONGITUDE,OA,LSOA,MSOA,LAD,REGION,HTC_WILLINGNESS,HTC_DIGITAL,TREATMENT_CODE,FIELDCOORDINATOR_ID,FIELDOFFICER_ID,CE_EXPECTED_CAPACITY,CE_SECURE,PRINT_BATCH
+29763560087,42815171218,HH,HOUSEHOLD,U,RD04,,34 Definitely a street,,,Armless Hamlet,EI7 1PW,120.4446,-95.6070,E32528638,E93337100,E91038113,E34651127,E66650625,2,4,HH_LP1E,,,0,0,86
+```
+
+This follows the same validation rules as the sample loader.
+
+To process the file it needs to be put in the bulk new addresses bucket with a name matching `new_addresses_*.csv`. The processor can then be run with
+```shell script
+bulknewaddresses
+```
+
+Rows which are successfully processed will be added to `PROCESSED_new_addresses_*.csv` and errored rows be appended to `ERROR_new_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_new_addresses_*.csv`.
 
 ### Bulk Invalid Addresses
 Bulk invalid addresses files can be dropped in a bucket for processing, the file format required is 

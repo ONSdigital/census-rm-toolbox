@@ -41,9 +41,10 @@ def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
 
 
 def test_process_file_success_failure_mix(patch_storage, patch_rabbit, tmp_path):
-    invalid_message = 'test value invalid failure message'
+    error_message_description = 'test value invalid failure message'
+    error_detail_message = '[Column: header_1, Error: test value invalid failure message]'
 
-    schema = {'header_1': [no_invalid_validator(message=invalid_message)], 'header_2': []}
+    schema = {'header_1': [no_invalid_validator(message=error_message_description)], 'header_2': []}
     header = ','.join(key for key in schema.keys())
     mock_processor = setup_mock_processor(schema, None)
     mock_processor.build_event_messages.side_effect = lambda row: [row]
@@ -61,7 +62,7 @@ def test_process_file_success_failure_mix(patch_storage, patch_rabbit, tmp_path)
 
     assert success_file.read_text() == header + '\n' + 'foo,bar' + '\n'
     assert error_file.read_text() == header + '\n' + 'invalid,bar' + '\n'
-    assert error_detail_file.read_text() == HEADER_IS_VALID + invalid_message + '\n'
+    assert error_detail_file.read_text() == HEADER_IS_VALID + error_detail_message + '\n'
 
     patch_rabbit.publish_message.assert_called_once_with(
         message=json.dumps({'header_1': 'foo', 'header_2': 'bar'}),
@@ -87,7 +88,7 @@ def test_process_file_header_failure(patch_storage, patch_rabbit, tmp_path):
     assert not success_count, 'Should not successfully process any rows'
 
     assert success_file.read_text() == header + '\n'
-    assert error_file.read_text() == header + '\n'
+    assert error_file.read_text() == test_file.read_text()
     assert 'header_2' in error_detail_file.read_text()
 
     patch_rabbit.publish_message.assert_not_called()
