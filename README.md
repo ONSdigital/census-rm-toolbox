@@ -81,6 +81,22 @@ bulknewaddresses
 
 Rows which are successfully processed will be added to `PROCESSED_new_addresses_*.csv` and errored rows be appended to `ERROR_new_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_new_addresses_*.csv`.
 
+### Bulk Invalid Addresses
+Bulk invalid addresses files can be dropped in a bucket for processing, the file format required is 
+```csv
+case_id,reason
+16400b37-e0fb-4cf4-9ddf-728abce92049,DEMOLISHED
+180e2636-d8e5-4949-bced-f7a0c532190c,DOES_NOT_EXIST
+```
+Including the header row.
+
+The file should be placed in the configured bulk invalid addresses bucket with a name matching `invalid_addresses_*.csv`, then the processor can be run with
+```shell script
+bulkinvalidaddresses
+```
+Rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv` and errored rows be appended to `ERROR_invalid_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_invalid_addresses_*.csv`.
+
+
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash
