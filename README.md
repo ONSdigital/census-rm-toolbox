@@ -98,7 +98,7 @@ Rows which are successfully processed will be added to `PROCESSED_invalid_addres
 
 
 ### Find Invalid Address Case IDs from UPRN File
-When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid addresses bucket with the name `invalid_addresses_invalid_uprn.csv`.
+When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid address bucket with the name `invalid_addresses_invalid_uprn.csv`.
 Then the processor can be run with
 ```shell script
 bulkinvalidaddresses
