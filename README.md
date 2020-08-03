@@ -97,6 +97,23 @@ bulkinvalidaddresses
 Rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv` and errored rows be appended to `ERROR_invalid_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_invalid_addresses_*.csv`.
 
 
+### Find Invalid Address Case IDs from UPRN File
+When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid addresses bucket with the name `invalid_addresses_invalid_uprn.csv`.
+Then the processor can be run with
+```shell script
+bulkinvalidaddresses
+```
+Rows which are successfully processed will be added to `PROCESSED_invalid_addresses_invalid_uprns.csv`
+
+The file format will be:
+```csv
+case_id,reason
+16400b37-e0fb-4cf4-9ddf-728abce92049,ADDRESS_DELTA
+180e2636-d8e5-4949-bced-f7a0c532190c,ADDRESS_DELTA
+```
+Including the header row. The reason given will always be `ADDRESS_DELTA`.
+
+
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash
