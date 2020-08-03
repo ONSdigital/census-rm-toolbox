@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 import pytest
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.refusal_processor import RefusalProcessor
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.refusal_processor import RefusalProcessor
 
 
 @pytest.mark.parametrize('case_id,refusal_type',
@@ -28,7 +28,7 @@ def test_build_event_messages(case_id, refusal_type):
     assert event_messages[0]['payload']['refusal']['collectionCase']['id'] == case_id
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_refusal_validation_headers(_patched_storage_client):
     refusal_headers = ["case_id", "refusal_type"]
 
@@ -37,7 +37,7 @@ def test_refusal_validation_headers(_patched_storage_client):
     assert result is None
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_refusal_validation_headers_fails_refusal_type(_patched_storage_client):
     refusal_headers = ["case_id", "refusal_pyte"]
 
@@ -48,7 +48,7 @@ def test_refusal_validation_headers_fails_refusal_type(_patched_storage_client):
     assert "refusal_type" in result.description
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_refusal_validation_headers_fails_case_id(_patched_storage_client):
     refusal_headers = ["not_a_case_id", "refusal_type"]
 
@@ -59,7 +59,7 @@ def test_refusal_validation_headers_fails_case_id(_patched_storage_client):
     assert "case_id" in result.description
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_refusal_validation_headers_fails_empty(_patched_storage_client):
     result = BulkProcessor(RefusalProcessor()).find_header_validation_errors({})
 

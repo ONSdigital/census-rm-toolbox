@@ -7,7 +7,7 @@ from pathlib import Path
 
 from google.cloud import storage
 
-from utilities.rabbit_context import RabbitContext
+from toolbox.utilities.rabbit_context import RabbitContext
 
 queue_quantity = 0
 

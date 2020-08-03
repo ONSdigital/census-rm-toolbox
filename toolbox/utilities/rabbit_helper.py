@@ -1,4 +1,4 @@
-from utilities.rabbit_context import RabbitContext
+from toolbox.utilities.rabbit_context import RabbitContext
 
 
 def add_test_queue(binding_key, exchange_name, queue_name, exchange_type='topic'):

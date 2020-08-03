@@ -3,8 +3,8 @@ from unittest.mock import patch
 
 import pytest
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.invalid_address_processor import InvalidAddressProcessor
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.invalid_address_processor import InvalidAddressProcessor
 
 
 @pytest.mark.parametrize('case_id,reason',
@@ -28,7 +28,7 @@ def test_build_event_messages(case_id, reason):
     assert event_message[0]['payload']['invalidAddress']['collectionCase']['id'] == case_id
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_invalid_address_validation_headers(_patched_storage_client):
     invalid_address_headers = ["case_id", "reason"]
 
@@ -37,7 +37,7 @@ def test_invalid_address_validation_headers(_patched_storage_client):
     assert result is None
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_invalid_address_validation_headers_fails_invalid_address_reason(_patched_storage_client):
     invalid_address_headers = ["case_id", "r3ason"]
 
@@ -48,7 +48,7 @@ def test_invalid_address_validation_headers_fails_invalid_address_reason(_patche
     assert "reason" in result.description
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_invalid_address_validation_headers_fails_case_id(_patched_storage_client):
     invalid_address_headers = ["not_a_case_id", "reason"]
 
@@ -59,7 +59,7 @@ def test_invalid_address_validation_headers_fails_case_id(_patched_storage_clien
     assert "case_id" in result.description
 
 
-@patch('bulk_processing.bulk_processor.storage')
+@patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_invalid_address_validation_headers_fails_empty(_patched_storage_client):
     result = BulkProcessor(InvalidAddressProcessor()).find_header_validation_errors({})
 

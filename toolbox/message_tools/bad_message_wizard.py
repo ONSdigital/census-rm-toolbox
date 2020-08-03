@@ -6,7 +6,7 @@ from json import JSONDecodeError
 import requests
 from termcolor import colored
 
-from config import Config
+from toolbox.config import Config
 
 
 def main():

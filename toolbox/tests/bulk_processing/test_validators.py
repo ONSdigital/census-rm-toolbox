@@ -3,9 +3,9 @@ from unittest.mock import patch
 
 import pytest
 
-from bulk_processing import validators
+from toolbox.bulk_processing import validators
 
-test_label = 'test label'
+test_label = 'tests label'
 
 
 def test_in_set_valid():
@@ -61,7 +61,7 @@ def test_header_equal_invalid(expected_header, header):
         set_equal_validator(header)
 
 
-@patch('bulk_processing.validators.execute_in_connection')
+@patch('toolbox.bulk_processing.validators.execute_in_connection')
 def test_case_exists_by_id_succeeds(mock_execute_method):
     # Given
     mock_execute_method.return_value = [(1,)]
@@ -73,7 +73,7 @@ def test_case_exists_by_id_succeeds(mock_execute_method):
     # Then no invalid exception is raised
 
 
-@patch('bulk_processing.validators.execute_in_connection')
+@patch('toolbox.bulk_processing.validators.execute_in_connection')
 def test_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []

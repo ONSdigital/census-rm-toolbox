@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from utilities.rabbit_context import RabbitContext
+from toolbox.utilities.rabbit_context import RabbitContext
 
 
 def publish_messages_from_config_file_path(queue_name, source_file_path, destination_file_path):

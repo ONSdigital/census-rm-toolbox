@@ -1,10 +1,10 @@
 import uuid
 from datetime import datetime
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import in_set, case_exists_by_id, is_uuid
-from config import Config
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.processor_interface import Processor
+from toolbox.bulk_processing.validators import in_set, case_exists_by_id, is_uuid
+from toolbox.config import Config
 
 
 class RefusalProcessor(Processor):

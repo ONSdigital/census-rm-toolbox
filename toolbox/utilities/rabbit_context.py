@@ -1,8 +1,8 @@
 import pika
 from pika.spec import PERSISTENT_DELIVERY_MODE
 
-from config import Config
-from utilities.exceptions import RabbitConnectionClosedError
+from toolbox.config import Config
+from toolbox.utilities.exceptions import RabbitConnectionClosedError
 
 
 class RabbitContext:

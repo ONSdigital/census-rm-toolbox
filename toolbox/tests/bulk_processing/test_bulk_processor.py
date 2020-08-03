@@ -3,9 +3,9 @@ from functools import partial
 from pathlib import Path
 from unittest.mock import Mock, call
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.processor_interface import Processor
-from bulk_processing.validators import Invalid
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.processor_interface import Processor
+from toolbox.bulk_processing.validators import Invalid
 
 RESOURCE_PATH = Path(__file__).parent.joinpath('resources')
 HEADER_IS_VALID = 'Header row is valid\n'
@@ -41,8 +41,8 @@ def test_process_file_successful(patch_storage, patch_rabbit, tmp_path):
 
 
 def test_process_file_success_failure_mix(patch_storage, patch_rabbit, tmp_path):
-    error_message_description = 'test value invalid failure message'
-    error_detail_message = '[Column: header_1, Error: test value invalid failure message]'
+    error_message_description = 'tests value invalid failure message'
+    error_detail_message = '[Column: header_1, Error: tests value invalid failure message]'
 
     schema = {'header_1': [no_invalid_validator(message=error_message_description)], 'header_2': []}
     header = ','.join(key for key in schema.keys())
@@ -211,7 +211,7 @@ def setup_mock_processor(schema, test_message):
     mock_processor.schema = schema
     mock_processor.build_event_messages.return_value = [test_message]
     mock_processor.exchange = "events"
-    mock_processor.routing_key = 'test.mctest'
+    mock_processor.routing_key = 'tests.mctest'
     return mock_processor
 
 

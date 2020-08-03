@@ -2,10 +2,10 @@ from unittest.mock import patch
 
 import pytest
 
-from utilities import db_helper
+from toolbox.utilities import db_helper
 
 
-@patch('utilities.db_helper.psycopg2')
+@patch('toolbox.utilities.db_helper.psycopg2')
 def test_write_context_commits_on_success(patched_pg):
     with db_helper.open_write_cursor():
         pass
@@ -14,7 +14,7 @@ def test_write_context_commits_on_success(patched_pg):
     patched_pg.connect.return_value.close.assert_called_once()
 
 
-@patch('utilities.db_helper.psycopg2')
+@patch('toolbox.utilities.db_helper.psycopg2')
 def test_write_context_rolls_back_and_re_raises(patched_pg):
     with pytest.raises(ValueError):
         with db_helper.open_write_cursor():

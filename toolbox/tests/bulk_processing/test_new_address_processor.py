@@ -1,8 +1,8 @@
 from collections import OrderedDict
 
-from bulk_processing.bulk_processor import BulkProcessor
-from bulk_processing.new_address_processor import NewAddressProcessor
-from config import Config
+from toolbox.bulk_processing.bulk_processor import BulkProcessor
+from toolbox.bulk_processing.new_address_processor import NewAddressProcessor
+from toolbox.config import Config
 
 new_address_row = OrderedDict(
     [('UPRN', '25058243579'), ('ESTAB_UPRN', '46170434880'), ('ADDRESS_TYPE', 'HH'), ('ESTAB_TYPE', 'HOUSEHOLD'),

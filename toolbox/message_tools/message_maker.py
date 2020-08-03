@@ -5,8 +5,8 @@ from datetime import datetime
 import requests
 from requests import HTTPError
 
-from utilities.rabbit_context import RabbitContext
-from config import Config
+from toolbox.utilities.rabbit_context import RabbitContext
+from toolbox.config import Config
 
 
 def create_questionnaire_linked_message():

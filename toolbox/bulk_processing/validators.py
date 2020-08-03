@@ -2,7 +2,7 @@ import uuid
 from collections import namedtuple
 from typing import Sequence
 
-from utilities.db_helper import execute_in_connection
+from toolbox.utilities.db_helper import execute_in_connection
 
 ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
 
