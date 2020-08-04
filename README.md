@@ -102,16 +102,12 @@ Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+A
 
 When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid address bucket with the name `invalid_addresses_invalid_uprn.csv`.
 
-This is done by running 
+This is done by running:
 ```shell script
-caseidaddressdelta <project_name> <file_name>
+caseidaddressdelta <file_name>
 ```
 
-Then the processor can be run with
-```shell script
-bulkinvalidaddresses
-```
-Provided the above commands are run in the correct order, the rows which are successfully processed will be added to `PROCESSED_invalid_addresses_invalid_uprns.csv`
+The rows which are successfully processed will be added to `PROCESSED_invalid_addresses_invalid_uprns.csv`
 
 The file format will be:
 ```csv

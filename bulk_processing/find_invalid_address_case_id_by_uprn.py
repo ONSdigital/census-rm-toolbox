@@ -9,7 +9,7 @@ from requests import HTTPError
 from config import Config
 
 
-def generate_bulk_invalid_address_file(file_to_process, project_id):
+def generate_bulk_invalid_address_file(file_to_process):
     case_id_list = []
     with open(file_to_process, encoding="utf-8") as open_file_to_process:
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
@@ -18,7 +18,7 @@ def generate_bulk_invalid_address_file(file_to_process, project_id):
             case_id_list.extend(get_case_id_from_case_api(row['UPRN'], line_number))
 
     address_delta_file = write_invalid_addresses_case_id_file(case_id_list, Path(file_to_process))
-    upload_file_to_bucket(address_delta_file, project_id)
+    upload_file_to_bucket(address_delta_file)
 
 
 def get_case_id_from_case_api(uprn, line_number):
@@ -48,8 +48,8 @@ def write_invalid_addresses_case_id_file(case_id_list, file_to_process):
     return address_delta_file
 
 
-def upload_file_to_bucket(file_path: Path, project_id):
-    client = storage.Client(project=project_id)
+def upload_file_to_bucket(file_path: Path):
+    client = storage.Client(project=Config.BULK_INVALID_ADDRESS_PROJECT_ID)
     bucket = client.get_bucket(Config.BULK_INVALID_ADDRESS_BUCKET_NAME)
     print(f'Copying files to GCS bucket {bucket.name}')
     bucket.blob(f'{file_path.name}').upload_from_filename(filename=str(file_path))
@@ -60,14 +60,13 @@ def upload_file_to_bucket(file_path: Path, project_id):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Tool to find invalid address case IDs by UPRNs')
-    parser.add_argument('project_id', help='Target project ID', type=str)
     parser.add_argument('file_to_process', help='File to process', type=str)
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
-    generate_bulk_invalid_address_file(args.file_to_process, args.project_id)
+    generate_bulk_invalid_address_file(args.file_to_process)
 
 
 if __name__ == '__main__':
