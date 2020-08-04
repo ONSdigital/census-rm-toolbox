@@ -18,7 +18,6 @@ psycopg2-binary = "*"
 google-cloud-storage = "*"
 python-dateutil = "*"
 tonyg-rfc3339 = "*"
-config = "*"
 
 [requires]
 python_version = "3.7"

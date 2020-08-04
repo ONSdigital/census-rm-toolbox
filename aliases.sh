@@ -22,7 +22,7 @@ alias reminderbatch='python -m reminder_batch_scheduler.reminder_batch'
 alias bulkrefusals='python -m bulk_processing.refusal_processor'
 alias bulknewaddresses='python -m bulk_processing.new_address_processor'
 alias bulkinvalidaddresses='python -m bulk_processing.invalid_address_processor'
-alias caseidaddressdelta='invalid_address_delta.sh'
+alias invalidaddressdelta='invalid_address_delta.sh'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq
