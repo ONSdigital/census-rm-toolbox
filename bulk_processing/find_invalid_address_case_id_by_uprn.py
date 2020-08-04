@@ -28,8 +28,8 @@ def get_case_id_from_case_api(uprn, line_number):
     except HTTPError as e:
         if response.status_code == 404:
             print(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}, Error {e}')
-        elif response.status_code != 404:
-            print(f'Network or Internal Server Error, Error {e}')
+        else:
+            print(f'Network or Internal Server Error on line {line_number}, Error {e}')
         return
 
     result = response.json()
