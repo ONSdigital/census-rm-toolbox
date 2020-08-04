@@ -104,7 +104,7 @@ When we receive a file of UPRNs for cases that have been identified as invalid a
 
 This is done by running:
 ```shell script
-caseidaddressdelta <file_name>
+invalidaddressdelta <file_name>
 ```
 
 The rows which are successfully processed will be added to `PROCESSED_invalid_addresses_invalid_uprns.csv`
