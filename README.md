@@ -100,14 +100,14 @@ Rows which are successfully processed will be added to `PROCESSED_invalid_addres
 ### Find Invalid Address Case IDs from UPRN File
 Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+Address+Case+ID%27s+by+UPRN+-+ADDRESS_DELTA
 
-When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid address bucket with the name `invalid_addresses_invalid_uprn.csv`.
+When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid address bucket and run the bulk processor against the file.
 
 This is done by running:
 ```shell script
 invalidaddressdelta <file_name>
 ```
 
-The rows which are successfully processed will be added to `PROCESSED_invalid_addresses_invalid_uprns.csv`
+The rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv`
 
 The file format will be:
 ```csv

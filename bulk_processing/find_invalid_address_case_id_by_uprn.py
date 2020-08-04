@@ -10,14 +10,17 @@ from config import Config
 
 
 def generate_bulk_invalid_address_file(file_to_process):
-    case_id_list = []
+    address_delta_file = Path(f'invalid_addresses_{file_to_process.stem}.csv')
+    address_delta_file.write_text('case_id,reason\n')
+
     with open(file_to_process, encoding="utf-8") as open_file_to_process:
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
 
         for line_number, row in enumerate(file_reader, 1):
-            case_id_list.extend(get_case_id_from_case_api(row['UPRN'], line_number))
+            case_id_list = get_case_id_from_case_api(row['UPRN'], line_number)
+            for case_id in case_id_list:
+                write_invalid_addresses_case_id_file(case_id, address_delta_file)
 
-    address_delta_file = write_invalid_addresses_case_id_file(case_id_list, Path(file_to_process))
     upload_file_to_bucket(address_delta_file)
 
 
@@ -37,15 +40,10 @@ def get_case_id_from_case_api(uprn, line_number):
     return [case['id'] for case in result]
 
 
-def write_invalid_addresses_case_id_file(case_id_list, file_to_process):
-    address_delta_file = Path(f'invalid_addresses_{file_to_process.stem}.csv')
-
-    with open(address_delta_file, 'w') as out:
-        csv_out = csv.writer(out)
-        csv_out.writerow(['case_id', 'reason'])
-        for case in case_id_list:
-            csv_out.writerow([case, 'ADDRESS_DELTA'])
-    return address_delta_file
+def write_invalid_addresses_case_id_file(case_id, address_delta_file):
+    with open(address_delta_file, 'a') as out:
+        out.write(f'{case_id}, ADDRESS_DELTA')
+        out.write('\n')
 
 
 def upload_file_to_bucket(file_path: Path):
@@ -66,7 +64,7 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    generate_bulk_invalid_address_file(args.file_to_process)
+    generate_bulk_invalid_address_file(Path(args.file_to_process))
 
 
 if __name__ == '__main__':
