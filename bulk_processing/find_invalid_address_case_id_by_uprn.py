@@ -41,9 +41,9 @@ def get_case_id_from_case_api(uprn, line_number):
 
 
 def write_invalid_addresses_case_id_file(case_id, address_delta_file):
-    with open(address_delta_file, 'a') as out:
-        out.write(f'{case_id}, ADDRESS_DELTA')
-        out.write('\n')
+    file = open(address_delta_file, 'a')
+    file.write(f'{case_id}, ADDRESS_DELTA')
+    file.write('\n')
 
 
 def upload_file_to_bucket(file_path: Path):
