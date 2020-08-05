@@ -1,8 +1,10 @@
 import argparse
 import csv
+import os
 from pathlib import Path
 
 import requests
+import sys
 from google.cloud import storage
 from requests import HTTPError
 
@@ -17,14 +19,14 @@ def generate_bulk_invalid_address_file(file_to_process):
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
 
         for line_number, row in enumerate(file_reader, 1):
-            case_id_list = get_case_id_from_case_api(row['UPRN'], line_number)
+            case_id_list = get_case_id_from_case_api(row['UPRN'], line_number, file_to_process)
             for case_id in case_id_list:
                 write_invalid_addresses_case_id_file(case_id, address_delta_file)
 
     upload_file_to_bucket(address_delta_file)
 
 
-def get_case_id_from_case_api(uprn, line_number):
+def get_case_id_from_case_api(uprn, line_number, file_to_process):
     response = requests.get(f'http://{Config.CASEAPI_HOST}:{Config.CASEAPI_PORT}/cases/uprn/{uprn}')
     try:
         response.raise_for_status()
@@ -33,7 +35,8 @@ def get_case_id_from_case_api(uprn, line_number):
             print(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}, Error {e}')
         else:
             print(f'Network or Internal Server Error on line {line_number}, Error {e}')
-        return
+        os.remove(Path(f'invalid_addresses_{file_to_process.stem}.csv'))
+        sys.exit(1)
 
     result = response.json()
 
