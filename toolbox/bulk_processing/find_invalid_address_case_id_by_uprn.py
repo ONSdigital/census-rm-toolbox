@@ -7,7 +7,7 @@ import requests
 from google.cloud import storage
 from requests import HTTPError
 
-from config import Config
+from toolbox.config import Config
 
 
 def generate_bulk_invalid_address_file(file_to_process):
@@ -18,17 +18,19 @@ def generate_bulk_invalid_address_file(file_to_process):
     with open(file_to_process, encoding="utf-8") as open_file_to_process:
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
 
-        for line_number, row in enumerate(file_reader, 1):
-            case_id_list = get_case_id_from_case_api(row['UPRN'], line_number)
-            if case_id_list:
-                for case_id in case_id_list:
-                    write_invalid_addresses_case_id_file(case_id, address_delta_file)
-            else:
-                error_count += 1
+        with open(address_delta_file, 'a') as file:
+            for line_number, row in enumerate(file_reader, 1):
+                case_id_list = get_case_id_from_case_api(row['UPRN'], line_number)
+                if case_id_list:
+                    for case_id in case_id_list:
+                        file.write(f'{case_id}, ADDRESS_DELTA')
+                        file.write('\n')
+                else:
+                    error_count += 1
 
-        if error_count != 0:
-            os.remove(Path(f'invalid_addresses_{file_to_process.stem}.csv'))
-            exit(1)
+            if error_count != 0:
+                os.remove(Path(f'invalid_addresses_{file_to_process.stem}.csv'))
+                exit(1)
 
     upload_file_to_bucket(address_delta_file)
 
@@ -40,20 +42,14 @@ def get_case_id_from_case_api(uprn, line_number):
     except HTTPError as e:
         if response.status_code == 404:
             print(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}, Error {e}')
-            return False
+            return None
         else:
             print(f'Network or Internal Server Error on line {line_number}, Error {e}')
-            return False
+            return None
 
     result = response.json()
 
     return [case['id'] for case in result]
-
-
-def write_invalid_addresses_case_id_file(case_id, address_delta_file):
-    with open(address_delta_file, 'a') as file:
-        file.write(f'{case_id}, ADDRESS_DELTA')
-        file.write('\n')
 
 
 def upload_file_to_bucket(file_path: Path):
