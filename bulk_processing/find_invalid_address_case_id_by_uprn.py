@@ -4,7 +4,6 @@ import os
 from pathlib import Path
 
 import requests
-import sys
 from google.cloud import storage
 from requests import HTTPError
 
@@ -14,29 +13,37 @@ from config import Config
 def generate_bulk_invalid_address_file(file_to_process):
     address_delta_file = Path(f'invalid_addresses_{file_to_process.stem}.csv')
     address_delta_file.write_text('case_id,reason\n')
+    error_count = 0
 
     with open(file_to_process, encoding="utf-8") as open_file_to_process:
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
 
         for line_number, row in enumerate(file_reader, 1):
-            case_id_list = get_case_id_from_case_api(row['UPRN'], line_number, file_to_process)
-            for case_id in case_id_list:
-                write_invalid_addresses_case_id_file(case_id, address_delta_file)
+            case_id_list = get_case_id_from_case_api(row['UPRN'], line_number)
+            if case_id_list:
+                for case_id in case_id_list:
+                    write_invalid_addresses_case_id_file(case_id, address_delta_file)
+            else:
+                error_count += 1
+
+        if error_count != 0:
+            os.remove(Path(f'invalid_addresses_{file_to_process.stem}.csv'))
+            exit(1)
 
     upload_file_to_bucket(address_delta_file)
 
 
-def get_case_id_from_case_api(uprn, line_number, file_to_process):
+def get_case_id_from_case_api(uprn, line_number):
     response = requests.get(f'http://{Config.CASEAPI_HOST}:{Config.CASEAPI_PORT}/cases/uprn/{uprn}')
     try:
         response.raise_for_status()
     except HTTPError as e:
         if response.status_code == 404:
             print(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}, Error {e}')
+            return False
         else:
             print(f'Network or Internal Server Error on line {line_number}, Error {e}')
-        os.remove(Path(f'invalid_addresses_{file_to_process.stem}.csv'))
-        sys.exit(1)
+            return False
 
     result = response.json()
 
@@ -44,9 +51,9 @@ def get_case_id_from_case_api(uprn, line_number, file_to_process):
 
 
 def write_invalid_addresses_case_id_file(case_id, address_delta_file):
-    file = open(address_delta_file, 'a')
-    file.write(f'{case_id}, ADDRESS_DELTA')
-    file.write('\n')
+    with open(address_delta_file, 'a') as file:
+        file.write(f'{case_id}, ADDRESS_DELTA')
+        file.write('\n')
 
 
 def upload_file_to_bucket(file_path: Path):
