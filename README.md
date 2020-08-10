@@ -203,22 +203,22 @@ This tool will allow you to be able to find and delete messages on a pubsub topi
 
 View messages on pubsub subscription:
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id>
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id>
    ```
    
 View messages on a pubsub subscription with bigger limit:
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id> -l <limit>
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id> -l <limit>
    ```
    
 Search for a message:
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id> -s <search term>
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id> -s <search term>
    ```
 
 Delete message on pubsub subscription:   
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id> <message_id> DELETE
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id> <message_id> DELETE
    ```
    
    
@@ -237,7 +237,7 @@ Move messages from pubsub to a GCS bucket
 
 Moving a pubsub message to a bucket:
 ```bash
-python put_message_on_bucket.py <subscription name> <subscription project id> <bucket name> <message_id>
+python -m toolbox.message_tools.put_message_on_bucket <subscription name> <subscription project id> <bucket name> <message_id>
 ```
 ## How to use - publishing message from GCS bucket to pubsub topic
 
@@ -253,7 +253,7 @@ Publishing message from GCS bucket to pubsub topic
 
 Publishing message from GCS bucket to pubsub topic:
 ```bash
-python publish_message_from_bucket.py <topic name> <project id> <bucket blob name> <bucket name>
+python -m toolbox.message_tools.publish_message_from_bucket <topic name> <project id> <bucket blob name> <bucket name>
 ```
 
 ## QID Checksum Validator
