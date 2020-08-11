@@ -42,6 +42,82 @@ reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --
 ```bash
 reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --insert-rules --trigger-date-time=<DATE_TIME> --max-cases=1000000 
 ```
+
+## Bulk Processing
+### Bulk Refusals
+Bulk refusals files can be dropped in a bucket for processing, the file format required is 
+```csv
+case_id,refusal_type
+16400b37-e0fb-4cf4-9ddf-728abce92049,HARD_REFUSAL
+180e2636-d8e5-4949-bced-f7a0c532190c,EXTRAORDINARY_REFUSAL
+```
+Including the header row.
+
+The refusal type must be one of 
+```
+HARD_REFUSAL
+EXTRAORDINARY_REFUSAL
+```
+
+The file should be placed in the configured bulk refusals bucket with a name matching `refusals_*.csv`, then the processor can be run with
+```shell script
+bulkrefusals
+```
+Rows which are successfully processed will be added to `PROCESSED_refusals_*.csv` and errored rows be appended to `ERROR_refusals_*.csv` with the corresponding error details written to `ERROR_DETAIL_refusals_*.csv`.
+
+### Bulk New Addresses
+Bulk new addresses can be dropped in a bucket for processing, the file format required is
+```csv
+UPRN,ESTAB_UPRN,ADDRESS_TYPE,ESTAB_TYPE,ADDRESS_LEVEL,ABP_CODE,ORGANISATION_NAME,ADDRESS_LINE1,ADDRESS_LINE2,ADDRESS_LINE3,TOWN_NAME,POSTCODE,LATITUDE,LONGITUDE,OA,LSOA,MSOA,LAD,REGION,HTC_WILLINGNESS,HTC_DIGITAL,TREATMENT_CODE,FIELDCOORDINATOR_ID,FIELDOFFICER_ID,CE_EXPECTED_CAPACITY,CE_SECURE,PRINT_BATCH
+29763560087,42815171218,HH,HOUSEHOLD,U,RD04,,34 Definitely a street,,,Armless Hamlet,EI7 1PW,120.4446,-95.6070,E32528638,E93337100,E91038113,E34651127,E66650625,2,4,HH_LP1E,,,0,0,86
+```
+
+This follows the same validation rules as the sample loader.
+
+To process the file it needs to be put in the bulk new addresses bucket with a name matching `new_addresses_*.csv`. The processor can then be run with
+```shell script
+bulknewaddresses
+```
+
+Rows which are successfully processed will be added to `PROCESSED_new_addresses_*.csv` and errored rows be appended to `ERROR_new_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_new_addresses_*.csv`.
+
+### Bulk Invalid Addresses
+Bulk invalid addresses files can be dropped in a bucket for processing, the file format required is 
+```csv
+case_id,reason
+16400b37-e0fb-4cf4-9ddf-728abce92049,DEMOLISHED
+180e2636-d8e5-4949-bced-f7a0c532190c,DOES_NOT_EXIST
+```
+Including the header row.
+
+The file should be placed in the configured bulk invalid addresses bucket with a name matching `invalid_addresses_*.csv`, then the processor can be run with
+```shell script
+bulkinvalidaddresses
+```
+Rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv` and errored rows be appended to `ERROR_invalid_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_invalid_addresses_*.csv`.
+
+
+### Find Invalid Address Case IDs from UPRN File
+Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+Address+Case+ID%27s+by+UPRN+-+ADDRESS_DELTA
+
+When we receive a file of UPRNs for cases that have been identified as invalid addresses, this feature will call the Case API against the UPRNs provided and generate a new file in the bulk invalid address bucket and run the bulk processor against the file.
+
+This is done by running:
+```shell script
+invalidaddressdelta <file_name>
+```
+
+The rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv`
+
+The file format will be:
+```csv
+case_id,reason
+16400b37-e0fb-4cf4-9ddf-728abce92049,ADDRESS_DELTA
+180e2636-d8e5-4949-bced-f7a0c532190c,ADDRESS_DELTA
+```
+Including the header row. The reason given will always be `ADDRESS_DELTA`.
+
+
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash
@@ -100,13 +176,7 @@ Move message from one queue to another:
    ```bash
    queuetool <queue name> <message hash> MOVE <destination queue>
    ```
-   
-## How to use - Find Queues with Poison Messages
 
-Find queues with high redelivery rate:
-   ```bash
-   findbadmessages
-   ```
    
 ## How to use - Loss of Concentration or Boredom
 
@@ -133,22 +203,22 @@ This tool will allow you to be able to find and delete messages on a pubsub topi
 
 View messages on pubsub subscription:
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id>
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id>
    ```
    
 View messages on a pubsub subscription with bigger limit:
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id> -l <limit>
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id> -l <limit>
    ```
    
 Search for a message:
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id> -s <search term>
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id> -s <search term>
    ```
 
 Delete message on pubsub subscription:   
    ```bash
-   python get_pubsub_messages.py <subscription name> <subscription project id> <message_id> DELETE
+   python -m toolbox.message_tools.get_pubsub_messages <subscription name> <subscription project id> <message_id> DELETE
    ```
    
    
@@ -167,7 +237,7 @@ Move messages from pubsub to a GCS bucket
 
 Moving a pubsub message to a bucket:
 ```bash
-python put_message_on_bucket.py <subscription name> <subscription project id> <bucket name> <message_id>
+python -m toolbox.message_tools.put_message_on_bucket <subscription name> <subscription project id> <bucket name> <message_id>
 ```
 ## How to use - publishing message from GCS bucket to pubsub topic
 
@@ -183,7 +253,7 @@ Publishing message from GCS bucket to pubsub topic
 
 Publishing message from GCS bucket to pubsub topic:
 ```bash
-python publish_message_from_bucket.py <topic name> <project id> <bucket blob name> <bucket name>
+python -m toolbox.message_tools.publish_message_from_bucket <topic name> <project id> <bucket blob name> <bucket name>
 ```
 
 ## QID Checksum Validator
@@ -208,97 +278,4 @@ To run the toolbox in a kubernetes environment, you'll have to create the deploy
 Once the pod is up, you can connect to it:
 ```bash
 kubectl exec -it $(kubectl get pods --selector=app=census-rm-toolbox -o jsonpath='{.items[*].metadata.name}') -- /bin/bash
-```
-
-
-
-## Configure and Whitelist Cloud Shell Tool
-
-This repo includes scripts to configure the cloud shell to point at an RM cluster in a project and whitelist/un-whitelist itself.  
-
-### Prerequisites
-#### Install pyenv
-Requres [pipenv](https://github.com/pypa/pipenv) and [pyenv](https://github.com/pyenv/pyenv)
-
-
-To be able to use these scripts, you'll need to have [pyenv](https://github.com/pyenv/pyenv#installation) installed in your cloudshell environment to be able to install a python 3 version. To do this you can use these commands:
-```shell script
-git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
-echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
-echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n  eval "$(pyenv init -)"\nfi' >> ~/.bashrc
-exec "$SHELL"
-```
-
-#### Install python 3 and pipenv
-Once this is done, you should be able to install python 3 and pipenv dependencies using these commands:
-```shell script
-pyenv install 3.7.4
-pyenv global 3.7.4
-pip install pipenv
-pipenv install --dev
-```
-
-### Set Up Aliases and Shortcuts
-If you're going to be running these commands regularly it may be helpful to have the scripts on your `PATH` and set up some alias in your cloudshell bash.
-Add these lines to your `~/.bashrc` file in the cloudshell 
-```shell script
-export PATH="<PATH_TO_CENSUS_RM_TOOLBOX>/cloudshell_utilities:$PATH"
-alias prod-configure="configure_and_whitelist.sh census-rm-prod"
-alias prod-exit="remove_from_whitelist.sh census-rm-prod"
-
-function prod-toolbox {
-    prod-configure
-    kubectl exec -it $(kubectl get pods --selector=app=census-rm-toolbox -o jsonpath='{.items[*].metadata.name}') -- /bin/bash || true
-    prod-exit
-}
-```
-
-The `prod-toolbox` function then gives you a single command to get into a toolbox pod and de-whitelist your cloudshell when it's finished.
-
-### Usage
-#### Configure and Whitelist
-To point the cloudshell at a project and whitelist itself in the RM cluster, run
-```shell script
-configure_and_whitelist.sh <PROJECT_ID>
-```
-
-This changes the `gcloud` target project, generates the `kubectl` context and adds a whitelist entry to the target projects cluster for your current cloudshell IP.
-
-#### Remove Whitelist Entry
-To delete your cloudshell whitelist entry when you are finished, run
-```shell script
-remove_from_whitelist.sh <PROJECT_ID>
-```
-
-## Generate Fulfilment Counts
-
-### Daily Fulfilment
-To generate fulfilment counts for the day, connect to the Toolbox from cloud shell and run:
-```python
-fulfilment <FULFILMENT_DATE_FROM> <FULFILMENT_DATE_TO> <DB_USERNAME>
-```
-The fulfilment dates should be in the format of `2019-10-18T16:00:00+01:00`.
-
-After you run this you will prompted to type in your password for the database. Once you entered in your credentials, it will create a CSV file of the counts for you
-in the format of `fulfilments-<date>.csv`.
-
-### Weekend Fulfilment count
-
-To run the fulfilment count for the weekend run:
-```bash
-weekendfulfilment <DB_USERNAME>
-```
-You'll be prompted for your password and once entered, it will generate fulfilment counts for the last 3 days.
-
-## Work From Home (WFH) Whitelist Script
-To whitelist yourself on White Lodge and Black Lodge clusters and DB, plus a bunch of other things, run this script:
-```bash
-./whitelist_me_for_wfh.sh
-```
-
-## Colleague (i.e. tester) Work From Home (WFH) Whitelist Script
-Once you have whitelisted yourself you can easily add all the whitelisting for a colleague who is working from home by running the following script:
-```bash
-./whitelist_for_wfh.sh <IP ADDRESS> <NAME OF PERSON>
 ```

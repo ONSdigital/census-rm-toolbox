@@ -27,6 +27,6 @@ COPY Pipfile* /home/toolbox/
 RUN pipenv install --system --deploy
 USER toolbox
 
-RUN mkdir /home/toolbox/.postgresql &&  mkdir /home/toolbox/.postgresql-rw
+RUN mkdir /home/toolbox/.postgresql &&  mkdir /home/toolbox/.postgresql-rw &&  mkdir /home/toolbox/.postgresql-action
 
 COPY --chown=toolbox . /home/toolbox
