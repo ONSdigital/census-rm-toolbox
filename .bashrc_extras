@@ -3,13 +3,22 @@ source /home/toolbox/aliases.sh
 PS1="[$PROJECT_NAME]-TOOLZ🔥> "
 export PATH=/home/toolbox:$PATH
 
-echo Who are you, oh wise and wonderful toolbox user?
-read current_user
-echo Nice to see you again, $current_user
+if [[ -z "${CLOUD_SHELL_USER}" ]]; then
+    if [[ $PROJECT_NAME == *"prod"* ]]; then
+      echo "🚫🚫🚫 I don't know who you are, so you're NOT ALLOWED to connect to the PROD toolbox 🚫🚫🚫"
+      sleep 10s
+      exit
+    fi
 
-mkdir -p ~/.audit/${current_user,,}
-echo $(date --iso-8601=ns) >> ~/.audit/${current_user,,}/login.log
+    export CURRENT_USER=anonymous
+else
+    export CURRENT_USER=$CLOUD_SHELL_USER
+fi
 
-export CURRENT_USER=${current_user,,}
-export HISTFILE=~/.audit/${current_user,,}/bash_history-$(date --iso-8601=ns).log
+echo Nice to see you again, $CURRENT_USER. We are tracking your every move 🔍👀.
+
+mkdir -p ~/.audit/$CURRENT_USER
+echo $(date --iso-8601=ns) >> ~/.audit/$CURRENT_USER/login.log
+
+export HISTFILE=~/.audit/$CURRENT_USER/bash_history-$(date --iso-8601=ns).log
 export HISTTIMEFORMAT="%F %T "

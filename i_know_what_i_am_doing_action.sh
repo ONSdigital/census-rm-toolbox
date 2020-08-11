@@ -34,5 +34,5 @@ else
   username=$2
 fi
 
-psql "sslmode=verify-ca sslrootcert=/home/toolbox/.postgresql-action/root.crt sslcert=/home/toolbox/.postgresql-action/postgresql.crt sslkey=/home/toolbox/.postgresql-action/postgresql.key hostaddr=$DB_HOST_ACTION user=$username dbname=$DB_NAME_RW"
+psql "sslmode=verify-ca sslrootcert=/home/toolbox/.postgresql-action/root.crt sslcert=/home/toolbox/.postgresql-action/postgresql.crt sslkey=/home/toolbox/.postgresql-action/postgresql.key hostaddr=$DB_HOST_ACTION user=$username dbname=$DB_NAME_RW" -e -L ~/.audit/$CURRENT_USER/sqla_RW_${username}_$(date --iso-8601=ns).log
 tput sgr0
