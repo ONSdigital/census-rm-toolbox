@@ -1,6 +1,5 @@
 import argparse
 import csv
-import os
 from pathlib import Path
 
 import requests
@@ -12,27 +11,28 @@ from toolbox.config import Config
 
 def generate_bulk_invalid_address_file(file_to_process):
     address_delta_file = Path(f'invalid_addresses_{file_to_process.stem}.csv')
-    address_delta_file.write_text('case_id,reason\n')
-    error_count = 0
+    error_count = ()
 
     with open(file_to_process, encoding="utf-8") as open_file_to_process:
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
 
-        with open(address_delta_file, 'a') as file:
+        with open(address_delta_file, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["case_id", "reason"])
+
             for line_number, row in enumerate(file_reader, 1):
                 case_id_list = get_case_id_from_case_api(row['UPRN'], line_number)
                 if case_id_list:
                     for case_id in case_id_list:
-                        file.write(f'{case_id}, ADDRESS_DELTA')
-                        file.write('\n')
+                        writer.writerow([f'{case_id}', 'ADDRESS_DELTA'])
                 else:
-                    error_count += 1
+                    error_count = True
 
-            if error_count != 0:
-                os.remove(Path(f'invalid_addresses_{file_to_process.stem}.csv'))
+            if error_count:
+                address_delta_file.unlink()
                 exit(1)
 
-    upload_file_to_bucket(address_delta_file)
+    # upload_file_to_bucket(address_delta_file)
 
 
 def get_case_id_from_case_api(uprn, line_number):
