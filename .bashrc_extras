@@ -5,6 +5,7 @@ export PATH=/home/toolbox:$PATH
 
 if [[ -z "${CLOUD_SHELL_USER}" ]]; then
     if [[ $PROJECT_NAME == *"prod"* ]]; then
+      trap '' 2
       echo "🚫🚫🚫 I don't know who you are, so you're NOT ALLOWED to connect to the PROD toolbox 🚫🚫🚫"
       sleep 10s
       exit
