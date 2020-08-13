@@ -1,0 +1,25 @@
+source /home/toolbox/aliases.sh
+/home/toolbox/splashscreen.sh
+PS1="[$PROJECT_NAME]-TOOLZ🔥> "
+export PATH=/home/toolbox:$PATH
+
+if [[ -z "${CLOUD_SHELL_USER}" ]]; then
+    if [[ $PROJECT_NAME == *"prod"* ]]; then
+      trap '' 2
+      echo "🚫🚫🚫 I don't know who you are, so you're NOT ALLOWED to connect to the PROD toolbox 🚫🚫🚫"
+      sleep 10s
+      exit
+    fi
+
+    export CURRENT_USER=anonymous
+else
+    export CURRENT_USER=$CLOUD_SHELL_USER
+fi
+
+echo Nice to see you again, $CURRENT_USER. We are tracking your every move 🔍👀.
+
+mkdir -p ~/.audit/$CURRENT_USER
+echo $(date --iso-8601=ns) >> ~/.audit/$CURRENT_USER/login.log
+
+export HISTFILE=~/.audit/$CURRENT_USER/bash_history-$(date --iso-8601=ns).log
+export HISTTIMEFORMAT="%F %T "
