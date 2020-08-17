@@ -2,6 +2,8 @@ import uuid
 from collections import namedtuple
 from typing import Sequence
 
+from ukpostcodeutils import validation
+
 from toolbox.utilities.db_helper import execute_in_connection
 
 ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
@@ -98,10 +100,12 @@ def latitude_longitude(max_precision: int, max_scale: int):
     return validate
 
 
-def no_padding_whitespace():
+def no_padding_whitespace_and_no_pipe_character():
     def validate(value, **_kwargs):
         if value != value.strip():
             raise Invalid(f'Value "{value}" contains padding whitespace')
+        if str('|') in value:
+            raise Invalid(f'Value "{value}" contains pipe character')
 
     return validate
 
@@ -121,5 +125,25 @@ def ce_u_has_expected_capacity():
                 and (not expected_capacity.isdigit() or int(expected_capacity) == 0):
             raise Invalid(
                 f'CE Unit Expected Capacity "{expected_capacity}" cannot be null, blank or zero')
+
+    return validate
+
+
+def ce_e_has_expected_capacity():
+    def validate(expected_capacity, **kwargs):
+        if kwargs['row']['ADDRESS_TYPE'] == 'CE' and kwargs['row']['ADDRESS_LEVEL'] == 'E' and (
+                kwargs['row']['TREATMENT_CODE'] not in {'CE_LDCEE', 'CE_LDCEW'}) and (
+                not expected_capacity.isdigit() or int(expected_capacity) == 0):
+            raise Invalid(
+                f'Expected Capacity "{expected_capacity}" must be greater than 0')
+
+    return validate
+
+
+def postcode_format():
+    def validate(postcode):
+        if not validation.is_valid_postcode(postcode):
+            raise Invalid(
+                f'Postcode "{postcode}" does not follow correct format')
 
     return validate
