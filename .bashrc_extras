@@ -3,7 +3,7 @@ source /home/toolbox/aliases.sh
 
 if [[ $PROJECT_NAME == "census-rm-prod" ]]; then
     /home/toolbox/splashscreen_prod.sh
-    PS1="⚠️⚠️⚠️PRODUCTION⚠️⚠️⚠️> "
+    PS1="PRODUCTION️💀️> "
 else
     /home/toolbox/splashscreen.sh
     PS1="[$PROJECT_NAME]-TOOLZ🔥> "
