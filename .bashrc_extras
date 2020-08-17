@@ -1,6 +1,14 @@
 source /home/toolbox/aliases.sh
 /home/toolbox/splashscreen.sh
-PS1="[$PROJECT_NAME]-TOOLZ🔥> "
+
+if [[ $PROJECT_NAME == "census-rm-prod" ]]; then
+    /home/toolbox/splashscreen_prod.sh
+    PS1="⚠️⚠️⚠️PRODUCTION⚠️⚠️⚠️> "
+else
+    /home/toolbox/splashscreen.sh
+    PS1="[$PROJECT_NAME]-TOOLZ🔥> "
+fi
+
 export PATH=/home/toolbox:$PATH
 
 if [[ -z "${CLOUD_SHELL_USER}" ]]; then
