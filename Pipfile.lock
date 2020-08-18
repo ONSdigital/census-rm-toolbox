@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "363b11008476c5d403e2e96907003bb83d996ea7e4f1706b5717f442a7bf51d4"
+            "sha256": "6207f917a663b1c2036e9e7c92c9a27919fb0d7dc3bc2419bad766515d600ef2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -377,14 +377,6 @@
             ],
             "index": "pypi",
             "version": "==0.1"
-        },
-        "uk-postcode-utils": {
-            "hashes": [
-                "sha256:caefbfbf276986f1aa063b1cb55d810f5509f8ea6e5731da4db4451f462c23bf",
-                "sha256:d198638c6324807bd238c4b875165e850c01c26ec926223a82e0f0e5959c54b8"
-            ],
-            "index": "pypi",
-            "version": "==1.1"
         },
         "uritemplate": {
             "hashes": [

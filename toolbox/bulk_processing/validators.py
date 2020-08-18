@@ -2,8 +2,6 @@ import uuid
 from collections import namedtuple
 from typing import Sequence
 
-from ukpostcodeutils import validation
-
 from toolbox.utilities.db_helper import execute_in_connection
 
 ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
@@ -140,10 +138,10 @@ def ce_e_has_expected_capacity():
     return validate
 
 
-def postcode_format():
-    def validate(postcode):
-        if not validation.is_valid_postcode(postcode):
-            raise Invalid(
-                f'Postcode "{postcode}" does not follow correct format')
+def alphanumeric_postcode():
+    def validate(postcode, **_kwargs):
+        postcode = postcode.replace(" ", "")
+        if not postcode.isalnum():
+            raise Invalid(f'Postcode "{postcode}" is non alphanumeric')
 
     return validate

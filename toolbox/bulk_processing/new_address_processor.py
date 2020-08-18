@@ -2,7 +2,8 @@ from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
     no_padding_whitespace_and_no_pipe_character, latitude_longitude, \
-    in_set, region_matches_treatment_code, ce_u_has_expected_capacity, postcode_format, ce_e_has_expected_capacity
+    in_set, region_matches_treatment_code, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
+    alphanumeric_postcode
 from toolbox.config import Config
 
 
@@ -45,7 +46,8 @@ class NewAddressProcessor(Processor):
         'ADDRESS_LINE2': [max_length(60), no_padding_whitespace_and_no_pipe_character()],
         'ADDRESS_LINE3': [max_length(60), no_padding_whitespace_and_no_pipe_character()],
         'TOWN_NAME': [mandatory(), max_length(30), no_padding_whitespace_and_no_pipe_character()],
-        'POSTCODE': [mandatory(), max_length(8), no_padding_whitespace_and_no_pipe_character(), postcode_format()],
+        'POSTCODE': [mandatory(), max_length(8), no_padding_whitespace_and_no_pipe_character(),
+                     alphanumeric_postcode()],
         'LATITUDE': [mandatory(), latitude_longitude(max_scale=7, max_precision=9),
                      no_padding_whitespace_and_no_pipe_character()],
         'LONGITUDE': [mandatory(), latitude_longitude(max_scale=7, max_precision=8),
