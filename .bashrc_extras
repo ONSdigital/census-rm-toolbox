@@ -1,6 +1,14 @@
 source /home/toolbox/aliases.sh
 /home/toolbox/splashscreen.sh
-PS1="[$PROJECT_NAME]-TOOLZ🔥> "
+
+if [[ $PROJECT_NAME == "census-rm-prod" ]]; then
+    /home/toolbox/splashscreen_prod.sh
+    PS1="PRODUCTION️💀️> "
+else
+    /home/toolbox/splashscreen.sh
+    PS1="[$PROJECT_NAME]-TOOLZ🔥> "
+fi
+
 export PATH=/home/toolbox:$PATH
 
 if [[ -z "${CLOUD_SHELL_USER}" ]]; then
@@ -17,6 +25,7 @@ else
 fi
 
 echo Nice to see you again, $CURRENT_USER. We are tracking your every move 🔍👀.
+echo
 
 mkdir -p ~/.audit/$CURRENT_USER
 echo $(date --iso-8601=ns) >> ~/.audit/$CURRENT_USER/login.log
