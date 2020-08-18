@@ -1,9 +1,9 @@
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
-    no_padding_whitespace_and_no_pipe_character, latitude_longitude, \
+    no_padding_whitespace, latitude_longitude, \
     in_set, region_matches_treatment_code, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
-    alphanumeric_postcode
+    alphanumeric_postcode, no_pipe_character
 from toolbox.config import Config
 
 
@@ -32,45 +32,42 @@ class NewAddressProcessor(Processor):
     project_id = Config.BULK_NEW_ADDRESS_PROJECT_ID
     schema = {
 
-        'UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace_and_no_pipe_character()],
-        'ESTAB_UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace_and_no_pipe_character()],
+        'UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace()],
+        'ESTAB_UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace()],
         'ADDRESS_TYPE': [mandatory(), in_set({'HH', 'CE', 'SPG'}, label='ADDRESS_TYPE'),
-                         no_padding_whitespace_and_no_pipe_character()],
-        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='ESTAB_TYPE'), max_length(35),
-                       no_padding_whitespace_and_no_pipe_character()],
+                         no_padding_whitespace()],
+        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='ESTAB_TYPE'),
+                       no_padding_whitespace()],
         'ADDRESS_LEVEL': [mandatory(), in_set({'E', 'U'}, label='ADDRESS_LEVEL'),
-                          no_padding_whitespace_and_no_pipe_character()],
-        'ABP_CODE': [mandatory(), max_length(6), no_padding_whitespace_and_no_pipe_character()],
-        'ORGANISATION_NAME': [max_length(60), no_padding_whitespace_and_no_pipe_character()],
-        'ADDRESS_LINE1': [mandatory(), max_length(60), no_padding_whitespace_and_no_pipe_character()],
-        'ADDRESS_LINE2': [max_length(60), no_padding_whitespace_and_no_pipe_character()],
-        'ADDRESS_LINE3': [max_length(60), no_padding_whitespace_and_no_pipe_character()],
-        'TOWN_NAME': [mandatory(), max_length(30), no_padding_whitespace_and_no_pipe_character()],
-        'POSTCODE': [mandatory(), max_length(8), no_padding_whitespace_and_no_pipe_character(),
-                     alphanumeric_postcode()],
+                          no_padding_whitespace()],
+        'ABP_CODE': [mandatory(), max_length(6), no_padding_whitespace(), no_pipe_character()],
+        'ORGANISATION_NAME': [max_length(60), no_padding_whitespace(), no_pipe_character()],
+        'ADDRESS_LINE1': [mandatory(), max_length(60), no_padding_whitespace(), no_pipe_character()],
+        'ADDRESS_LINE2': [max_length(60), no_padding_whitespace(), no_pipe_character()],
+        'ADDRESS_LINE3': [max_length(60), no_padding_whitespace(), no_pipe_character()],
+        'TOWN_NAME': [mandatory(), max_length(30), no_padding_whitespace(), no_pipe_character()],
+        'POSTCODE': [mandatory(), max_length(8), no_padding_whitespace(),
+                     alphanumeric_postcode(), no_pipe_character()],
         'LATITUDE': [mandatory(), latitude_longitude(max_scale=7, max_precision=9),
-                     no_padding_whitespace_and_no_pipe_character()],
+                     no_padding_whitespace(), no_pipe_character()],
         'LONGITUDE': [mandatory(), latitude_longitude(max_scale=7, max_precision=8),
-                      no_padding_whitespace_and_no_pipe_character()],
-        'OA': [mandatory(), max_length(9), no_padding_whitespace_and_no_pipe_character()],
-        'LSOA': [mandatory(), max_length(9), no_padding_whitespace_and_no_pipe_character()],
-        'MSOA': [mandatory(), max_length(9), no_padding_whitespace_and_no_pipe_character()],
-        'LAD': [mandatory(), max_length(9), no_padding_whitespace_and_no_pipe_character()],
-        'REGION': [mandatory(), max_length(9), no_padding_whitespace_and_no_pipe_character(),
-                   region_matches_treatment_code()],
-        'HTC_WILLINGNESS': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_WILLINGNESS'),
-                            no_padding_whitespace_and_no_pipe_character()],
-        'HTC_DIGITAL': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_DIGITAL'),
-                        no_padding_whitespace_and_no_pipe_character()],
-        'TREATMENT_CODE': [mandatory(), in_set(TREATMENT_CODES, label='TREATMENT_CODE'),
-                           no_padding_whitespace_and_no_pipe_character()],
-        'FIELDCOORDINATOR_ID': [max_length(10), no_padding_whitespace_and_no_pipe_character()],
-        'FIELDOFFICER_ID': [max_length(13), no_padding_whitespace_and_no_pipe_character()],
-        'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace_and_no_pipe_character(),
+                      no_padding_whitespace(), no_pipe_character()],
+        'OA': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
+        'LSOA': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
+        'MSOA': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
+        'LAD': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
+        'REGION': [mandatory(), max_length(9), no_padding_whitespace(),
+                   region_matches_treatment_code(), no_pipe_character()],
+        'HTC_WILLINGNESS': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_WILLINGNESS')],
+        'HTC_DIGITAL': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_DIGITAL')],
+        'TREATMENT_CODE': [mandatory(), in_set(TREATMENT_CODES, label='TREATMENT_CODE')],
+        'FIELDCOORDINATOR_ID': [max_length(10), no_padding_whitespace(), no_pipe_character()],
+        'FIELDOFFICER_ID': [max_length(13), no_padding_whitespace(), no_pipe_character()],
+        'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace(),
                                  ce_u_has_expected_capacity(), ce_e_has_expected_capacity()],
         'CE_SECURE': [mandatory(), in_set({'0', '1'}, label='CE_SECURE'),
-                      no_padding_whitespace_and_no_pipe_character()],
-        'PRINT_BATCH': [numeric(), max_length(2), no_padding_whitespace_and_no_pipe_character()]
+                      no_padding_whitespace()],
+        'PRINT_BATCH': [numeric(), max_length(2), no_padding_whitespace()]
     }
     collection_exercise_id = Config.COLLECTION_EXERCISE_ID
     action_plan_id = Config.ACTION_PLAN_ID

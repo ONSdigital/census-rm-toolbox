@@ -98,10 +98,16 @@ def latitude_longitude(max_precision: int, max_scale: int):
     return validate
 
 
-def no_padding_whitespace_and_no_pipe_character():
+def no_padding_whitespace():
     def validate(value, **_kwargs):
         if value != value.strip():
             raise Invalid(f'Value "{value}" contains padding whitespace')
+
+    return validate
+
+
+def no_pipe_character():
+    def validate(value, **_kwargs):
         if str('|') in value:
             raise Invalid(f'Value "{value}" contains pipe character')
 
@@ -133,15 +139,16 @@ def ce_e_has_expected_capacity():
                 kwargs['row']['TREATMENT_CODE'] not in {'CE_LDCEE', 'CE_LDCEW'}) and (
                 not expected_capacity.isdigit() or int(expected_capacity) == 0):
             raise Invalid(
-                f'Expected Capacity "{expected_capacity}" must be greater than 0')
+                f'CE Estab Expected Capacity "{expected_capacity}" with Treatment Code '
+                f'{kwargs["row"]["TREATMENT_CODE"]} other than CE_LDCEE/CE_LDCEW cannot be null, blank or zero')
 
     return validate
 
 
 def alphanumeric_postcode():
     def validate(postcode, **_kwargs):
-        postcode = postcode.replace(" ", "")
-        if not postcode.isalnum():
+        stripped_postcode = postcode.replace(" ", "")
+        if not stripped_postcode.isalnum():
             raise Invalid(f'Postcode "{postcode}" is non alphanumeric')
 
     return validate
