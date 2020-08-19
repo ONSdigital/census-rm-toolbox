@@ -152,3 +152,11 @@ def alphanumeric_postcode():
             raise Invalid(f'Postcode "{postcode}" is non alphanumeric')
 
     return validate
+
+
+def latitude_longitude_range():
+    def validate(value, **_kwargs):
+        if not -180 <= float(value) <= 180:
+            raise Invalid(f'Latitude/Longitude value "{value}" is not in a range between -180 and 180')
+
+    return validate

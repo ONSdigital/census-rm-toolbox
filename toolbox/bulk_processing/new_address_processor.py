@@ -3,7 +3,7 @@ from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
     no_padding_whitespace, latitude_longitude, \
     in_set, region_matches_treatment_code, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
-    alphanumeric_postcode, no_pipe_character
+    alphanumeric_postcode, no_pipe_character, latitude_longitude_range
 from toolbox.config import Config
 
 
@@ -36,8 +36,7 @@ class NewAddressProcessor(Processor):
         'ESTAB_UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace()],
         'ADDRESS_TYPE': [mandatory(), in_set({'HH', 'CE', 'SPG'}, label='ADDRESS_TYPE'),
                          no_padding_whitespace()],
-        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='ESTAB_TYPE'),
-                       no_padding_whitespace()],
+        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='ESTAB_TYPE')],
         'ADDRESS_LEVEL': [mandatory(), in_set({'E', 'U'}, label='ADDRESS_LEVEL'),
                           no_padding_whitespace()],
         'ABP_CODE': [mandatory(), max_length(6), no_padding_whitespace(), no_pipe_character()],
@@ -49,9 +48,9 @@ class NewAddressProcessor(Processor):
         'POSTCODE': [mandatory(), max_length(8), no_padding_whitespace(),
                      alphanumeric_postcode(), no_pipe_character()],
         'LATITUDE': [mandatory(), latitude_longitude(max_scale=7, max_precision=9),
-                     no_padding_whitespace(), no_pipe_character()],
+                     no_padding_whitespace(), no_pipe_character(), latitude_longitude_range()],
         'LONGITUDE': [mandatory(), latitude_longitude(max_scale=7, max_precision=8),
-                      no_padding_whitespace(), no_pipe_character()],
+                      no_padding_whitespace(), no_pipe_character(), latitude_longitude_range()],
         'OA': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
         'LSOA': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
         'MSOA': [mandatory(), max_length(9), no_padding_whitespace(), no_pipe_character()],
