@@ -16,7 +16,7 @@ def test_build_event_messages():
     assert event_messages[0]['event']['type'] == 'DEACTIVATE_UAC'
     assert event_messages[0]['event']['transactionId'] is not None
     assert event_messages[0]['event']['dateTime'] is not None
-    assert event_messages[0]['payload']['deactivateUac']['qid'] == 'test_qid'
+    assert event_messages[0]['payload']['uac']['questionnaireId'] == 'test_qid'
 
 
 @patch('toolbox.bulk_processing.bulk_processor.storage')

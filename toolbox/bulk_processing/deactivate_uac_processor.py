@@ -28,8 +28,8 @@ class DeactivateUacProcessor(Processor):
                 "transactionId": str(uuid.uuid4())
             },
             "payload": {
-                "deactivateUac": {
-                    "qid": row['qid']
+                "uac": {
+                    "questionnaireId": row['qid']
                 }
             }
         }]
