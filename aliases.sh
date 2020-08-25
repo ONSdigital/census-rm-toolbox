@@ -22,6 +22,7 @@ alias reminderbatch='python -m toolbox.reminder_batch_scheduler.reminder_batch'
 alias bulkrefusals='python -m toolbox.bulk_processing.refusal_processor'
 alias bulknewaddresses='python -m toolbox.bulk_processing.new_address_processor'
 alias bulkinvalidaddresses='python -m toolbox.bulk_processing.invalid_address_processor'
+alias bulkdeactivateuacs='python -m toolbox.bulk_processing.deactivate_uac_processor'
 alias invalidaddressdelta='invalid_address_delta.sh'
 
 baddetails() {
