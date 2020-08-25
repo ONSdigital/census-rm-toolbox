@@ -9,9 +9,9 @@ from toolbox.tests import unittest_helper
 
 TEST_CASES = [
     # starting_batch, expected_number_of_batches, max_cases, count_per_batch
-    (1, 0, 1, 2),
-    (1, 1, 10, 10),
-    (1, 2, 25, 10),
+    (0, 0, 1, 2),
+    (0, 1, 10, 10),
+    (0, 2, 25, 10),
     (1, 3, 30, 10),
     (10, 10, 100, 10),
     (1, 99, 1000, 10),
