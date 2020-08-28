@@ -54,8 +54,7 @@ class AddressUpdateProcessor(Processor):
                                 cant_be_deleted()],
         'FIELDOFFICER_ID': [mandatory(), max_length(13), no_padding_whitespace(), no_pipe_character(),
                             cant_be_deleted()],
-        'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace(),
-                                 ce_u_has_expected_capacity(), ce_e_has_expected_capacity()],
+        'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace()  ],
         'CE_SECURE': [optional_in_set({'0', '1'}, label='CE_SECURE'),
                       no_padding_whitespace()],
         'PRINT_BATCH': [no_padding_whitespace(), numeric_2_digit_or_delete(), check_delete_keyword()]
