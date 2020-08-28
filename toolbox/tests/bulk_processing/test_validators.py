@@ -1,3 +1,4 @@
+import string
 import uuid
 from unittest.mock import patch
 
@@ -332,3 +333,140 @@ def test_latitude_longitude_range_invalid():
     # When, then raises
     with pytest.raises(validators.Invalid):
         latitude_longitude_range_validator(360)
+
+
+@pytest.mark.parametrize(['valid_set', 'value', 'is_valid'], [
+    ({'test'}, 'test', True),
+    ({'foo', 'bar'}, 'wadwdawd', False),
+    ({'foo', 'bar'}, '', True),
+    ({}, 'anything', False),
+    ({}, '', True),
+    (set(string.ascii_letters), 'a', True),
+    (set(string.ascii_letters), '', True),
+    (set(string.ascii_letters), '1', False),
+])
+def test_optional_in_set(valid_set, value, is_valid):
+    # Given
+    optional_in_set_validator = validators.optional_in_set(valid_set, 'TEST')
+
+    # When
+    if is_valid:
+        # Then no Invalid raised
+        optional_in_set_validator(value)
+    else:
+        with pytest.raises(validators.Invalid):
+            optional_in_set_validator(value)
+
+
+@pytest.mark.parametrize(['column_name', 'mock_return_value', 'value', 'row', 'is_valid'], [
+    # Value is present in the row, not DB
+    ('test_col', ({'test_col': None},), 'TEST', {'CASE_ID': 'dummy', 'TEST': 'IS_PRESENT_IN_ROW'}, True),
+
+    # Value is present in the DB, not row
+    ('test_col', ({'test_col': 'is present'},), '', {'CASE_ID': 'dummy'}, True),
+
+    # Value is present in the DB and row
+    ('test_col', ({'test_col': 'is present'},), 'is also present', {'CASE_ID': 'dummy'}, True),
+
+    # Value not in file, not in DB
+    ('foo', ({'foo': None},), '', {'CASE_ID': 'dummy'}, False),
+    ('foo', ({'foo': ''},), '', {'CASE_ID': 'dummy'}, False),
+    ('foo', ({'foo': None, 'irrelevant': 'other data'},), '', {'CASE_ID': 'dummy'}, False),
+])
+@patch('toolbox.bulk_processing.validators.execute_in_connection_with_column_names')
+def test_mandatory_after_update(mock_execute_db, column_name, mock_return_value, value, row, is_valid):
+    # Given
+    mock_execute_db.return_value = mock_return_value
+    mandatory_after_update_validator = validators.mandatory_after_update(column_name, label='TEST')
+
+    # When
+    if is_valid:
+        # Then no Invalid raised
+        mandatory_after_update_validator(value, row=row, db_connection=None)
+    else:
+        with pytest.raises(validators.Invalid):
+            mandatory_after_update_validator(value, row=row, db_connection=None)
+
+
+@pytest.mark.parametrize(['value', 'is_valid'], [
+    ('-', False),
+    ('--', False),
+    ('---', False),
+    ('----', False),
+    ('-----', False),
+    ('------', False),
+    ('-' * 10, False),
+    ('-this-has-too-many-dashes-', False),
+    ('this-only-has-four-dashes', True),
+    ('this-only-has-three', True),
+    ('this has no dashes', True),
+    ('pancakes', True),
+])
+def test_cant_be_deleted(value, is_valid):
+    # Given
+    cant_be_deleted_validator = validators.cant_be_deleted()
+
+    # When
+    if is_valid:
+        # Then no Invalid raised
+        cant_be_deleted_validator(value)
+    else:
+        with pytest.raises(validators.Invalid):
+            cant_be_deleted_validator(value)
+
+
+@pytest.mark.parametrize(['value', 'is_valid'], [
+    ('-', False),
+    ('--', False),
+    ('---', False),
+    ('----', False),
+    ('------', False),
+    ('-' * 10, False),
+    ('-this-has-too-many-dashes-', False),
+
+    # Valid not delete keywords
+    ('this-only-has-four-dashes', True),
+    ('this-only-has-three', True),
+    ('this has no dashes', True),
+    ('pancakes', True),
+
+    # Valid delete keyword
+    ('-----', True),
+])
+def test_check_delete_keyword(value, is_valid):
+    # Given
+    check_delete_keyword_validator = validators.check_delete_keyword()
+
+    # When
+    if is_valid:
+        # Then no Invalid raised
+        check_delete_keyword_validator(value)
+    else:
+        with pytest.raises(validators.Invalid):
+            check_delete_keyword_validator(value)
+
+
+@pytest.mark.parametrize(['value', 'is_valid'], [
+    ('', True),
+    ('0', True),
+    ('99', True),
+    ('13', True),
+    ('-----', True),
+    ('-', False),
+    ('--', False),
+    ('-------', False),
+    ('foo', False),
+    ('100', False),
+    ('9999', False),
+])
+def test_numeric_2_digit_or_delete(value, is_valid):
+    # Given
+    numeric_2_digit_validator = validators.numeric_2_digit_or_delete()
+
+    # When
+    if is_valid:
+        # Then no Invalid raised
+        numeric_2_digit_validator(value)
+    else:
+        with pytest.raises(validators.Invalid):
+            numeric_2_digit_validator(value)

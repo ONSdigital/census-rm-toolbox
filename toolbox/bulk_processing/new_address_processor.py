@@ -8,35 +8,17 @@ from toolbox.config import Config
 
 
 class NewAddressProcessor(Processor):
-    TREATMENT_CODES = {
-        'HH_LP1E', 'HH_LP1W', 'HH_LP2E', 'HH_LP2W', 'HH_QP3E', 'HH_QP3W', 'HH_1ALSFN', 'HH_2BLEFN',
-        'HH_2CLEFN', 'HH_3DQSFN', 'HH_3EQSFN', 'HH_3FQSFN', 'HH_3GQSFN', 'HH_4HLPCVN', 'HH_SPGLNFN', 'HH_SPGQNFN',
-        'CE_LDIEE', 'CE_LDIEW', 'CE_LDIUE', 'CE_LDIUW', 'CE_QDIEE', 'CE_QDIEW', 'CE_LDCEE', 'CE_LDCEW',
-        'CE_1QNFN', 'CE_2LNFN', 'CE_3LSNFN', 'SPG_LPHUE', 'SPG_LPHUW', 'SPG_QDHUE', 'SPG_QDHUW', 'SPG_VDNEE',
-        'SPG_VDNEW'}
-
-    ESTAB_TYPES = {'HALL OF RESIDENCE', 'CARE HOME', 'HOSPITAL', 'HOSPICE', 'MENTAL HEALTH HOSPITAL',
-                   'MEDICAL CARE OTHER', 'BOARDING SCHOOL', 'LOW/MEDIUM SECURE MENTAL HEALTH',
-                   'HIGH SECURE MENTAL HEALTH', 'HOTEL', 'YOUTH HOSTEL', 'HOSTEL', 'MILITARY SLA', 'MILITARY US SLA',
-                   'RELIGIOUS COMMUNITY', 'RESIDENTIAL CHILDRENS HOME', 'EDUCATION OTHER', 'PRISON',
-                   'IMMIGRATION REMOVAL CENTRE', 'APPROVED PREMISES', 'ROUGH SLEEPER', 'STAFF ACCOMMODATION',
-                   'CAMPHILL', 'HOLIDAY PARK', 'HOUSEHOLD', 'SHELTERED ACCOMMODATION', 'RESIDENTIAL CARAVAN',
-                   'RESIDENTIAL BOAT', 'GATED APARTMENTS', 'MOD HOUSEHOLDS', 'FOREIGN OFFICES', 'CASTLES', 'GRT SITE',
-                   'MILITARY SFA', 'EMBASSY', 'ROYAL HOUSEHOLD', 'CARAVAN', 'MARINA', 'TRAVELLING PERSONS',
-                   'TRANSIENT PERSONS', 'MIGRANT WORKERS', 'MILITARY US SFA'}
-
     file_prefix = Config.BULK_NEW_ADDRESS_FILE_PREFIX
     routing_key = Config.NEW_ADDRESS_EVENT_ROUTING_KEY
     exchange = ''
     bucket_name = Config.BULK_NEW_ADDRESS_BUCKET_NAME
     project_id = Config.BULK_NEW_ADDRESS_PROJECT_ID
     schema = {
-
         'UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace()],
         'ESTAB_UPRN': [mandatory(), max_length(13), numeric(), no_padding_whitespace()],
         'ADDRESS_TYPE': [mandatory(), in_set({'HH', 'CE', 'SPG'}, label='ADDRESS_TYPE'),
                          no_padding_whitespace()],
-        'ESTAB_TYPE': [mandatory(), in_set(ESTAB_TYPES, label='ESTAB_TYPE')],
+        'ESTAB_TYPE': [mandatory(), in_set(Config.ESTAB_TYPES, label='ESTAB_TYPE')],
         'ADDRESS_LEVEL': [mandatory(), in_set({'E', 'U'}, label='ADDRESS_LEVEL'),
                           no_padding_whitespace()],
         'ABP_CODE': [mandatory(), max_length(6), no_padding_whitespace(), no_pipe_character()],
@@ -59,7 +41,7 @@ class NewAddressProcessor(Processor):
                    region_matches_treatment_code(), no_pipe_character()],
         'HTC_WILLINGNESS': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_WILLINGNESS')],
         'HTC_DIGITAL': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_DIGITAL')],
-        'TREATMENT_CODE': [mandatory(), in_set(TREATMENT_CODES, label='TREATMENT_CODE')],
+        'TREATMENT_CODE': [mandatory(), in_set(Config.TREATMENT_CODES, label='TREATMENT_CODE')],
         'FIELDCOORDINATOR_ID': [max_length(10), no_padding_whitespace(), no_pipe_character()],
         'FIELDOFFICER_ID': [max_length(13), no_padding_whitespace(), no_pipe_character()],
         'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace(),
