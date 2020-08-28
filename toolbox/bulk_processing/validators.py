@@ -216,7 +216,7 @@ def check_delete_keyword():
 
 
 def check_no_dodgy_hyphen_lookalikes(value):
-    for hyphen_lookalike in ('‒', '–', '—', '―', '_', '~', '¯', 'ˉ', 'ˍ', '˗', '‐', '‑', '‒', '‾', '⁃', '⁻','₋', '−',
+    for hyphen_lookalike in ('‒', '–', '—', '―', '_', '~', '¯', 'ˉ', 'ˍ', '˗', '‐', '‑', '‒', '‾', '⁃', '⁻', '₋', '−',
                              '⎯', '⏤', '─', '➖', '𐆑'):
         if hyphen_lookalike in value:
             raise Invalid(f"Value {value} contains things which look like hyphens but aren't")

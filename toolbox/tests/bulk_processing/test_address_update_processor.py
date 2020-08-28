@@ -46,7 +46,7 @@ def test_build_event_messages_maximum_values(patched_uuid, patched_datetime):
     event_message = address_update_processor.build_event_messages(row)
 
     unittest_helper.assertEqual(
-        {
+        [{
             "event": {
                 "type": "RM_CASE_UPDATED",
                 "source": "RM_BULK_ADDRESS_UPDATE_PROCESSOR",
@@ -83,7 +83,7 @@ def test_build_event_messages_maximum_values(patched_uuid, patched_datetime):
                     'townName': row['TOWN_NAME']
                 }
             }
-        },
+        }],
         event_message
     )
 
@@ -130,7 +130,7 @@ def test_build_event_messages_minimum_values(patched_uuid, patched_datetime):
     event_message = address_update_processor.build_event_messages(row)
 
     unittest_helper.assertEqual(
-        {
+        [{
             "event": {
                 "type": "RM_CASE_UPDATED",
                 "source": "RM_BULK_ADDRESS_UPDATE_PROCESSOR",
@@ -153,7 +153,7 @@ def test_build_event_messages_minimum_values(patched_uuid, patched_datetime):
                     'longitude': row['LONGITUDE'],
                 }
             }
-        },
+        }],
         event_message
     )
 
@@ -200,7 +200,7 @@ def test_build_event_messages_all_deletable_values(patched_uuid, patched_datetim
     event_message = address_update_processor.build_event_messages(row)
 
     unittest_helper.assertEqual(
-        {
+        [{
             "event": {
                 "type": "RM_CASE_UPDATED",
                 "source": "RM_BULK_ADDRESS_UPDATE_PROCESSOR",
@@ -227,7 +227,7 @@ def test_build_event_messages_all_deletable_values(patched_uuid, patched_datetim
                     'printBatch': None,
                 }
             }
-        },
+        }],
         event_message
     )
 
@@ -274,7 +274,7 @@ def test_build_event_messages_ce_secure_false(patched_uuid, patched_datetime):
     event_message = address_update_processor.build_event_messages(row)
 
     unittest_helper.assertEqual(
-        {
+        [{
             "event": {
                 "type": "RM_CASE_UPDATED",
                 "source": "RM_BULK_ADDRESS_UPDATE_PROCESSOR",
@@ -298,6 +298,6 @@ def test_build_event_messages_ce_secure_false(patched_uuid, patched_datetime):
                     'secureEstablishment': False,
                 }
             }
-        },
+        }],
         event_message
     )

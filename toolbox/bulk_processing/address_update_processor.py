@@ -3,8 +3,8 @@ from datetime import datetime
 
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
-from toolbox.bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace, no_pipe_character, \
-    alphanumeric_postcode, latitude_longitude, in_set, latitude_longitude_range, case_exists_by_id, \
+from toolbox.bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace,\
+    no_pipe_character, alphanumeric_postcode, latitude_longitude, in_set, latitude_longitude_range, case_exists_by_id, \
     mandatory_after_update, cant_be_deleted, check_delete_keyword, \
     numeric_2_digit_or_delete, optional_in_set
 from toolbox.config import Config
@@ -88,52 +88,64 @@ class AddressUpdateProcessor(Processor):
         }
 
         # Set the optional values if present
-        if row['ADDRESS_LINE1']:
-            event_message['payload']['rmCaseUpdated']['addressLine1'] = row['ADDRESS_LINE1']
-        if row['TOWN_NAME']:
-            event_message['payload']['rmCaseUpdated']['townName'] = row['TOWN_NAME']
-        if row['POSTCODE']:
-            event_message['payload']['rmCaseUpdated']['postcode'] = row['POSTCODE']
-        if row['UPRN']:
-            event_message['payload']['rmCaseUpdated']['uprn'] = row['UPRN']
-        if row['ESTAB_UPRN']:
-            event_message['payload']['rmCaseUpdated']['estabUprn'] = row['ESTAB_UPRN']
-        if row['ABP_CODE']:
-            event_message['payload']['rmCaseUpdated']['abpCode'] = row['ABP_CODE']
-        if row['HTC_WILLINGNESS']:
-            event_message['payload']['rmCaseUpdated']['htcWillingness'] = row['HTC_WILLINGNESS']
-        if row['HTC_DIGITAL']:
-            event_message['payload']['rmCaseUpdated']['htcDigital'] = row['HTC_DIGITAL']
-        if row['CE_EXPECTED_CAPACITY']:
-            event_message['payload']['rmCaseUpdated']['ceExpectedCapacity'] = row['CE_EXPECTED_CAPACITY']
-
-        if row['CE_SECURE'] == '0':
-            event_message['payload']['rmCaseUpdated']['secureEstablishment'] = False
-        if row['CE_SECURE'] == '1':
-            event_message['payload']['rmCaseUpdated']['secureEstablishment'] = True
+        event_message = set_optional_values_if_present(row, event_message)
 
         # Set the deletable fields
-        if is_delete_keyword(row['ORGANISATION_NAME']):
-            event_message['payload']['rmCaseUpdated']['organisationName'] = None
-        elif row['ORGANISATION_NAME']:
-            event_message['payload']['rmCaseUpdated']['organisationName'] = row['ORGANISATION_NAME']
-
-        if is_delete_keyword(row['ADDRESS_LINE2']):
-            event_message['payload']['rmCaseUpdated']['addressLine2'] = None
-        elif row['ADDRESS_LINE2']:
-            event_message['payload']['rmCaseUpdated']['addressLine2'] = row['ADDRESS_LINE2']
-
-        if is_delete_keyword(row['ADDRESS_LINE3']):
-            event_message['payload']['rmCaseUpdated']['addressLine3'] = None
-        elif row['ADDRESS_LINE3']:
-            event_message['payload']['rmCaseUpdated']['addressLine3'] = row['ADDRESS_LINE3']
-
-        if is_delete_keyword(row['PRINT_BATCH']):
-            event_message['payload']['rmCaseUpdated']['printBatch'] = None
-        elif row['PRINT_BATCH']:
-            event_message['payload']['rmCaseUpdated']['printBatch'] = row['PRINT_BATCH']
+        event_message = set_deleteable_fields(row, event_message)
 
         return [event_message]
+
+
+def set_optional_values_if_present(row, event_message):
+    if row['ADDRESS_LINE1']:
+        event_message['payload']['rmCaseUpdated']['addressLine1'] = row['ADDRESS_LINE1']
+    if row['TOWN_NAME']:
+        event_message['payload']['rmCaseUpdated']['townName'] = row['TOWN_NAME']
+    if row['POSTCODE']:
+        event_message['payload']['rmCaseUpdated']['postcode'] = row['POSTCODE']
+    if row['UPRN']:
+        event_message['payload']['rmCaseUpdated']['uprn'] = row['UPRN']
+    if row['ESTAB_UPRN']:
+        event_message['payload']['rmCaseUpdated']['estabUprn'] = row['ESTAB_UPRN']
+    if row['ABP_CODE']:
+        event_message['payload']['rmCaseUpdated']['abpCode'] = row['ABP_CODE']
+    if row['HTC_WILLINGNESS']:
+        event_message['payload']['rmCaseUpdated']['htcWillingness'] = row['HTC_WILLINGNESS']
+    if row['HTC_DIGITAL']:
+        event_message['payload']['rmCaseUpdated']['htcDigital'] = row['HTC_DIGITAL']
+    if row['CE_EXPECTED_CAPACITY']:
+        event_message['payload']['rmCaseUpdated']['ceExpectedCapacity'] = row['CE_EXPECTED_CAPACITY']
+
+    if row['CE_SECURE'] == '0':
+        event_message['payload']['rmCaseUpdated']['secureEstablishment'] = False
+    if row['CE_SECURE'] == '1':
+        event_message['payload']['rmCaseUpdated']['secureEstablishment'] = True
+
+    return event_message
+
+
+def set_deleteable_fields(row, event_message):
+    if is_delete_keyword(row['ORGANISATION_NAME']):
+        event_message['payload']['rmCaseUpdated']['organisationName'] = None
+    elif row['ORGANISATION_NAME']:
+        event_message['payload']['rmCaseUpdated']['organisationName'] = row['ORGANISATION_NAME']
+
+    if is_delete_keyword(row['ADDRESS_LINE2']):
+        event_message['payload']['rmCaseUpdated']['addressLine2'] = None
+    elif row['ADDRESS_LINE2']:
+        event_message['payload']['rmCaseUpdated']['addressLine2'] = row['ADDRESS_LINE2']
+
+    if is_delete_keyword(row['ADDRESS_LINE3']):
+        event_message['payload']['rmCaseUpdated']['addressLine3'] = None
+    elif row['ADDRESS_LINE3']:
+        event_message['payload']['rmCaseUpdated']['addressLine3'] = row['ADDRESS_LINE3']
+
+    if is_delete_keyword(row['PRINT_BATCH']):
+        event_message['payload']['rmCaseUpdated']['printBatch'] = None
+    elif row['PRINT_BATCH']:
+        event_message['payload']['rmCaseUpdated']['printBatch'] = row['PRINT_BATCH']
+
+    return event_message
 
 
 def is_delete_keyword(value: str):
