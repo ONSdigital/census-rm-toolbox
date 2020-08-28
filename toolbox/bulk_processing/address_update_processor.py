@@ -61,7 +61,7 @@ class AddressUpdateProcessor(Processor):
     }
 
     def build_event_messages(self, row):
-        event_message = {
+        event_message = [{
             "event": {
                 "type": "RM_CASE_UPDATED",
                 "source": "RM_BULK_ADDRESS_UPDATE_PROCESSOR",
@@ -85,7 +85,7 @@ class AddressUpdateProcessor(Processor):
                     'longitude': row['LONGITUDE'],
                 }
             }
-        }
+        }]
 
         # Set the optional values if present
         if row['ADDRESS_LINE1']:
