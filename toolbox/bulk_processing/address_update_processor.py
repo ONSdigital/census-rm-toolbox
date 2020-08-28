@@ -4,8 +4,8 @@ from datetime import datetime
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace, no_pipe_character, \
-    alphanumeric_postcode, latitude_longitude, in_set, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
-    latitude_longitude_range, case_exists_by_id, mandatory_after_update, cant_be_deleted, check_delete_keyword, \
+    alphanumeric_postcode, latitude_longitude, in_set, latitude_longitude_range, case_exists_by_id, \
+    mandatory_after_update, cant_be_deleted, check_delete_keyword, \
     numeric_2_digit_or_delete, optional_in_set
 from toolbox.config import Config
 
@@ -54,14 +54,14 @@ class AddressUpdateProcessor(Processor):
                                 cant_be_deleted()],
         'FIELDOFFICER_ID': [mandatory(), max_length(13), no_padding_whitespace(), no_pipe_character(),
                             cant_be_deleted()],
-        'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace()  ],
+        'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace()],
         'CE_SECURE': [optional_in_set({'0', '1'}, label='CE_SECURE'),
                       no_padding_whitespace()],
         'PRINT_BATCH': [no_padding_whitespace(), numeric_2_digit_or_delete(), check_delete_keyword()]
     }
 
     def build_event_messages(self, row):
-        event_message = [{
+        event_message = {
             "event": {
                 "type": "RM_CASE_UPDATED",
                 "source": "RM_BULK_ADDRESS_UPDATE_PROCESSOR",
@@ -85,7 +85,7 @@ class AddressUpdateProcessor(Processor):
                     'longitude': row['LONGITUDE'],
                 }
             }
-        }]
+        }
 
         # Set the optional values if present
         if row['ADDRESS_LINE1']:
@@ -133,7 +133,7 @@ class AddressUpdateProcessor(Processor):
         elif row['PRINT_BATCH']:
             event_message['payload']['rmCaseUpdated']['printBatch'] = row['PRINT_BATCH']
 
-        return event_message
+        return [event_message]
 
 
 def is_delete_keyword(value: str):
