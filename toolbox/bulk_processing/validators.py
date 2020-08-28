@@ -197,6 +197,7 @@ def mandatory_after_update(column_name, label):
 
 def cant_be_deleted():
     def validate(value: str, **_kwargs):
+        check_no_dodgy_hyphen_lookalikes(value)
         if value.count('-') >= 5 or (value in {'----', '---', '--', '-'}):
             raise Invalid(
                 f'Found 5 or more "-" characters in value {value}, this field cannot be deleted')
@@ -206,11 +207,19 @@ def cant_be_deleted():
 
 def check_delete_keyword():
     def validate(value: str, **_kwargs):
+        check_no_dodgy_hyphen_lookalikes(value)
         if (value.count('-') >= 5 and value != '-----') or (value in {'----', '---', '--', '-'}):
             raise Invalid(
                 f'Found unexpected "-" characters in value {value}, ambiguous attempt to delete')
 
     return validate
+
+
+def check_no_dodgy_hyphen_lookalikes(value):
+    for hyphen_lookalike in ('‒', '–', '—', '―', '_', '~', '¯', 'ˉ', 'ˍ', '˗', '‐', '‑', '‒', '‾', '⁃', '⁻','₋', '−',
+                             '⎯', '⏤', '─', '➖', '𐆑'):
+        if hyphen_lookalike in value:
+            raise Invalid(f"Value {value} contains things which look like hyphens but aren't")
 
 
 def numeric_2_digit_or_delete():
