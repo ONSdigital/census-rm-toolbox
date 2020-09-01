@@ -218,6 +218,25 @@ def test_no_padding_whitespace_check_invalid():
         no_padding_whitespace_validator('  ')
 
 
+def test_no_pipe_character_check_valid():
+    # Given
+    no_pipe_character_validator = validators.no_pipe_character()
+
+    # When, then raises
+    no_pipe_character_validator('test')
+
+    # Then no invalid exception is raised
+
+
+def test_no_pipe_character_check_invalid():
+    # Given
+    no_pipe_character_validator = validators.no_pipe_character()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        no_pipe_character_validator('|')
+
+
 def test_region_matches_treatment_code_valid():
     # Given
     region_matches_treatment_code_validator = validators.region_matches_treatment_code()
@@ -276,3 +295,62 @@ def test_qid_exists_fails(mock_execute_method):
     with pytest.raises(validators.Invalid):
         qid_exists_validator = validators.qid_exists()
         qid_exists_validator("invalid_qid", db_connection='db_connection')
+
+
+def test_ce_e_has_expected_capacity_valid():
+    # Given
+    ce_e_has_expected_capacity_validator = validators.ce_e_has_expected_capacity()
+
+    # When
+    ce_e_has_expected_capacity_validator('5', row={'ADDRESS_TYPE': 'CE', 'ADDRESS_LEVEL': 'E',
+                                                   'TREATMENT_CODE': 'CE_TESTE'})
+
+    # Then no invalid exception is raised
+
+
+def test_ce_e_has_expected_capacity_invalid():
+    # Given
+    ce_e_has_expected_capacity_validator = validators.ce_e_has_expected_capacity()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        ce_e_has_expected_capacity_validator('0', row={'ADDRESS_TYPE': 'CE', 'ADDRESS_LEVEL': 'E',
+                                                       'TREATMENT_CODE': 'CE_TESTE'})
+
+
+def test_alphanumeric_postcode_valid():
+    # Given
+    alphanumeric_postcode_validator = validators.alphanumeric_postcode()
+
+    # When
+    alphanumeric_postcode_validator('TE25 5TE')
+
+    # Then no invalid exception is raised
+
+
+def test_alphanumeric_postcode_invalid():
+    # Given
+    alphanumeric_postcode_validator = validators.alphanumeric_postcode()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        alphanumeric_postcode_validator('TE5 5TE!')
+
+
+def test_latitude_longitude_range_valid():
+    # Given
+    latitude_longitude_range_validator = validators.latitude_longitude_range()
+
+    # When
+    latitude_longitude_range_validator(50)
+
+    # Then no invalid exception is raised
+
+
+def test_latitude_longitude_range_invalid():
+    # Given
+    latitude_longitude_range_validator = validators.latitude_longitude_range()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        latitude_longitude_range_validator(360)

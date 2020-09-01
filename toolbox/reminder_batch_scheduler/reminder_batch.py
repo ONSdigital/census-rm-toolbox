@@ -147,7 +147,7 @@ def parse_arguments():
                         help='The batch number to start counting at',
                         required=True,
                         type=int,
-                        choices=range(1, 100))
+                        choices=range(0, 100))
     parser.add_argument('-a', '--action-plan-id',
                         help='Action plan UUID',
                         required=True,
