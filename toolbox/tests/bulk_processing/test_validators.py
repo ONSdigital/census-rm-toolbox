@@ -377,7 +377,7 @@ def test_optional_in_set(valid_set, value, is_valid):
 def test_mandatory_after_update(mock_execute_db, column_name, mock_return_value, value, row, is_valid):
     # Given
     mock_execute_db.return_value = mock_return_value
-    mandatory_after_update_validator = validators.mandatory_after_update(column_name, label='TEST')
+    mandatory_after_update_validator = validators.mandatory_after_update(column_name)
 
     # When
     if is_valid:

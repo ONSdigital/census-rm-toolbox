@@ -174,7 +174,7 @@ def latitude_longitude_range():
     return validate
 
 
-def mandatory_after_update(column_name, label):
+def mandatory_after_update(column_name):
     """Field must be present either on the case or the update row"""
 
     def validate(value, **kwargs):
@@ -190,7 +190,7 @@ def mandatory_after_update(column_name, label):
             raise Invalid(f'Error looking up case ID: {case_id}')
 
         if not case[column_name]:
-            raise Invalid(f'Mandatory field {label} not given in update file or present on the case')
+            raise Invalid('Mandatory field not given in update file or present on the case')
 
     return validate
 
