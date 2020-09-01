@@ -48,7 +48,7 @@ def is_uuid():
 def case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
-            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
+            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s",
                                                    (case_id,), conn=kwargs['db_connection'])
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
@@ -183,7 +183,7 @@ def mandatory_after_update(column_name, label):
 
         case_id = kwargs['row']['CASE_ID']
         try:
-            case = execute_in_connection_with_column_names("SELECT * FROM casev2.cases WHERE case_id = %s LIMIT 1",
+            case = execute_in_connection_with_column_names("SELECT * FROM casev2.cases WHERE case_id = %s",
                                                            (case_id,), conn=kwargs['db_connection'])[0]
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
