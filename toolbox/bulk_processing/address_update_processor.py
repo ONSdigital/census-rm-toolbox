@@ -118,7 +118,7 @@ def set_optional_values_if_present(row, event_message):
 
     if row['CE_SECURE'] == '0':
         event_message['payload']['rmCaseUpdated']['secureEstablishment'] = False
-    if row['CE_SECURE'] == '1':
+    elif row['CE_SECURE'] == '1':
         event_message['payload']['rmCaseUpdated']['secureEstablishment'] = True
 
     return event_message
