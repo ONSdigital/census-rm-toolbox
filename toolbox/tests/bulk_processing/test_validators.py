@@ -275,6 +275,28 @@ def test_ce_u_has_expected_capacity_invalid():
         ce_u_has_expected_capacity_validator('a', row={'ADDRESS_TYPE': 'CE', 'ADDRESS_LEVEL': 'U'})
 
 
+@patch('toolbox.bulk_processing.validators.execute_in_connection')
+def test_qid_exists_succeeds(mock_execute_method):
+    # Given
+    mock_execute_method.return_value = [(1,)]
+    # When
+    qid_exists_validator = validators.qid_exists()
+
+    qid_exists_validator("valid_qid", db_connection='db_connection')
+
+    # Then no invalid exception is raised
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection')
+def test_qid_exists_fails(mock_execute_method):
+    # Given
+    mock_execute_method.return_value = []
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        qid_exists_validator = validators.qid_exists()
+        qid_exists_validator("invalid_qid", db_connection='db_connection')
+
+
 def test_ce_e_has_expected_capacity_valid():
     # Given
     ce_e_has_expected_capacity_validator = validators.ce_e_has_expected_capacity()
