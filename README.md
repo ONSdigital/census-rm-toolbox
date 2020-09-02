@@ -96,6 +96,18 @@ bulkinvalidaddresses
 ```
 Rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv` and errored rows be appended to `ERROR_invalid_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_invalid_addresses_*.csv`.
 
+### Bulk Deactivate UAC
+Bulk deactivate uac files can be dropped in a bucket for processing, the file format required is
+```csv
+qid
+0123456789
+```
+Including the header row.
+
+The file should be placed in the configured bulk deactivate uac bucket with a name matching `deativate_uac_*.csv`, then the processor can be run with
+```shell script
+bulkdeactivateuacs
+```
 
 ### Find Invalid Address Case IDs from UPRN File
 Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+Address+Case+ID%27s+by+UPRN+-+ADDRESS_DELTA

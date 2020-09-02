@@ -59,6 +59,20 @@ def case_exists_by_id():
     return validate
 
 
+def qid_exists():
+    def validate(qid, **kwargs):
+        try:
+            qid_exists_in_db = execute_in_connection("SELECT 1 FROM casev2.uac_qid_link WHERE qid = %s LIMIT 1",
+                                                     (qid,), conn=kwargs['db_connection'])
+        except Exception as e:
+            print(f'Error looking up qid {qid}, Error: {e}')
+            raise Invalid(f'Error looking up case ID: {qid}')
+        if not qid_exists_in_db:
+            raise Invalid(f'qid "{qid}" does not exist in RM')
+
+    return validate
+
+
 def max_length(max_len: int):
     def validate(value, **_kwargs):
         if len(value) > max_len:
