@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import List, Dict
 
 
 class Processor(ABC):
@@ -30,4 +31,4 @@ class Processor(ABC):
     def bucket_name(self): pass
 
     @abstractmethod
-    def build_event_messages(self, row): pass
+    def build_event_messages(self, row) -> List[Dict]: pass

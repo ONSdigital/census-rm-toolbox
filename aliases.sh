@@ -23,6 +23,7 @@ alias bulkrefusals='python -m toolbox.bulk_processing.refusal_processor'
 alias bulknewaddresses='python -m toolbox.bulk_processing.new_address_processor'
 alias bulkinvalidaddresses='python -m toolbox.bulk_processing.invalid_address_processor'
 alias bulkdeactivateuacs='python -m toolbox.bulk_processing.deactivate_uac_processor'
+alias bulkaddressupdate='python -m toolbox.bulk_processing.address_update_processor'
 alias invalidaddressdelta='invalid_address_delta.sh'
 
 baddetails() {

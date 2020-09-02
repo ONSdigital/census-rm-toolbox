@@ -109,6 +109,22 @@ The file should be placed in the configured bulk deactivate uac bucket with a na
 bulkdeactivateuacs
 ```
 
+### Bulk Address Update
+Bulk address updates can be dropped in a bucket for processing, the file format required is
+```csv
+CASE_ID,UPRN,ESTAB_UPRN,ESTAB_TYPE,ABP_CODE,ORGANISATION_NAME,ADDRESS_LINE1,ADDRESS_LINE2,ADDRESS_LINE3,TOWN_NAME,POSTCODE,LATITUDE,LONGITUDE,OA,LSOA,MSOA,LAD,HTC_WILLINGNESS,HTC_DIGITAL,TREATMENT_CODE,FIELDCOORDINATOR_ID,FIELDOFFICER_ID,CE_EXPECTED_CAPACITY,CE_SECURE,PRINT_BATCH
+ce00bce1-4d3f-400c-95df-a3d8150622c3,123456789,987654321,ROYAL HOUSEHOLD,4321,foo_incorporated,foo flat1,foo some road,foo somewhere,foo some town,F00 BAR,0.0,127.0,foo_1,foo_2,foo_3,foo_4,5,3,HH_LP1E,ABC123,XYZ999,10,1,99
+```
+
+This follows similar validation rules as the sample loader.
+
+To process the file it needs to be put in the bulk address update bucket with a name matching `address_updates_*.csv`. The processor can then be run with
+```shell script
+bulkaddressupdate
+```
+
+Rows which are successfully processed will be added to `PROCESSED_address_updates_*.csv` and errored rows be appended to `ERROR_address_updates_*.csv` with the corresponding error details written to `ERROR_DETAIL_address_updates_*.csv`.
+
 ### Find Invalid Address Case IDs from UPRN File
 Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+Address+Case+ID%27s+by+UPRN+-+ADDRESS_DELTA
 

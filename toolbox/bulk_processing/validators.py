@@ -2,7 +2,7 @@ import uuid
 from collections import namedtuple
 from typing import Sequence
 
-from toolbox.utilities.db_helper import execute_in_connection
+from toolbox.utilities.db_helper import execute_in_connection, execute_in_connection_with_column_names
 
 ValidationFailure = namedtuple('ValidationFailure', ('line_number', 'column', 'description'))
 
@@ -15,6 +15,14 @@ def in_set(valid_value_set: set, label: str):
     def validate(value, **_kwargs):
         if value not in valid_value_set:
             raise Invalid(f'Value "{value}" is not in the valid set of {label}: {valid_value_set}')
+
+    return validate
+
+
+def optional_in_set(valid_value_set: set, label: str):
+    def validate(value, **_kwargs):
+        if value and value not in valid_value_set:
+            raise Invalid(f'Value "{value}" is not empty and not in the valid set of {label}: {valid_value_set}')
 
     return validate
 
@@ -40,7 +48,7 @@ def is_uuid():
 def case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
-            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s LIMIT 1",
+            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s",
                                                    (case_id,), conn=kwargs['db_connection'])
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
@@ -176,5 +184,61 @@ def latitude_longitude_range():
             raise Invalid(f'Value "{value}" is not a valid float')
         if not -180 <= lat_long_float <= 180:
             raise Invalid(f'Latitude/Longitude value "{value}" is not in a range between -180 and 180')
+
+    return validate
+
+
+def mandatory_after_update(column_name):
+    """Field must be present either on the case or the update row"""
+
+    def validate(value, **kwargs):
+        if value:
+            return
+
+        case_id = kwargs['row']['CASE_ID']
+        try:
+            case = execute_in_connection_with_column_names("SELECT * FROM casev2.cases WHERE case_id = %s",
+                                                           (case_id,), conn=kwargs['db_connection'])[0]
+        except Exception as e:
+            print(f'Error looking up case ID: {case_id}, Error: {e}')
+            raise Invalid(f'Error looking up case ID: {case_id}')
+
+        if not case[column_name]:
+            raise Invalid('Mandatory field not given in update file or present on the case')
+
+    return validate
+
+
+def cant_be_deleted():
+    def validate(value: str, **_kwargs):
+        check_no_dodgy_hyphen_lookalikes(value)
+        if value.count('-') >= 5 or (value in {'----', '---', '--', '-'}):
+            raise Invalid(
+                f'Found 5 or more "-" characters in value {value}, this field cannot be deleted')
+
+    return validate
+
+
+def check_delete_keyword():
+    def validate(value: str, **_kwargs):
+        check_no_dodgy_hyphen_lookalikes(value)
+        if (value.count('-') >= 5 and value != '-----') or (value in {'----', '---', '--', '-'}):
+            raise Invalid(
+                f'Found unexpected "-" characters in value {value}, ambiguous attempt to delete')
+
+    return validate
+
+
+def check_no_dodgy_hyphen_lookalikes(value):
+    for hyphen_lookalike in ('‒', '–', '—', '―', '¯', 'ˉ', 'ˍ', '˗', '‐', '‑', '‒', '‾', '⁃', '⁻', '₋', '−',
+                             '⎯', '⏤', '─', '➖', '𐆑'):
+        if hyphen_lookalike in value:
+            raise Invalid(f"Value {value} contains things which look like hyphens but aren't")
+
+
+def numeric_2_digit_or_delete():
+    def validate(value: str, **_kwargs):
+        if not (value == '-----' or not value or (value.isnumeric() and len(value) <= 2)):
+            raise Invalid(f'Value {value} must be either a whole number between 0 and 99 or delete keyword "-----"')
 
     return validate
