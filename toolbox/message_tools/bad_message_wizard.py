@@ -194,7 +194,7 @@ def get_message_summaries():
 
 
 def get_bad_message_list():
-    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages')
+    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages?minimumSeenCount=2')
     response.raise_for_status()
     return response.json()
 
