@@ -25,6 +25,7 @@ alias bulkinvalidaddresses='python -m toolbox.bulk_processing.invalid_address_pr
 alias bulkdeactivateuacs='python -m toolbox.bulk_processing.deactivate_uac_processor'
 alias bulkaddressupdate='python -m toolbox.bulk_processing.address_update_processor'
 alias invalidaddressdelta='invalid_address_delta.sh'
+alias bulkuninvalidateaddresses='python -m toolbox.bulk_processing.uninvalidate_address_processor'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq
