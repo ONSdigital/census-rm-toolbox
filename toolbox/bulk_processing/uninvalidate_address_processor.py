@@ -10,7 +10,7 @@ from toolbox.config import Config
 class UnInvalidateAddressProcessor(Processor):
     file_prefix = Config.BULK_UNINVALIDATE_ADDRESS_FILE_PREFIX
     routing_key = Config.UNINVALIDATE_ADDRESS_EVENT_ROUTING_KEY
-    exchange = Config.EVENTS_EXCHANGE
+    exchange = ''
     bucket_name = Config.BULK_UNINVALIDATE_ADDRESS_BUCKET_NAME
     project_id = Config.BULK_UNINVALIDATE_ADDRESS_PROJECT_ID
     schema = {
