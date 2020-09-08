@@ -29,7 +29,7 @@ class UnInvalidateAddressProcessor(Processor):
             },
             "payload": {
                 "rmUnInvalidateAddress": {
-                    "id": row['case_id']
+                    "caseId": row['case_id']
                 }
             }
         }]
