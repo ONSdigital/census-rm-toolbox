@@ -14,7 +14,7 @@ class UnInvalidateAddressProcessor(Processor):
     bucket_name = Config.BULK_UNINVALIDATE_ADDRESS_BUCKET_NAME
     project_id = Config.BULK_UNINVALIDATE_ADDRESS_PROJECT_ID
     schema = {
-        "case_id": [is_uuid(), case_exists_by_id()]
+        "CASE_ID": [is_uuid(), case_exists_by_id()]
     }
 
     def build_event_messages(self, row):
@@ -29,7 +29,7 @@ class UnInvalidateAddressProcessor(Processor):
             },
             "payload": {
                 "rmUnInvalidateAddress": {
-                    "caseId": row['case_id']
+                    "caseId": row['CASE_ID']
                 }
             }
         }]

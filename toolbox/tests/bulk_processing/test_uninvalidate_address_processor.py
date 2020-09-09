@@ -14,19 +14,19 @@ def test_build_event_messages(case_id):
     uninvalidate_address_processor = UnInvalidateAddressProcessor()
 
     # When
-    event_message = uninvalidate_address_processor.build_event_messages({'case_id': case_id})
+    event_message = uninvalidate_address_processor.build_event_messages({'CASE_ID': case_id})
 
     # Then
     assert len(event_message) == 1, 'Should build one and only 1 invalid address event message'
     assert event_message[0]['event']['type'] == 'RM_UNINVALIDATE_ADDRESS'
     assert event_message[0]['event']['transactionId'] is not None
     assert event_message[0]['event']['dateTime'] is not None
-    assert event_message[0]['payload']['rmUnInvalidateAddress']['id'] == case_id
+    assert event_message[0]['payload']['rmUnInvalidateAddress']['caseId'] == case_id
 
 
 @patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_uninvalidate_address_validation_headers(_patched_storage_client):
-    invalid_address_headers = ["case_id"]
+    invalid_address_headers = ["CASE_ID"]
 
     result = BulkProcessor(UnInvalidateAddressProcessor()).find_header_validation_errors(invalid_address_headers)
 
@@ -49,4 +49,4 @@ def test_uninvalidate_address_validation_headers_fails_empty(_patched_storage_cl
     result = BulkProcessor(UnInvalidateAddressProcessor()).find_header_validation_errors({})
 
     assert result.line_number == 1
-    assert "case_id" in result.description
+    assert "CASE_ID" in result.description
