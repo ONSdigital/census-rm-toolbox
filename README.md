@@ -99,7 +99,7 @@ Rows which are successfully processed will be added to `PROCESSED_invalid_addres
 ### Bulk Un-Invalidate Address
 Bulk un-invalidating addresses can be dropped in a bucket for processing, the file format required is
 ```csv
-case_id
+CASE_ID
 16400b37-e0fb-4cf4-9ddf-728abce92049
 ```
 Including the header row
