@@ -8,11 +8,11 @@ from toolbox.config import Config
 
 
 class UnInvalidateAddressProcessor(Processor):
-    file_prefix = Config.BULK_UNINVALIDATE_ADDRESS_FILE_PREFIX
-    routing_key = Config.UNINVALIDATE_ADDRESS_EVENT_ROUTING_KEY
+    file_prefix = Config.BULK_UNINVALIDATED_ADDRESS_FILE_PREFIX
+    routing_key = Config.UNINVALIDATED_ADDRESS_EVENT_ROUTING_KEY
     exchange = ''
-    bucket_name = Config.BULK_UNINVALIDATE_ADDRESS_BUCKET_NAME
-    project_id = Config.BULK_UNINVALIDATE_ADDRESS_PROJECT_ID
+    bucket_name = Config.BULK_UNINVALIDATED_ADDRESS_BUCKET_NAME
+    project_id = Config.BULK_UNINVALIDATED_ADDRESS_PROJECT_ID
     schema = {
         "CASE_ID": [is_uuid(), case_exists_by_id()]
     }
