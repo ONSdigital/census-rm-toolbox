@@ -96,6 +96,20 @@ bulkinvalidaddresses
 ```
 Rows which are successfully processed will be added to `PROCESSED_invalid_addresses_*.csv` and errored rows be appended to `ERROR_invalid_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_invalid_addresses_*.csv`.
 
+### Bulk Un-Invalidate Address
+Bulk un-invalidating addresses can be dropped in a bucket for processing, the file format required is
+```csv
+CASE_ID
+16400b37-e0fb-4cf4-9ddf-728abce92049
+```
+Including the header row
+
+The file should be placed in the configured bulk uninvalidated addresses bucket with a name matching `uninvalidated_addresses_*.csv`, then the processor can be run with
+```shell script
+bulkuninvalidateaddresses
+```
+Rows which are successfully processed will be added to `PROCESSED_uninvalidated_addresses_*.csv` and errored rows be appended to `ERROR_uninvalided_addresses_*.csv` with the corresponding error details written to `ERROR_DETAIL_uninvalidated_addresses_*.csv`.
+
 ### Bulk Deactivate UAC
 Bulk deactivate uac files can be dropped in a bucket for processing, the file format required is
 ```csv

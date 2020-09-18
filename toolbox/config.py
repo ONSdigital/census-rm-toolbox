@@ -62,6 +62,13 @@ class Config:
     BULK_ADDRESS_UPDATE_PROJECT_ID = os.getenv('BULK_ADDRESS_UPDATE_PROJECT_ID')
     BULK_ADDRESS_UPDATE_ROUTING_KEY = os.getenv('BULK_ADDRESS_UPDATE_ROUTING_KEY', 'case.rm.updated')
 
+    BULK_UNINVALIDATED_ADDRESS_FILE_PREFIX = os.getenv('BULK_UNINVALIDATED_ADDRESS_UPDATE_FILE_PREFIX',
+                                                       'uninvalidated_addresses_')
+    BULK_UNINVALIDATED_ADDRESS_BUCKET_NAME = os.getenv('BULK_UNINVALIDATED_ADDRESS_BUCKET_NAME')
+    BULK_UNINVALIDATED_ADDRESS_PROJECT_ID = os.getenv('BULK_UNINVALIDATED_ADDRESS_PROJECT_ID')
+    UNINVALIDATED_ADDRESS_EVENT_ROUTING_KEY = os.getenv('BULK_UNINVALIDATED_ADDRESS_ROUTING_KEY',
+                                                        'case.rm.unInvalidateAddress')
+
     EVENTS_EXCHANGE = os.getenv('EVENTS_EXCHANGE', 'events')
 
     TREATMENT_CODES = {
