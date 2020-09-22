@@ -1,3 +1,7 @@
+# Checklist
+Reminder: If any change made to this repo affects the acceptance tests then the version pin in the Pipfile in [census-rm-acceptance-tests]() needs to be updated.
+* [ ] Updated census-rm-acceptance-tests version pin (if applicable)
+
 # Motivation and Context
 <!--- Why is this change required? What problem does it solve? -->
 
