@@ -170,7 +170,7 @@ def ce_e_has_expected_capacity():
 def alphanumeric_postcode():
     def validate(postcode, **_kwargs):
         stripped_postcode = postcode.replace(" ", "")
-        if not stripped_postcode.isalnum():
+        if stripped_postcode and not stripped_postcode.isalnum():
             raise Invalid(f'Postcode "{postcode}" is non alphanumeric')
 
     return validate
