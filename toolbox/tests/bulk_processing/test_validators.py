@@ -329,6 +329,16 @@ def test_alphanumeric_postcode_valid():
     # Then no invalid exception is raised
 
 
+def test_alphanumeric_empty_postcode_valid():
+    # Given
+    alphanumeric_postcode_validator = validators.alphanumeric_postcode()
+
+    # When
+    alphanumeric_postcode_validator('')
+
+    # Then no invalid exception is raised
+
+
 def test_alphanumeric_postcode_invalid():
     # Given
     alphanumeric_postcode_validator = validators.alphanumeric_postcode()
