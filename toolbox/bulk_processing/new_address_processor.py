@@ -3,7 +3,7 @@ from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
     no_padding_whitespace, latitude_longitude, \
     in_set, region_matches_treatment_code, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
-    alphanumeric_postcode, no_pipe_character, latitude_longitude_range
+    alphanumeric_postcode, no_pipe_character, latitude_longitude_range, alphanumeric_field_values
 from toolbox.config import Config
 
 
@@ -42,8 +42,10 @@ class NewAddressProcessor(Processor):
         'HTC_WILLINGNESS': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_WILLINGNESS')],
         'HTC_DIGITAL': [mandatory(), in_set({'0', '1', '2', '3', '4', '5'}, label='HTC_DIGITAL')],
         'TREATMENT_CODE': [mandatory(), in_set(Config.TREATMENT_CODES, label='TREATMENT_CODE')],
-        'FIELDCOORDINATOR_ID': [max_length(10), no_padding_whitespace(), no_pipe_character()],
-        'FIELDOFFICER_ID': [max_length(13), no_padding_whitespace(), no_pipe_character()],
+        'FIELDCOORDINATOR_ID': [mandatory(), max_length(10), no_padding_whitespace(), no_pipe_character(),
+                                alphanumeric_field_values()],
+        'FIELDOFFICER_ID': [mandatory(), max_length(13), no_padding_whitespace(), no_pipe_character(),
+                            alphanumeric_field_values()],
         'CE_EXPECTED_CAPACITY': [numeric(), max_length(4), no_padding_whitespace(),
                                  ce_u_has_expected_capacity(), ce_e_has_expected_capacity()],
         'CE_SECURE': [mandatory(), in_set({'0', '1'}, label='CE_SECURE'),
