@@ -180,7 +180,7 @@ def alphanumeric_plus_hyphen_field_values():
     def validate(value, **_kwargs):
         stripped_field_value = value.replace("-", "")
         if not stripped_field_value.isalnum():
-            raise Invalid(f'Field "{value}" is non alphanumeric')
+            raise Invalid(f'Value "{value}" contains invalid characters')
 
     return validate
 
