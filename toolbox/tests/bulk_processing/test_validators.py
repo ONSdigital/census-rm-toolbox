@@ -348,6 +348,25 @@ def test_alphanumeric_postcode_invalid():
         alphanumeric_postcode_validator('TE5 5TE!')
 
 
+def test_alphanumeric_plus_hyphen_field_values_valid():
+    # Given
+    alphanumeric_plus_hyphen_field_validator = validators.alphanumeric_plus_hyphen_field_values()
+
+    # When
+    alphanumeric_plus_hyphen_field_validator('TE-STT1-ES-01')
+
+    # Then no invalid exception is raised
+
+
+def test_alphanumeric_plus_hyphen_field_values_invalid():
+    # Given
+    alphanumeric_plus_hyphen_field_validator = validators.alphanumeric_plus_hyphen_field_values()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        alphanumeric_plus_hyphen_field_validator('TE-STT1-ES-!!')
+
+
 def test_latitude_longitude_range_valid():
     # Given
     latitude_longitude_range_validator = validators.latitude_longitude_range()

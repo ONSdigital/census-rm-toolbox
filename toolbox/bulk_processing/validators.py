@@ -176,6 +176,15 @@ def alphanumeric_postcode():
     return validate
 
 
+def alphanumeric_plus_hyphen_field_values():
+    def validate(value, **_kwargs):
+        stripped_field_value = value.replace("-", "")
+        if not stripped_field_value.isalnum():
+            raise Invalid(f'Value "{value}" contains invalid characters')
+
+    return validate
+
+
 def latitude_longitude_range():
     def validate(value, **_kwargs):
         try:
