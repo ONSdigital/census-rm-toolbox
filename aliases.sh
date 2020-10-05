@@ -1,5 +1,4 @@
 shopt -s expand_aliases
-alias queuetool='python -m toolbox.message_tools.queue_manipulator'
 alias findpubsubmessages='python -m toolbox.message_tools.get_pubsub_messages'
 alias pubsubmessagetobucket='python -m toolbox.message_tools.put_message_on_bucket'
 alias buckettopubsub='python -m toolbox.message_tools.publish_message_from_bucket'
