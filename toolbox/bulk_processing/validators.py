@@ -105,7 +105,10 @@ def latitude_longitude(max_precision: int, max_scale: int):
             float(value)
         except ValueError:
             raise Invalid(f'Value "{value}" is not a valid float')
-        integer, decimal = value.split('.')
+        try:
+            integer, decimal = value.split('.')
+        except ValueError:
+            raise Invalid(f'Malformed decimal, Value = "{value}"')
         integer = integer.strip('-')
         scale = len(decimal)
         precision = len(integer) + len(decimal)
@@ -172,6 +175,15 @@ def alphanumeric_postcode():
         stripped_postcode = postcode.replace(" ", "")
         if stripped_postcode and not stripped_postcode.isalnum():
             raise Invalid(f'Postcode "{postcode}" is non alphanumeric')
+
+    return validate
+
+
+def alphanumeric_plus_hyphen_field_values():
+    def validate(value, **_kwargs):
+        stripped_field_value = value.replace("-", "")
+        if not stripped_field_value.isalnum():
+            raise Invalid(f'Value "{value}" contains invalid characters')
 
     return validate
 

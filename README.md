@@ -174,51 +174,6 @@ msgwizard
 ```
 
 This should start a terminal wizard for dealing with bad messages through the exception manager service
-
-## How to use - Message Manipulator
-
-The message manipulator will allow you to look at rabbit messages inside a queue you specify.
-### Arguments
-
-| Name                      | Description                                                                                                         |                                                                                        
-| ---------------------     | ------------------------------------------------------------------------------------------------------------------- |
-| `source_queue_name`       | Rabbit queue to find messages on                                                                                    |
-| `message_hash_search`     | Rabbit message hash to search by                                                                                    |
-| `-s --search`             | Search for a string inside of the rabbit message body                                                               |                                                  
-| `DELETE`                  | Used with `message_hash_search`, deletes rabbit message of the hash supplied                                        |
-| `VIEW`                    | Used with `message_hash_search`, view rabbit message based on the hash supplied                                     |        
-| `MOVE`                    | Used with `message_hash_search`, moves rabbit message based on the hash supplied to the `destination_queue_name`    |
-| `destination_queue_name`  | Move a rabbit message to the destination queue that is supplied.                                                    |
-
-
-View messages on a queue (default 100 max):
-   ```bash
-   queuetool <queue name>
-   ```
-
-View messages on a queue with bigger limit:
-   ```bash
-   queuetool <queue name> -l <limit>
-   ```
-   
-   
-Search for message(s) on a queue:
-   ```bash
-   queuetool <queue name> -s <search text>
-   ```
-   
-   
-Delete message from a queue:
-   ```bash
-    queuetool <queue name> <message hash> DELETE
-   ```
-   
-   
-Move message from one queue to another:
-   ```bash
-   queuetool <queue name> <message hash> MOVE <destination queue>
-   ```
-
    
 ## How to use - Loss of Concentration or Boredom
 

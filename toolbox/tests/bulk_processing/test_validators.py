@@ -173,6 +173,15 @@ def test_lat_long_valid():
     # Then no invalid exception is raised
 
 
+def test_lat_long_malformed_decimal():
+    # Given
+    lat_long_validator = validators.latitude_longitude(max_scale=5, max_precision=10)
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        lat_long_validator('1')
+
+
 def test_lat_long_invalid_format():
     # Given
     lat_long_validator = validators.latitude_longitude(max_scale=5, max_precision=10)
@@ -346,6 +355,25 @@ def test_alphanumeric_postcode_invalid():
     # When, then raises
     with pytest.raises(validators.Invalid):
         alphanumeric_postcode_validator('TE5 5TE!')
+
+
+def test_alphanumeric_plus_hyphen_field_values_valid():
+    # Given
+    alphanumeric_plus_hyphen_field_validator = validators.alphanumeric_plus_hyphen_field_values()
+
+    # When
+    alphanumeric_plus_hyphen_field_validator('TE-STT1-ES-01')
+
+    # Then no invalid exception is raised
+
+
+def test_alphanumeric_plus_hyphen_field_values_invalid():
+    # Given
+    alphanumeric_plus_hyphen_field_validator = validators.alphanumeric_plus_hyphen_field_values()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        alphanumeric_plus_hyphen_field_validator('TE-STT1-ES-!!')
 
 
 def test_latitude_longitude_range_valid():
