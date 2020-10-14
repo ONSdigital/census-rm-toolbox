@@ -16,7 +16,7 @@ do
     tput bel
 done
 
-setterm -term linux -fore red
+setterm -term linux -fore yellow --bold on
 echo -e '\n'
 echo '▄▄▌ ▐ ▄▌▄▄▄ .     ▄▄▄· ▄▄▄  ▄▄▄ .    ·▄▄▄▄              • ▌ ▄ ·. ▄▄▄ .·▄▄▄▄      • ▌ ▄ ·.       ·▄▄▄▄  ▄▄▄ .'
 echo '██· █▌▐█▀▄.▀·    ▐█ ▀█ ▀▄ █·▀▄.▀·    ██▪ ██ ▪     ▪     ·██ ▐███▪▀▄.▀·██▪ ██     ·██ ▐███▪▪     ██▪ ██ ▀▄.▀·'
