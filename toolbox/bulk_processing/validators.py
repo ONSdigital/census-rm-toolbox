@@ -141,10 +141,12 @@ def no_pipe_character():
 
 def region_matches_treatment_code():
     def validate(region, **kwargs):
-        if region[0] != kwargs['row']['TREATMENT_CODE'][-1]:
-            raise Invalid(
-                f'Region "{region}" does not match region in treatment code "{kwargs["row"]["TREATMENT_CODE"]}"')
-
+        try:
+            if region[0] != kwargs['row']['TREATMENT_CODE'][-1]:
+                raise Invalid(
+                    f'Region "{region}" does not match region in treatment code "{kwargs["row"]["TREATMENT_CODE"]}"')
+        except IndexError:
+            pass
     return validate
 
 
