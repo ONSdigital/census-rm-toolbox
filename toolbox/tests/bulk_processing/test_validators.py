@@ -266,6 +266,14 @@ def test_region_matches_treatment_code_invalid():
         region_matches_treatment_code_validator('N0000', row={'TREATMENT_CODE': 'HH_TESTE'})
 
 
+def test_region_matches_treatment_code_empty_region_no_error():
+    # Given
+    region_matches_treatment_code_validator = validators.region_matches_treatment_code()
+
+    # When, then doesn't error.
+    region_matches_treatment_code_validator(' ', row={'TREATMENT_CODE': 'HH_TESTE'})
+
+
 def test_ce_u_has_expected_capacity_valid():
     # Given
     ce_u_has_expected_capacity_validator = validators.ce_u_has_expected_capacity()
