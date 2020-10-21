@@ -175,14 +175,6 @@ msgwizard
 
 This should start a terminal wizard for dealing with bad messages through the exception manager service
    
-## How to use - Loss of Concentration or Boredom
-
-Go on an adventure:
-   ```bash
-   adventure
-   ```
-Use commands like 'go north' and 'kill enemy' to go on an entertaining adventure.
-
 ## How to use - Find and remove messages on pubsub
 
 This tool will allow you to be able to find and delete messages on a pubsub topic
