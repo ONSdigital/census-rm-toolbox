@@ -1,7 +1,11 @@
 import contextlib
 
 import psycopg2
+from psycopg2 import pool
+
 from termcolor import colored
+
+from retrying import retry
 
 from toolbox.config import Config
 
@@ -26,10 +30,37 @@ def connect_to_read_replica():
         conn.close()
 
 
+@contextlib.contextmanager
+def connect_to_read_replica_pool():
+    conn_pool = None
+
+    try:
+        conn_pool = pool.SimpleConnectionPool(1, 2, user=Config.DB_USERNAME,
+                                              password=Config.DB_PASSWORD,
+                                              host=Config.DB_HOST,
+                                              port=Config.DB_PORT,
+                                              database=Config.DB_NAME)
+        yield conn_pool
+    finally:
+        if conn_pool:
+            conn_pool.closeall()
+
+
 def execute_in_connection(*args, conn=None):
     cursor = conn.cursor()
     cursor.execute(*args)
     return cursor.fetchall()
+
+
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+def execute_in_connection_pool(*args, conn_pool):
+    try:
+        conn = conn_pool.getconn()
+        cursor = conn.cursor()
+        cursor.execute(*args)
+        yield cursor.fetchall()
+    finally:
+        conn_pool.putconn(conn)
 
 
 def execute_in_connection_with_column_names(*args, conn=None):
@@ -38,6 +69,18 @@ def execute_in_connection_with_column_names(*args, conn=None):
     cursor.execute(*args)
     colnames = [desc[0] for desc in cursor.description]
     return [dict(zip(colnames, row)) for row in cursor.fetchall()]
+
+
+def execute_in_connection_pool_with_column_names(*args, conn_pool):
+    try:
+        conn = conn_pool.getconn()
+        """NOTE: only use with 'SELECT * FROM' queries"""
+        cursor = conn.cursor()
+        cursor.execute(*args)
+        colnames = [desc[0] for desc in cursor.description]
+        yield [dict(zip(colnames, row)) for row in cursor.fetchall()]
+    finally:
+        conn_pool.putconn(conn)
 
 
 def execute_parametrized_sql_query(sql_query, values: tuple, db_host=Config.DB_HOST, extra_options=""):
