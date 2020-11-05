@@ -63,7 +63,7 @@ def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expecte
                                 patch_db_helper.execute_parametrized_sql_query.call_count)
     if expected_number_of_batches:
         patch_input.assert_called_once()
-        unittest_helper.assertEqual(4, patch_db_helper.execute_sql_query_with_write.call_count)
+        unittest_helper.assertEqual(2, patch_db_helper.execute_sql_query_with_write.call_count)
 
 
 @pytest.mark.parametrize('confirmation_string', ['n', 'N', '', 'no', "STOP"])
@@ -164,9 +164,7 @@ def test_build_batch_count_query(batch, wave_classifiers, expected_query, expect
         'P_RL_1RL1_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')",
         'P_RL_1RL2B_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
-                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')",
-        'P_QU_H1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E') AND print_batch IN ('1','2','3')",
-        'P_QU_H2': "case_type != 'HI' AND treatment_code IN ('HH_LP1W') AND print_batch IN ('1','2','3')"
+                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')"
     }),
     (2, ['1'], {
         'P_RL_2RL1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
