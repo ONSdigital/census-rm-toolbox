@@ -160,11 +160,11 @@ def test_build_batch_count_query(batch, wave_classifiers, expected_query, expect
 
 
 @pytest.mark.parametrize('wave, print_batches, expected_classifiers', [
-    (1, ['1', '2', '3'], {
+    (1, ['1', '2'], {
         'P_RL_1RL1_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
-                       " AND survey_launched = 'f' AND print_batch IN ('1','2','3')",
+                       " AND survey_launched = 'f' AND print_batch IN ('1','2')",
         'P_RL_1RL2B_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
-                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')"
+                        " AND survey_launched = 'f' AND print_batch IN ('1','2')"
     }),
     (2, ['1'], {
         'P_RL_2RL1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
