@@ -61,8 +61,8 @@ def test_main_with_db_insert_rule_backout(_mock_csv_data, patch_input, patch_db_
 def test_build_action_rule_classifiers():
     # Given
     lsoas = ['E00000001', 'E00000002']
-    expected_classifiers = f"case_type = 'HH' " \
-                           f"AND lsoa IN ('E00000001', 'E00000002')"
+    expected_classifiers = "case_type = 'HH' " \
+                           "AND lsoa IN ('E00000001', 'E00000002')"
 
     # When
     action_rule_classifiers = reminder_lsoa.build_action_rule_classifiers(lsoas)
