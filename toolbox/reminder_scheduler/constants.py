@@ -31,3 +31,11 @@ ACTION_TYPE_CLASSIFIERS = {
 
     'P_QU_H2': "treatment_code IN ('HH_LP1W')"
 }
+
+
+ACTION_RULES_FOR_RESPONSE_DRIVEN_REMINDER = [
+    'P_RD_RNP41',
+    'P_RD_RNP42B',
+    'P_RD_RNP51',
+    'P_RD_RNP52B',
+]
