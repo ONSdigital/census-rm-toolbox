@@ -43,6 +43,29 @@ reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --
 reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --insert-rules --trigger-date-time=<DATE_TIME> --max-cases=1000000 
 ```
 
+## Response-driven reminder scheduling
+We can create response-driven action rules from a provided file of LSOAs. 
+
+#### Without setting up action rules
+This is useful to get the shape of what the classifiers will look like when used in the action rule.
+
+Run the script with:
+```bash 
+reminderlsoa <LSOA_FILE.CSV> --reminder-action-rule <ACTION_RULE> --action-plan-id <ACTION_PLAN_ID>
+```
+This should output the classifiers used for the action rule.
+
+#### Setting up the action rules
+**WARNING:** This will insert the action rules into the action database. Be sure you want to schedule these materials for print.
+
+**WARNING:** There is currently NO validation on the LSOAs file. You will need to be sure that the business area have validated the LSOAs for RM to ingest. We will process whatever they provide, as agreed.
+Run the script with the `--trigger-date-time` and `--insert-rule` flags:
+
+```bash
+reminderlsoa <LSOA_FILE.CSV> --reminder-action-rule <ACTION_RULE> --action-plan-id <ACTION_PLAN_ID> --trigger-date-time <DATE_TIME> --insert-rule 
+```
+Once the script succeeds the action rules should be present in the action database.
+
 ## Bulk Processing
 ### Bulk Refusals
 Bulk refusals files can be dropped in a bucket for processing, the file format required is 
