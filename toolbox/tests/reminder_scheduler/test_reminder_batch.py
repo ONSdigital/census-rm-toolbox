@@ -160,22 +160,18 @@ def test_build_batch_count_query(batch, wave_classifiers, expected_query, expect
 
 
 @pytest.mark.parametrize('wave, print_batches, expected_classifiers', [
-    (1, ['1', '2', '3'], {
+    (1, ['1', '2'], {
         'P_RL_1RL1_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
-                       " AND survey_launched = 'f' AND print_batch IN ('1','2','3')",
+                       " AND survey_launched = 'f' AND print_batch IN ('1','2')",
         'P_RL_1RL2B_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
-                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')"
+                        " AND survey_launched = 'f' AND print_batch IN ('1','2')"
     }),
     (2, ['1'], {
         'P_RL_2RL1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
                      " AND survey_launched = 'f' AND print_batch IN ('1')",
         'P_RL_2RL2B': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
                       " AND survey_launched = 'f' AND print_batch IN ('1')"
-    }),
-    (3, [str(i) for i in range(1, 99)], {
-        'P_QU_H1': f"case_type != 'HI' AND treatment_code IN ('HH_LP1E') AND print_batch IN ('{TEST_BATCH_COUNT}')",
-        'P_QU_H2': f"case_type != 'HI' AND treatment_code IN ('HH_LP1W') AND print_batch IN ('{TEST_BATCH_COUNT}')"
-    }),
+    })
 ])
 def test_build_action_rule_classifiers(wave, print_batches, expected_classifiers):
     action_rule_classifiers = reminder_batch.build_action_rule_classifiers(wave, print_batches)
