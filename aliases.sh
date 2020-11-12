@@ -18,6 +18,7 @@ alias qidcheck='python qid_checksum_validator.py --modulus $QID_MODULUS --factor
 alias qidlink='python questionnaire_linking.py'
 alias reminderbatch='python -m toolbox.reminder_scheduler.reminder_batch'
 alias reminderlsoa='python -m toolbox.reminder_scheduler.reminder_lsoa'
+alias reminderlsoacount='python -m toolbox.reminder_scheduler.reminder_lsoa_count'
 alias bulkrefusals='python -m toolbox.bulk_processing.refusal_processor'
 alias bulknewaddresses='python -m toolbox.bulk_processing.new_address_processor'
 alias bulkinvalidaddresses='python -m toolbox.bulk_processing.invalid_address_processor'

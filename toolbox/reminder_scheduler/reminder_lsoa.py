@@ -1,5 +1,4 @@
 import argparse
-import csv
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -9,6 +8,7 @@ from termcolor import colored
 
 from toolbox.config import Config
 from toolbox.reminder_scheduler import constants
+from toolbox.utilities.reminder_helper import get_lsoas_from_file
 from toolbox.utilities import db_helper
 
 
@@ -38,12 +38,6 @@ def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.U
         insert_action_rule(action_rule)
         print()
         print(colored("Action rule inserted", 'green'))
-
-
-def get_lsoas_from_file(lsoa_file_path):
-    with open(lsoa_file_path) as lsoa_file:
-        lsoa_file_reader = csv.reader(lsoa_file, delimiter=',')
-        return [lsoa[0] for lsoa in lsoa_file_reader]
 
 
 def build_action_rule_classifiers(lsoas):

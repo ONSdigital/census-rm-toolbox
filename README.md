@@ -46,6 +46,12 @@ reminderbatch -w <WAVE_NUMBER> -b <STARTING_BATCH_NUMBER> -a <ACTION_PLAN_ID> --
 ## Response-driven reminder scheduling
 We can create response-driven action rules from a provided CSV file of LSOAs. 
 
+#### Get counts of cases for response-driven reminders
+To get a count of cases using the LSOAs file:
+```bash
+reminderlsoacount <LSOA_FILE.CSV> --action-plan-id <ACTION_PLAN_ID>
+```
+
 #### Without setting up action rules
 This is useful to get the shape of what the classifiers will look like when used in the action rule.
 
