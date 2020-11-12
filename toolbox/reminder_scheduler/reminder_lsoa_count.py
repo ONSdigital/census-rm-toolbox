@@ -12,7 +12,7 @@ def main(lsoa_file_path: Path, action_plan_id: uuid.UUID):
     case_count = count_cases(action_plan_id, lsoas)
 
     print()
-    print(f'Case count:')
+    print('Case count:')
     print(case_count)
 
 

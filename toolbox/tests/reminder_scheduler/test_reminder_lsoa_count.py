@@ -3,7 +3,6 @@ from pathlib import Path
 from unittest.mock import patch, mock_open
 
 from toolbox.reminder_scheduler import reminder_lsoa_count
-from toolbox.reminder_scheduler.reminder_lsoa import get_lsoas_from_file
 from toolbox.tests import unittest_helper
 
 TEST_ACTION_PLAN_ID = uuid.UUID('6597821B-4D6A-48C4-B249-45C010A57EB1')
@@ -27,14 +26,14 @@ def test_build_lsoas_count_query():
     lsoas = ['E00000001', 'E00000002']
 
     expected_count_query = "SELECT COUNT(*) " \
-                     "FROM actionv2.cases " \
-                     "WHERE action_plan_id = %s " \
-                     "AND receipt_received = 'f' " \
-                     "AND address_invalid = 'f' " \
-                     "AND skeleton = 'f' " \
-                     "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' " \
-                     "AND case_type = 'HH' " \
-                     "AND lsoa IN %s; "
+                           "FROM actionv2.cases " \
+                           "WHERE action_plan_id = %s " \
+                           "AND receipt_received = 'f' " \
+                           "AND address_invalid = 'f' " \
+                           "AND skeleton = 'f' " \
+                           "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' " \
+                           "AND case_type = 'HH' " \
+                           "AND lsoa IN %s; "
 
     expected_count_values = (str(TEST_ACTION_PLAN_ID), ('E00000001', 'E00000002'))
 
