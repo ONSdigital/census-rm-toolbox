@@ -12,25 +12,25 @@ from toolbox.reminder_scheduler import constants
 from toolbox.utilities import db_helper
 
 
-def main(lsoa_file_path: Path, reminder_action_rule: str, action_plan_id: uuid.UUID, insert_rule: bool = False,
+def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.UUID, insert_rule: bool = False,
          trigger_date_time: datetime = None):
     lsoas = get_lsoas_from_file(lsoa_file_path)
     action_rule_classifiers = build_action_rule_classifiers(lsoas)
 
     print()
-    print(f'Reminder Action rule: {reminder_action_rule}')
+    print(f'Reminder Action type: {reminder_action_type}')
     print('Classifiers clause:')
     print(action_rule_classifiers)
 
     if insert_rule:
-        action_rule = generate_action_rule(reminder_action_rule, action_rule_classifiers, action_plan_id,
+        action_rule = generate_action_rule(reminder_action_type, action_rule_classifiers, action_plan_id,
                                            trigger_date_time)
         print()
         print('Generated action rule:')
         print(action_rule)
         print('')
         print('About to insert action rule for:')
-        print('Action rule:', colored(reminder_action_rule, "red"))
+        print('Action type:', colored(reminder_action_type, "red"))
         print('Trigger date time:', colored(trigger_date_time.isoformat(), 'red'))
         if not confirm_insert_rule():
             print(colored('ABORTING', 'red'))
@@ -88,11 +88,11 @@ def parse_arguments():
     parser.add_argument('lsoa_file_path',
                         help='Path to the LSOAs file',
                         type=str)
-    parser.add_argument('-r', '--reminder-action-rule',
-                        help='The response driven reminder Action Rule',
+    parser.add_argument('-r', '--reminder-action-type',
+                        help='The response driven reminder Action Type',
                         required=True,
                         type=str,
-                        choices=constants.ACTION_RULES_FOR_RESPONSE_DRIVEN_REMINDER)
+                        choices=constants.ACTION_TYPES_FOR_RESPONSE_DRIVEN_REMINDER)
     parser.add_argument('-a', '--action-plan-id',
                         help='Action plan UUID',
                         required=True,
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         raise
 
     main(args.lsoa_file_path,
-         args.reminder_action_rule,
+         args.reminder_action_type,
          args.action_plan_id,
          args.insert_rule,
          parsed_trigger_date_time)
