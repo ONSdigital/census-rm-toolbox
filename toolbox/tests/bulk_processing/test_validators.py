@@ -91,7 +91,7 @@ def test_hh_case_exists_by_id_succeeds(mock_execute_method):
     # When
     hh_case_exists_validator = validators.hh_case_exists_by_id()
 
-    hh_case_exists_validator("valid_uuid", "HH", db_connection='db_connection')
+    hh_case_exists_validator("valid_uuid", db_connection='db_connection')
 
     # Then no invalid exception is raised
 
@@ -103,7 +103,7 @@ def test_hh_case_exists_by_id_fails(mock_execute_method):
     # When, then raises
     with pytest.raises(validators.Invalid):
         hh_case_exists_validator = validators.hh_case_exists_by_id()
-        hh_case_exists_validator("invalid_uuid", "HH", db_connection='db_connection')
+        hh_case_exists_validator("invalid_uuid", db_connection='db_connection')
 
 
 @pytest.mark.parametrize('value,is_valid', [

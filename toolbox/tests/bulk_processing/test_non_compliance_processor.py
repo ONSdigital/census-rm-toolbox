@@ -54,6 +54,7 @@ def test_non_compliance_validation_headers_fail(_patched_storage_client):
     assert "FIELDCOORDINATORID" in result.description
     assert "FIELDOFFICERID" in result.description
 
+
 @patch('toolbox.bulk_processing.bulk_processor.storage')
 def test_non_compliance_validation_headers_fails_empty(_patched_storage_client):
     result = BulkProcessor(NonComplianceProcessor()).find_header_validation_errors({})
