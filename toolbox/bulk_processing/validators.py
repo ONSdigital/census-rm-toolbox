@@ -59,6 +59,20 @@ def case_exists_by_id():
     return validate
 
 
+def hh_case_exists_by_id():
+    def validate(case_id, **kwargs):
+        try:
+            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s AND case_type = 'HH'",
+                                                   (case_id,), conn=kwargs['db_connection'])
+        except Exception as e:
+            print(f'Error looking up case ID: {case_id}, Error: {e}')
+            raise Invalid(f'Error looking up case ID: {case_id}')
+        if not case_id_exists:
+            raise Invalid(f'HH Case does not exist in RM for Case ID "{case_id}"')
+
+    return validate
+
+
 def qid_exists():
     def validate(qid, **kwargs):
         try:

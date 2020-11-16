@@ -139,6 +139,29 @@ bulkaddressupdate
 
 Rows which are successfully processed will be added to `PROCESSED_address_updates_*.csv` and errored rows be appended to `ERROR_address_updates_*.csv` with the corresponding error details written to `ERROR_DETAIL_address_updates_*.csv`.
 
+
+### Bulk Non-Compliance
+Bulk non-compliance files can be dropped in a bucket for processing, the file format required is 
+```csv
+CASE_ID,NC_STATUS,FIELDCOORDINATOR_ID,FIELDOFFICER_ID
+16400b37-e0fb-4cf4-9ddf-728abce92049,NCL,ABC123,XYZ999
+180e2636-d8e5-4949-bced-f7a0c532190c,NCF,ABC123,XYZ999
+```
+Including the header row.
+
+The non-compliance status must be one of 
+```
+NCL - for 1st letter
+NCF - for field follow up
+```
+
+The file should be placed in the configured bulk non-compliance bucket with a name matching `non_compliance_*.csv`, then the processor can be run with
+```shell script
+bulknoncompliance
+```
+Rows which are successfully processed will be added to `PROCESSED_non_compliance_*.csv` and errored rows be appended to `ERROR_non_compliance_*.csv` with the corresponding error details written to `ERROR_DETAIL_non_compliance_*.csv`.
+
+
 ### Find Invalid Address Case IDs from UPRN File
 Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+Address+Case+ID%27s+by+UPRN+-+ADDRESS_DELTA
 
