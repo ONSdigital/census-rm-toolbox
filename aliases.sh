@@ -25,7 +25,7 @@ alias bulkaddressupdate='python -m toolbox.bulk_processing.address_update_proces
 alias invalidaddressdelta='invalid_address_delta.sh'
 alias bulkuninvalidateaddresses='python -m toolbox.bulk_processing.uninvalidate_address_processor'
 alias bulknoncompliance='python -m toolbox.bulk_processing.non_compliance_processor'
-alias doftp='sftp -i ~/.sftp-ssh/private_key $SFTP_USERNAME@$SFTP_HOST'
+alias doftp='sftp -i $SFTP_KEY_FILENAME $SFTP_USERNAME@$SFTP_HOST'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq
