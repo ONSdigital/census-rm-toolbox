@@ -2,10 +2,11 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch, mock_open
 
+import pytest
 import rfc3339
 
 from toolbox.reminder_scheduler import reminder_lsoa
-from toolbox.reminder_scheduler.reminder_lsoa import get_lsoas_from_file
+from toolbox.reminder_scheduler.reminder_lsoa import get_lsoas_from_file, check_lsoa
 from toolbox.tests import unittest_helper
 
 TEST_DATE_TIME = rfc3339.parse_datetime('2020-06-26T06:39:34+00:00')
@@ -13,7 +14,7 @@ TEST_ACTION_PLAN_ID = uuid.UUID('6597821B-4D6A-48C4-B249-45C010A57EB1')
 
 
 @patch('toolbox.reminder_scheduler.reminder_lsoa.db_helper')
-@patch("builtins.open", new_callable=mock_open, read_data="E00000001")
+@patch("builtins.open", new_callable=mock_open, read_data="E000000010")
 def test_main_without_db_insert_rule(_mock_csv_data, patch_db_helper):
     # Given
     mock_file = Path('lsoas.csv')
@@ -72,6 +73,15 @@ def test_build_action_rule_classifiers():
                                 'Generated classifiers should match expected')
 
 
+def test_build_action_rule_classifiers_exit():
+    # Given
+    lsoas = ["E00000001", "'E00000002'"]
+
+    # When, Then
+    with pytest.raises(SystemExit):
+        reminder_lsoa.build_action_rule_classifiers(lsoas)
+
+
 @patch("builtins.open", new_callable=mock_open, read_data="E00000001\nE00000002")
 def test_get_lsoas_list(_mock_csv_data):
     # Given
@@ -107,3 +117,15 @@ def test_generate_action_rules():
     # Then
     unittest_helper.assertEqual(expected_action_rules, action_rules,
                                 'The generated action rule should match expected')
+
+
+def test_check_lsoa_is_valid():
+    unittest_helper.assertTrue(True, check_lsoa(1, "E00000001"))
+
+
+def test_check_lsoa_invalid_format():
+    unittest_helper.assertFalse(False, check_lsoa(1, "'E100000001'"))
+
+
+def test_check_lsoa_invalid_length():
+    unittest_helper.assertFalse(False, check_lsoa(1, "E0000000001"))

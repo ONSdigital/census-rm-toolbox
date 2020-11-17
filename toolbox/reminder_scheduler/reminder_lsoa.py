@@ -41,9 +41,22 @@ def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.U
 
 
 def build_action_rule_classifiers(lsoas):
+    if not all(check_lsoa(row, lsoa) for row, lsoa in enumerate(lsoas, 1)):
+        print('INVALID FILE, EXITING')
+        exit(1)
     lsoa_classifier_clause = "', '".join(lsoas)
     return f"case_type = 'HH' " \
            f"AND lsoa IN ('{lsoa_classifier_clause}')"
+
+
+def check_lsoa(row, lsoa):
+    if not lsoa.isalnum():
+        print(f'Row: {row}, LSOA {repr(lsoa)} is not alphanumeric')
+        return False
+    if len(lsoa) > 9:
+        print(f'Row: {row}, LSOA {repr(lsoa)} is too long')
+        return False
+    return True
 
 
 def confirm_insert_rule():
