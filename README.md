@@ -284,6 +284,14 @@ qidcheck <QID>
 #### Optional Arguments
 A non-default modulus and or factor for the checksum algorithm can be used with the optional flags `--modulus` and `--factor` 
    
+## SFTP Support Login
+To connect to SFTP (i.e. GoAnywhere) to check print files (read only). 
+
+### Usage
+```bash
+doftp
+```
+
 ## Running in Kubernetes
 To run the toolbox in a kubernetes environment, you'll have to create the deployment using the YAML files in census-rm-kubernetes. If you do not have a Cloud SQL Read Replica, use the dev deployment YAML file
 
