@@ -6,7 +6,7 @@ import rfc3339
 from termcolor import colored
 
 from toolbox.config import Config
-from toolbox.reminder_batch_scheduler import constants
+from toolbox.reminder_scheduler import constants
 from toolbox.utilities import db_helper
 
 
