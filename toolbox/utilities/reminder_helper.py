@@ -17,7 +17,7 @@ def check_lsoa(row, lsoa):
     if not lsoa.isalnum():
         print(f'Row: {row}, LSOA {repr(lsoa)} is not alphanumeric')
         return False
-    if len(lsoa) != 9:
-        print(f'Row: {row}, LSOA {repr(lsoa)} is not 9 characters long')
+    if len(lsoa) > 9:
+        print(f'Row: {row}, LSOA {repr(lsoa)} is too long')
         return False
     return True

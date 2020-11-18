@@ -43,4 +43,4 @@ def test_check_lsoa_invalid_format():
 
 
 def test_check_lsoa_invalid_length():
-    unittest_helper.assertFalse(check_lsoa(1, "E0000001"))
+    unittest_helper.assertFalse(check_lsoa(1, "E000000001"))
