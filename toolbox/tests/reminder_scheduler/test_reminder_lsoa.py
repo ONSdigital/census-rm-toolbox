@@ -6,7 +6,6 @@ import pytest
 import rfc3339
 
 from toolbox.reminder_scheduler import reminder_lsoa
-from toolbox.reminder_scheduler.reminder_lsoa import get_lsoas_from_file, check_lsoa
 from toolbox.tests import unittest_helper
 
 TEST_DATE_TIME = rfc3339.parse_datetime('2020-06-26T06:39:34+00:00')
@@ -73,27 +72,19 @@ def test_build_action_rule_classifiers():
                                 'Generated classifiers should match expected')
 
 
-def test_build_action_rule_classifiers_exit():
-    # Given
-    lsoas = ["E00000001", "'E00000002'"]
-
-    # When, Then
-    with pytest.raises(SystemExit):
-        reminder_lsoa.build_action_rule_classifiers(lsoas)
-
-
-@patch("builtins.open", new_callable=mock_open, read_data="E00000001\nE00000002")
-def test_get_lsoas_list(_mock_csv_data):
+@patch('toolbox.reminder_scheduler.reminder_lsoa.db_helper')
+@patch("builtins.open", new_callable=mock_open, read_data="'E00000001'")
+def test_main_invalid_lsoa_causes_exit(_mock_csv_data, patch_db_helper):
     # Given
     mock_file = Path('lsoas.csv')
-    expected_lsoas = ['E00000001', 'E00000002']
 
     # When
-    actual_lsoas = get_lsoas_from_file(mock_file)
+    with pytest.raises(SystemExit):
+        reminder_lsoa.main(mock_file, "P_RD_RNP41", TEST_ACTION_PLAN_ID, insert_rule=True,
+                           trigger_date_time=TEST_DATE_TIME)
 
-    # Then
-    unittest_helper.assertEqual(actual_lsoas, expected_lsoas,
-                                'Generated LSOAs should match expected')
+    patch_db_helper.open_write_cursor.assert_not_called()
+    patch_db_helper.execute_sql_query_with_write.assert_not_called()
 
 
 def test_generate_action_rules():
@@ -117,15 +108,3 @@ def test_generate_action_rules():
     # Then
     unittest_helper.assertEqual(expected_action_rules, action_rules,
                                 'The generated action rule should match expected')
-
-
-def test_check_lsoa_is_valid():
-    unittest_helper.assertTrue(True, check_lsoa(1, "E00000001"))
-
-
-def test_check_lsoa_invalid_format():
-    unittest_helper.assertFalse(False, check_lsoa(1, "'E100000001'"))
-
-
-def test_check_lsoa_invalid_length():
-    unittest_helper.assertFalse(False, check_lsoa(1, "E0000000001"))

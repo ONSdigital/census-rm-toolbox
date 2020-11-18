@@ -8,13 +8,14 @@ from termcolor import colored
 
 from toolbox.config import Config
 from toolbox.reminder_scheduler import constants
-from toolbox.utilities.reminder_helper import get_lsoas_from_file
+from toolbox.utilities.reminder_helper import get_lsoas_from_file, check_lsoas
 from toolbox.utilities import db_helper
 
 
 def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.UUID, insert_rule: bool = False,
          trigger_date_time: datetime = None):
     lsoas = get_lsoas_from_file(lsoa_file_path)
+    check_lsoas(lsoas)
     action_rule_classifiers = build_action_rule_classifiers(lsoas)
 
     print()
@@ -41,22 +42,9 @@ def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.U
 
 
 def build_action_rule_classifiers(lsoas):
-    if not all(check_lsoa(row, lsoa) for row, lsoa in enumerate(lsoas, 1)):
-        print('INVALID FILE, EXITING')
-        exit(1)
     lsoa_classifier_clause = "', '".join(lsoas)
     return f"case_type = 'HH' " \
            f"AND lsoa IN ('{lsoa_classifier_clause}')"
-
-
-def check_lsoa(row, lsoa):
-    if not lsoa.isalnum():
-        print(f'Row: {row}, LSOA {repr(lsoa)} is not alphanumeric')
-        return False
-    if len(lsoa) > 9:
-        print(f'Row: {row}, LSOA {repr(lsoa)} is too long')
-        return False
-    return True
 
 
 def confirm_insert_rule():

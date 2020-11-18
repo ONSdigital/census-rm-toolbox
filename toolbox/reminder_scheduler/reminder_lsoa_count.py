@@ -3,12 +3,13 @@ import uuid
 from pathlib import Path
 
 from toolbox.config import Config
-from toolbox.utilities.reminder_helper import get_lsoas_from_file
+from toolbox.utilities.reminder_helper import get_lsoas_from_file, check_lsoas
 from toolbox.utilities import db_helper
 
 
 def main(lsoa_file_path: Path, action_plan_id: uuid.UUID):
     lsoas = get_lsoas_from_file(lsoa_file_path)
+    check_lsoas(lsoas)
     case_count = count_cases(action_plan_id, lsoas)
 
     print()
