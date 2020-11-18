@@ -31,16 +31,16 @@ def test_check_lsoas_exit():
 
 
 def test_check_lsoas_():
-    unittest_helper.assertTrue(True, check_lsoa(1, "E00000001"))
+    unittest_helper.assertTrue(check_lsoa(1, "E00000001"))
 
 
 def test_check_lsoa_is_valid():
-    unittest_helper.assertTrue(True, check_lsoa(1, "E00000001"))
+    unittest_helper.assertTrue(check_lsoa(1, "E00000001"))
 
 
 def test_check_lsoa_invalid_format():
-    unittest_helper.assertFalse(False, check_lsoa(1, "'E100000001'"))
+    unittest_helper.assertFalse(check_lsoa(1, "'E100000001'"))
 
 
 def test_check_lsoa_invalid_length():
-    unittest_helper.assertFalse(False, check_lsoa(1, "E0000000001"))
+    unittest_helper.assertFalse(check_lsoa(1, "E0000001"))
