@@ -2,6 +2,8 @@ import uuid
 from pathlib import Path
 from unittest.mock import patch, mock_open
 
+import pytest
+
 from toolbox.reminder_scheduler import reminder_lsoa_count
 from toolbox.tests import unittest_helper
 
@@ -45,3 +47,16 @@ def test_build_lsoas_count_query():
                                 'Generated count query should match expected')
     unittest_helper.assertEqual(actual_query_values, expected_count_values,
                                 'Generated count values match expected')
+
+
+@patch('toolbox.reminder_scheduler.reminder_lsoa.db_helper')
+@patch("builtins.open", new_callable=mock_open, read_data="'E00000001'")
+def test_main_invalid_lsoa_causes_exit(_mock_csv_data, patch_db_helper):
+    # Given
+    mock_file = Path('lsoas.csv')
+
+    # When
+    with pytest.raises(SystemExit):
+        reminder_lsoa_count.main(mock_file, TEST_ACTION_PLAN_ID)
+
+    patch_db_helper.execute_parametrized_sql_query.assert_not_called()
