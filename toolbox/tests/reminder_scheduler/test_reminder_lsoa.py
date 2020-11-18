@@ -14,7 +14,7 @@ TEST_ACTION_PLAN_ID = uuid.UUID('6597821B-4D6A-48C4-B249-45C010A57EB1')
 
 
 @patch('toolbox.reminder_scheduler.reminder_lsoa.db_helper')
-@patch("builtins.open", new_callable=mock_open, read_data="E000000010")
+@patch("builtins.open", new_callable=mock_open, read_data="E00000001")
 def test_main_without_db_insert_rule(_mock_csv_data, patch_db_helper):
     # Given
     mock_file = Path('lsoas.csv')
