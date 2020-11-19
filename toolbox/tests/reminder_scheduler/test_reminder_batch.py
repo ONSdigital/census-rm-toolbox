@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 import rfc3339
 
-from toolbox.reminder_batch_scheduler import reminder_batch
+from toolbox.reminder_scheduler import reminder_batch
 from toolbox.tests import unittest_helper
 
 TEST_CASES = [
@@ -28,7 +28,7 @@ TEST_BATCH_COUNT = "','".join([str(i) for i in range(1, 99)])
 
 @pytest.mark.parametrize(
     'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper')
 def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_cases, count_per_batch):
     # Given
     patch_db_helper.execute_parametrized_sql_query.return_value = ((count_per_batch,),)
@@ -45,8 +45,8 @@ def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_c
 
 @pytest.mark.parametrize(
     'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper')
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.input')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper')
+@patch('toolbox.reminder_scheduler.reminder_batch.input')
 def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expected_number_of_batches, max_cases,
                            count_per_batch):
     # Given
@@ -67,8 +67,8 @@ def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expecte
 
 
 @pytest.mark.parametrize('confirmation_string', ['n', 'N', '', 'no', "STOP"])
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper')
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.input')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper')
+@patch('toolbox.reminder_scheduler.reminder_batch.input')
 def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_string):
     # Given
     patch_db_helper.execute_parametrized_sql_query.return_value = ((1,),)
@@ -85,7 +85,7 @@ def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_st
 
 @pytest.mark.parametrize(
     'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper.execute_parametrized_sql_query')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper.execute_parametrized_sql_query')
 def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_batches, max_cases, count_per_batch):
     # Given
     # Mock the database to return a constant count

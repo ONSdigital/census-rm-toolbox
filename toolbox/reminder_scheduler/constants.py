@@ -24,3 +24,11 @@ ACTION_TYPE_CLASSIFIERS = {
 
     'P_RL_2RL2B': "treatment_code IN ('HH_LP1W', 'HH_LP2W') AND survey_launched = 'f'"
 }
+
+
+ACTION_TYPES_FOR_RESPONSE_DRIVEN_REMINDER = [
+    'P_RD_RNP41',
+    'P_RD_RNP42B',
+    'P_RD_RNP51',
+    'P_RD_RNP52B',
+]
