@@ -9,6 +9,7 @@ alias dosql-i-know-what-i-am-doing-action='i_know_what_i_am_doing_action.sh g1n0
 alias helpme='echo "Commands: helpme, msgwizard, findbad, baddetails, queuetool [-h], vi, curl, dosql [username], sftp, dumpfilestoqueue, dumpqueuetofiles, listqueues, makemessage, peekmessage, skipmessage, viewskipped, resetexceptionmanager, qidcheck [qid], fulfilment, weekendfulfilment"'
 alias dumpfilestoqueue='python -m toolbox.message_tools.dump_files_to_queue'
 alias dumpqueuetofiles='python -m toolbox.message_tools.dump_queue_to_files'
+alias downloadfilefrombucket='python -m toolbox.message_tools.download_file_from_bucket'
 alias makemessage='python -m toolbox.message_tools.message_maker'
 alias findbad='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessages | jq'
 alias viewskipped='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skippedmessages | jq'
