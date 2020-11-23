@@ -6,16 +6,13 @@ https://collaborate2.ons.gov.uk/confluence/display/SDC/RM+Census+Initial+Contact
 
 ACTION_TYPES_FOR_WAVE = {
     1: ['P_RL_1RL1_1', 'P_RL_1RL2B_1'],
-    2: ['P_RL_2RL1', 'P_RL_2RL2B'],
-    3: ['P_QU_H1', 'P_QU_H2'],
+    2: ['P_RL_2RL1', 'P_RL_2RL2B']
 }
 
 WAVE_CLASSIFIERS = {
     1: "treatment_code IN ('HH_LP1E', 'HH_LP1W', 'HH_LP2E', 'HH_LP2W') AND survey_launched = 'f'",
 
-    2: "treatment_code IN ('HH_LP1E', 'HH_LP1W', 'HH_LP2E', 'HH_LP2W') AND survey_launched = 'f'",
-
-    3: "treatment_code IN ('HH_LP1E', 'HH_LP1W')",
+    2: "treatment_code IN ('HH_LP1E', 'HH_LP1W', 'HH_LP2E', 'HH_LP2W') AND survey_launched = 'f'"
 }
 
 ACTION_TYPE_CLASSIFIERS = {
@@ -25,9 +22,13 @@ ACTION_TYPE_CLASSIFIERS = {
 
     'P_RL_2RL1': "treatment_code IN ('HH_LP1E', 'HH_LP2E') AND survey_launched = 'f'",
 
-    'P_RL_2RL2B': "treatment_code IN ('HH_LP1W', 'HH_LP2W') AND survey_launched = 'f'",
-
-    'P_QU_H1': "treatment_code IN ('HH_LP1E')",
-
-    'P_QU_H2': "treatment_code IN ('HH_LP1W')"
+    'P_RL_2RL2B': "treatment_code IN ('HH_LP1W', 'HH_LP2W') AND survey_launched = 'f'"
 }
+
+
+ACTION_TYPES_FOR_RESPONSE_DRIVEN_REMINDER = [
+    'P_RD_RNP41',
+    'P_RD_RNP42B',
+    'P_RD_RNP51',
+    'P_RD_RNP52B',
+]

@@ -4,7 +4,7 @@ from unittest.mock import patch
 import pytest
 import rfc3339
 
-from toolbox.reminder_batch_scheduler import reminder_batch
+from toolbox.reminder_scheduler import reminder_batch
 from toolbox.tests import unittest_helper
 
 TEST_CASES = [
@@ -28,7 +28,7 @@ TEST_BATCH_COUNT = "','".join([str(i) for i in range(1, 99)])
 
 @pytest.mark.parametrize(
     'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper')
 def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_cases, count_per_batch):
     # Given
     patch_db_helper.execute_parametrized_sql_query.return_value = ((count_per_batch,),)
@@ -45,8 +45,8 @@ def test_main(patch_db_helper, starting_batch, expected_number_of_batches, max_c
 
 @pytest.mark.parametrize(
     'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper')
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.input')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper')
+@patch('toolbox.reminder_scheduler.reminder_batch.input')
 def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expected_number_of_batches, max_cases,
                            count_per_batch):
     # Given
@@ -67,8 +67,8 @@ def test_main_insert_rules(patch_input, patch_db_helper, starting_batch, expecte
 
 
 @pytest.mark.parametrize('confirmation_string', ['n', 'N', '', 'no', "STOP"])
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper')
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.input')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper')
+@patch('toolbox.reminder_scheduler.reminder_batch.input')
 def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_string):
     # Given
     patch_db_helper.execute_parametrized_sql_query.return_value = ((1,),)
@@ -85,7 +85,7 @@ def test_main_insert_rules_backout(patch_input, patch_db_helper, confirmation_st
 
 @pytest.mark.parametrize(
     'starting_batch, expected_number_of_batches, max_cases, count_per_batch', TEST_CASES)
-@patch('toolbox.reminder_batch_scheduler.reminder_batch.db_helper.execute_parametrized_sql_query')
+@patch('toolbox.reminder_scheduler.reminder_batch.db_helper.execute_parametrized_sql_query')
 def test_select_batches(patch_execute_sql, starting_batch, expected_number_of_batches, max_cases, count_per_batch):
     # Given
     # Mock the database to return a constant count
@@ -160,22 +160,18 @@ def test_build_batch_count_query(batch, wave_classifiers, expected_query, expect
 
 
 @pytest.mark.parametrize('wave, print_batches, expected_classifiers', [
-    (1, ['1', '2', '3'], {
+    (1, ['1', '2'], {
         'P_RL_1RL1_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
-                       " AND survey_launched = 'f' AND print_batch IN ('1','2','3')",
+                       " AND survey_launched = 'f' AND print_batch IN ('1','2')",
         'P_RL_1RL2B_1': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
-                        " AND survey_launched = 'f' AND print_batch IN ('1','2','3')"
+                        " AND survey_launched = 'f' AND print_batch IN ('1','2')"
     }),
     (2, ['1'], {
         'P_RL_2RL1': "case_type != 'HI' AND treatment_code IN ('HH_LP1E', 'HH_LP2E')"
                      " AND survey_launched = 'f' AND print_batch IN ('1')",
         'P_RL_2RL2B': "case_type != 'HI' AND treatment_code IN ('HH_LP1W', 'HH_LP2W')"
                       " AND survey_launched = 'f' AND print_batch IN ('1')"
-    }),
-    (3, [str(i) for i in range(1, 99)], {
-        'P_QU_H1': f"case_type != 'HI' AND treatment_code IN ('HH_LP1E') AND print_batch IN ('{TEST_BATCH_COUNT}')",
-        'P_QU_H2': f"case_type != 'HI' AND treatment_code IN ('HH_LP1W') AND print_batch IN ('{TEST_BATCH_COUNT}')"
-    }),
+    })
 ])
 def test_build_action_rule_classifiers(wave, print_batches, expected_classifiers):
     action_rule_classifiers = reminder_batch.build_action_rule_classifiers(wave, print_batches)

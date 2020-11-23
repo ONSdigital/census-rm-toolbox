@@ -16,7 +16,9 @@ alias resetexceptionmanager='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMAN
 alias msgwizard='python -m toolbox.message_tools.bad_message_wizard'
 alias qidcheck='python qid_checksum_validator.py --modulus $QID_MODULUS --factor $QID_FACTOR'
 alias qidlink='python questionnaire_linking.py'
-alias reminderbatch='python -m toolbox.reminder_batch_scheduler.reminder_batch'
+alias reminderbatch='python -m toolbox.reminder_scheduler.reminder_batch'
+alias reminderlsoa='python -m toolbox.reminder_scheduler.reminder_lsoa'
+alias reminderlsoacount='python -m toolbox.reminder_scheduler.reminder_lsoa_count'
 alias bulkrefusals='python -m toolbox.bulk_processing.refusal_processor'
 alias bulknewaddresses='python -m toolbox.bulk_processing.new_address_processor'
 alias bulkinvalidaddresses='python -m toolbox.bulk_processing.invalid_address_processor'
@@ -24,6 +26,8 @@ alias bulkdeactivateuacs='python -m toolbox.bulk_processing.deactivate_uac_proce
 alias bulkaddressupdate='python -m toolbox.bulk_processing.address_update_processor'
 alias invalidaddressdelta='invalid_address_delta.sh'
 alias bulkuninvalidateaddresses='python -m toolbox.bulk_processing.uninvalidate_address_processor'
+alias bulknoncompliance='python -m toolbox.bulk_processing.non_compliance_processor'
+alias doftp='sftp -i $SFTP_KEY_FILENAME $SFTP_USERNAME@$SFTP_HOST'
 
 baddetails() {
     curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessage/$1 | jq

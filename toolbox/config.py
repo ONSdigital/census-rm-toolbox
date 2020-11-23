@@ -69,6 +69,11 @@ class Config:
     UNINVALIDATED_ADDRESS_EVENT_ROUTING_KEY = os.getenv('BULK_UNINVALIDATED_ADDRESS_ROUTING_KEY',
                                                         'case.rm.unInvalidateAddress')
 
+    BULK_NON_COMPLIANCE_FILE_PREFIX = os.getenv('BULK_NON_COMPLIANCE_FILE_PREFIX', 'non_compliance_')
+    BULK_NON_COMPLIANCE_BUCKET_NAME = os.getenv('BULK_NON_COMPLIANCE_BUCKET_NAME')
+    BULK_NON_COMPLIANCE_PROJECT_ID = os.getenv('BULK_NON_COMPLIANCE_PROJECT_ID')
+    BULK_NON_COMPLIANCE_ROUTING_KEY = os.getenv('BULK_NON_COMPLIANCE_ROUTING_KEY', 'case.rm.nonCompliance')
+
     EVENTS_EXCHANGE = os.getenv('EVENTS_EXCHANGE', 'events')
 
     TREATMENT_CODES = {
