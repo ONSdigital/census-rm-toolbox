@@ -21,16 +21,6 @@ def execute_sql_query(sql_query, db_host=Config.DB_HOST, extra_options=""):
 
 
 @contextlib.contextmanager
-def connect_to_read_replica():
-    try:
-        conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                                f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
-        yield conn
-    finally:
-        conn.close()
-
-
-@contextlib.contextmanager
 def connect_to_read_replica_pool():
     conn_pool = None
 
