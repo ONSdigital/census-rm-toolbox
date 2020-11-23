@@ -84,7 +84,7 @@ def test_case_exists_by_id_fails(mock_execute_method):
         case_exists_validator("invalid_uuid", db_connection_pool='db_connection_pool')
 
 
-@patch('toolbox.bulk_processing.validators.execute_in_connection')
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
 def test_hh_case_exists_by_id_succeeds(mock_execute_method):
     # Given
     mock_execute_method.return_value = [(1,)]
@@ -96,7 +96,7 @@ def test_hh_case_exists_by_id_succeeds(mock_execute_method):
     # Then no invalid exception is raised
 
 
-@patch('toolbox.bulk_processing.validators.execute_in_connection')
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
 def test_hh_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []

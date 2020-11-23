@@ -46,12 +46,6 @@ def connect_to_read_replica_pool():
             conn_pool.closeall()
 
 
-def execute_in_connection(*args, conn=None):
-    cursor = conn.cursor()
-    cursor.execute(*args)
-    return cursor.fetchall()
-
-
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def execute_in_connection_pool(*args, conn_pool):
     try:
@@ -63,14 +57,7 @@ def execute_in_connection_pool(*args, conn_pool):
         conn_pool.putconn(conn)
 
 
-def execute_in_connection_with_column_names(*args, conn=None):
-    """NOTE: only use with 'SELECT * FROM' queries"""
-    cursor = conn.cursor()
-    cursor.execute(*args)
-    colnames = [desc[0] for desc in cursor.description]
-    return [dict(zip(colnames, row)) for row in cursor.fetchall()]
-
-
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
 def execute_in_connection_pool_with_column_names(*args, conn_pool):
     try:
         conn = conn_pool.getconn()

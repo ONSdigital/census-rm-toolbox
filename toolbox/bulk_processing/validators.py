@@ -62,8 +62,8 @@ def case_exists_by_id():
 def hh_case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
-            case_id_exists = execute_in_connection("SELECT 1 FROM casev2.cases WHERE case_id = %s AND case_type = 'HH'",
-                                                   (case_id,), conn=kwargs['db_connection'])
+            query = "SELECT 1 FROM casev2.cases WHERE case_id = %s AND case_type = 'HH'"
+            case_id_exists = execute_in_connection_pool(query, (case_id,), conn=kwargs['db_connection'])
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
             raise Invalid(f'Error looking up case ID: {case_id}')
