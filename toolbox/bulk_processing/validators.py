@@ -49,7 +49,7 @@ def case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
             case_id_exists = execute_in_connection_pool("SELECT 1 FROM casev2.cases WHERE case_id = %s",
-                                                        (case_id,), pool=kwargs['db_connection_pool'])
+                                                        (case_id,), conn_pool=kwargs['db_connection_pool'])
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
             raise Invalid(f'Error looking up case ID: {case_id}')
@@ -63,7 +63,7 @@ def hh_case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
             query = "SELECT 1 FROM casev2.cases WHERE case_id = %s AND case_type = 'HH'"
-            case_id_exists = execute_in_connection_pool(query, (case_id,), conn=kwargs['db_connection_pool'])
+            case_id_exists = execute_in_connection_pool(query, (case_id,), conn_pool=kwargs['db_connection_pool'])
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
             raise Invalid(f'Error looking up case ID: {case_id}')
@@ -77,7 +77,7 @@ def qid_exists():
     def validate(qid, **kwargs):
         try:
             qid_exists_in_db = execute_in_connection_pool("SELECT 1 FROM casev2.uac_qid_link WHERE qid = %s LIMIT 1",
-                                                          (qid,), pool=kwargs['db_connection_pool'])
+                                                          (qid,), conn_pool=kwargs['db_connection_pool'])
         except Exception as e:
             print(f'Error looking up qid {qid}, Error: {e}')
             raise Invalid(f'Error looking up case ID: {qid}')
@@ -225,7 +225,7 @@ def mandatory_after_update(column_name):
         case_id = kwargs['row']['CASE_ID']
         try:
             case = execute_in_connection_pool_with_column_names("SELECT * FROM casev2.cases WHERE case_id = %s",
-                                                                (case_id,), pool=kwargs['db_connection_pool'])[0]
+                                                                (case_id,), conn_pool=kwargs['db_connection_pool'])[0]
         except Exception as e:
             print(f'Error looking up case ID: {case_id}, Error: {e}')
             raise Invalid(f'Error looking up case ID: {case_id}')
