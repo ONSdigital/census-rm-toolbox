@@ -36,7 +36,7 @@ def connect_to_read_replica_pool():
             conn_pool.closeall()
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
 def execute_in_connection_pool(*args, conn_pool):
     try:
         conn = conn_pool.getconn()
@@ -47,7 +47,7 @@ def execute_in_connection_pool(*args, conn_pool):
         conn_pool.putconn(conn)
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000)
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
 def execute_in_connection_pool_with_column_names(*args, conn_pool):
     try:
         conn = conn_pool.getconn()
