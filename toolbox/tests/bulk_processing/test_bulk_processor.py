@@ -139,7 +139,7 @@ def test_run_validation_successful(patch_storage, patch_rabbit, patch_db_helper,
         message=json.dumps(test_message),
         content_type='application/json', headers=None,
         exchange=mock_processor.exchange, routing_key=mock_processor.routing_key)
-    patch_db_helper.connect_to_read_replica.assert_called_once()
+    patch_db_helper.connect_to_read_replica_pool.assert_called_once()
     assert_no_left_over_files(tmp_path)
 
 
@@ -166,7 +166,7 @@ def test_run_header_validation_fails(patch_storage, patch_rabbit, patch_db_helpe
     assert call(str(tmp_path.joinpath('ERROR_mock_blob_name'))) in mock_upload_calls
     assert call(str(tmp_path.joinpath('ERROR_DETAIL_mock_blob_name'))) in mock_upload_calls
     patch_rabbit.return_value.__enter__.return_value.publish_message.assert_not_called()
-    patch_db_helper.connect_to_read_replica.assert_called_once()
+    patch_db_helper.connect_to_read_replica_pool.assert_called_once()
 
     assert_no_left_over_files(tmp_path)
 
@@ -202,7 +202,7 @@ def test_run_success_failure_mix(patch_storage, patch_rabbit, patch_db_helper, t
         message=json.dumps(test_message),
         content_type='application/json', headers=None,
         exchange=mock_processor.exchange, routing_key=mock_processor.routing_key)
-    patch_db_helper.connect_to_read_replica.assert_called_once()
+    patch_db_helper.connect_to_read_replica_pool.assert_called_once()
     assert_no_left_over_files(tmp_path)
 
 

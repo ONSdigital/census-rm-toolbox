@@ -1,7 +1,11 @@
 import contextlib
 
 import psycopg2
+from psycopg2 import pool
+
 from termcolor import colored
+
+from retrying import retry
 
 from toolbox.config import Config
 
@@ -17,27 +21,43 @@ def execute_sql_query(sql_query, db_host=Config.DB_HOST, extra_options=""):
 
 
 @contextlib.contextmanager
-def connect_to_read_replica():
+def connect_to_read_replica_pool():
+    conn_pool = None
+
     try:
-        conn = psycopg2.connect(f"dbname='{Config.DB_NAME}' user='{Config.DB_USERNAME}' host='{Config.DB_HOST}' "
-                                f"password='{Config.DB_PASSWORD}' port='{Config.DB_PORT}'{Config.DB_USESSL}")
-        yield conn
+        conn_pool = pool.SimpleConnectionPool(1, 2, user=Config.DB_USERNAME,
+                                              password=Config.DB_PASSWORD,
+                                              host=Config.DB_HOST,
+                                              port=Config.DB_PORT,
+                                              database=Config.DB_NAME)
+        yield conn_pool
     finally:
-        conn.close()
+        if conn_pool:
+            conn_pool.closeall()
 
 
-def execute_in_connection(*args, conn=None):
-    cursor = conn.cursor()
-    cursor.execute(*args)
-    return cursor.fetchall()
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
+def execute_in_connection_pool(*args, conn_pool):
+    try:
+        conn = conn_pool.getconn()
+        cursor = conn.cursor()
+        cursor.execute(*args)
+        yield cursor.fetchall()
+    finally:
+        conn_pool.putconn(conn)
 
 
-def execute_in_connection_with_column_names(*args, conn=None):
-    """NOTE: only use with 'SELECT * FROM' queries"""
-    cursor = conn.cursor()
-    cursor.execute(*args)
-    colnames = [desc[0] for desc in cursor.description]
-    return [dict(zip(colnames, row)) for row in cursor.fetchall()]
+@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
+def execute_in_connection_pool_with_column_names(*args, conn_pool):
+    try:
+        conn = conn_pool.getconn()
+        """NOTE: only use with 'SELECT * FROM' queries"""
+        cursor = conn.cursor()
+        cursor.execute(*args)
+        colnames = [desc[0] for desc in cursor.description]
+        yield [dict(zip(colnames, row)) for row in cursor.fetchall()]
+    finally:
+        conn_pool.putconn(conn)
 
 
 def execute_parametrized_sql_query(sql_query, values: tuple, db_host=Config.DB_HOST, extra_options=""):

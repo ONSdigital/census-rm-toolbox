@@ -21,12 +21,12 @@ class BulkProcessor:
         self.storage_client = storage.Client(project=self.processor.project_id)
         self.storage_bucket = self.storage_client.bucket(self.processor.bucket_name)
         self.rabbit = None
-        self.db_connection = None
+        self.db_connection_pool = None
 
     def run(self):
         print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
               f' with prefix {repr(self.processor.file_prefix)}')
-        with db_helper.connect_to_read_replica() as self.db_connection, RabbitContext() as self.rabbit:
+        with db_helper.connect_to_read_replica_pool() as self.db_connection_pool, RabbitContext() as self.rabbit:
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
 
@@ -113,7 +113,7 @@ class BulkProcessor:
         for column, validators in self.processor.schema.items():
             for validator in validators:
                 try:
-                    validator(row[column], row=row, db_connection=self.db_connection, column=column)
+                    validator(row[column], row=row, db_connection_pool=self.db_connection_pool, column=column)
                 except Invalid as invalid:
                     errors.append(ValidationFailure(line_number, column, invalid))
         return errors
