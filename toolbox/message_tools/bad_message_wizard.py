@@ -2,6 +2,7 @@ import base64
 import json
 from contextlib import suppress
 from json import JSONDecodeError
+import math
 
 import requests
 from termcolor import colored
@@ -156,30 +157,67 @@ def reset_bad_message_cache():
         print('')
 
 
+def get_queue_names_and_counts(bad_messages):
+    queue_name_dict = {}
+    for bad_message in bad_messages:
+        for queue in bad_message['affectedQueues']:
+            if queue not in queue_name_dict:
+                queue_name_dict[queue] = 1
+            else:
+                queue_name_dict[queue] += 1
+    return queue_name_dict
+
+
 def show_bad_message_list():
     all_message_summaries: list = get_message_summaries()
     bad_message_summaries = [summary for summary in all_message_summaries if not summary['quarantined']]
+    bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
     if not bad_message_summaries:
         show_no_bad_messages()
         return
-    bad_message_summaries.sort(key=lambda message: message['firstSeen'])
+
+    print(colored('Actions:', 'cyan', attrs=['underline']))
+    print(colored('  1.', 'cyan'), 'View Bad Messages By First Seen')
+    print(colored('  2.', 'cyan'), 'View Bad Messages By Last Seen')
+    print(colored('  3.', 'cyan'), 'View Bad Messages Grouped By Queue')
+    print('')
+    raw_selection = input(colored('Choose an action: ', 'cyan'))
+    valid_selection = validate_integer_input_range(raw_selection, 1, 3)
+    group_by = 'firstSeen'
+    if valid_selection == 2:
+        group_by = 'lastSeen'
+    elif valid_selection == 3:
+        for i, (key, value) in enumerate(bad_message_queue_counts.items()):
+            print(f'{i}) Queue: {key} Message Count: {value}')
+        queue_num = int(input('Select a queue by number: '))
+        selected_queue = list(bad_message_queue_counts.keys())[queue_num]
+        bad_message_summaries = [summary for summary in bad_message_summaries if selected_queue in summary['affectedQueues']]
+
+
+    bad_message_summaries.sort(key=lambda message: message[group_by])
     print('')
     print(f'There are currently {len(bad_message_summaries)} bad messages:')
+    start_index = 0
     if len(bad_message_summaries) > 20:
-        print('Showing only the oldest 20')
-        bad_message_summaries = bad_message_summaries[:20]
+        page_max = math.ceil(len(bad_message_summaries)/20)
+        print('There are ' + str(page_max) + ' pages of bad messages')
+        page_num = input(f'Please enter the page you would like to see 1 - {page_max}: ')
+        validate_integer_input_range(page_num, 1, page_max)
+        start_index = int(page_num) * 20 - 20
+        bad_message_summaries = bad_message_summaries[start_index:start_index+20]
 
-    pretty_print_bad_message_summaries(bad_message_summaries)
+    pretty_print_bad_message_summaries(bad_message_summaries, start_index)
     print('')
 
     raw_selection = input(
-        colored(f'Select a message (1 to {len(bad_message_summaries)}) or cancel with ENTER: ', 'cyan'))
+        colored(f'Select a message ({start_index+1} to {start_index + len(bad_message_summaries)}) or cancel with ENTER: ', 'cyan'))
     print('')
 
-    valid_selection = validate_integer_input_range(raw_selection, 1, len(bad_message_summaries))
+    valid_selection = validate_integer_input_range(raw_selection, start_index+1, start_index + len(bad_message_summaries))
     if not valid_selection:
         return
 
+    valid_selection = valid_selection - start_index
     message_hash = bad_message_summaries[valid_selection - 1]['messageHash']
     show_bad_message_metadata_for_hash(message_hash)
     in_message_context = True
@@ -199,7 +237,7 @@ def get_bad_message_list():
     return response.json()
 
 
-def pretty_print_bad_message_summaries(bad_message_summaries):
+def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
     column_widths = {
         'messageHash': len(bad_message_summaries[0]['messageHash']),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
@@ -213,7 +251,7 @@ def pretty_print_bad_message_summaries(bad_message_summaries):
     print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
           f'|{"-" * (column_widths["queues"] + 2)}')
-    for index, summary in enumerate(bad_message_summaries, 1):
+    for index, summary in enumerate(bad_message_summaries, start_index+1):
         print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
               f'| {summary["messageHash"]} '
               f'| {summary["firstSeen"]} '
