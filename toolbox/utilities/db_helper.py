@@ -39,12 +39,10 @@ def connect_to_read_replica_pool():
 # @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
 def execute_in_connection_pool(*args, conn_pool):
     try:
-        print("In executing conn")
         conn = conn_pool.getconn()
         cursor = conn.cursor()
         cursor.execute(*args)
-        result = cursor.fetchall()
-        yield result
+        yield cursor.fetchall()
     finally:
         conn_pool.putconn(conn)
 
