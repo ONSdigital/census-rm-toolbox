@@ -36,28 +36,40 @@ def connect_to_read_replica_pool():
             conn_pool.closeall()
 
 
-# @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
-def execute_in_connection_pool(*args, conn_pool):
+@contextlib.contextmanager
+def get_connection_from_pool(conn_pool):
+    conn = conn_pool.getconn()
     try:
-        conn = conn_pool.getconn()
-        cursor = conn.cursor()
-        cursor.execute(*args)
-        yield cursor.fetchall()
+        yield conn
     finally:
         conn_pool.putconn(conn)
+
+
+@retry(wait_exponential_multiplier=100, wait_exponential_max=1000, stop_max_attempt_number=5)
+def execute_in_connection_pool(*args, conn_pool):
+    with get_connection_from_pool(conn_pool) as conn:
+        return execute_in_connection(*args, conn=conn)
+
+
+def execute_in_connection(*args, conn):
+    cursor = conn.cursor()
+    cursor.execute(*args)
+    return cursor.fetchall()
 
 
 @retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
 def execute_in_connection_pool_with_column_names(*args, conn_pool):
-    try:
-        conn = conn_pool.getconn()
-        """NOTE: only use with 'SELECT * FROM' queries"""
-        cursor = conn.cursor()
-        cursor.execute(*args)
-        colnames = [desc[0] for desc in cursor.description]
-        yield [dict(zip(colnames, row)) for row in cursor.fetchall()]
-    finally:
-        conn_pool.putconn(conn)
+    """NOTE: only use with 'SELECT * FROM' queries"""
+    with get_connection_from_pool(conn_pool) as conn:
+        return execute_in_connection_with_column_names(*args, conn)
+
+
+def execute_in_connection_with_column_names(*args, conn):
+    """NOTE: only use with 'SELECT * FROM' queries"""
+    cursor = conn.cursor()
+    cursor.execute(*args)
+    colnames = [desc[0] for desc in cursor.description]
+    return [dict(zip(colnames, row)) for row in cursor.fetchall()]
 
 
 def execute_parametrized_sql_query(sql_query, values: tuple, db_host=Config.DB_HOST, extra_options=""):
