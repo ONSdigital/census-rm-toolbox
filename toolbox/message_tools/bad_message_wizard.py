@@ -1,13 +1,15 @@
 import base64
 import json
+import math
 from contextlib import suppress
 from json import JSONDecodeError
-import math
 
 import requests
 from termcolor import colored
 
 from toolbox.config import Config
+
+ITEMS_PER_PAGE = 20
 
 
 def main():
@@ -183,37 +185,41 @@ def show_bad_message_list():
     print('')
     raw_selection = input(colored('Choose an action: ', 'cyan'))
     valid_selection = validate_integer_input_range(raw_selection, 1, 3)
+
     group_by = 'firstSeen'
     if valid_selection == 2:
         group_by = 'lastSeen'
     elif valid_selection == 3:
-        for i, (key, value) in enumerate(bad_message_queue_counts.items()):
+        for i, (key, value) in enumerate(bad_message_queue_counts.items(), 1):
             print(f'{i}) Queue: {key} Message Count: {value}')
         queue_num = int(input('Select a queue by number: '))
-        selected_queue = list(bad_message_queue_counts.keys())[queue_num]
-        bad_message_summaries = [summary for summary in bad_message_summaries if selected_queue in summary['affectedQueues']]
-
+        selected_queue = list(bad_message_queue_counts.keys())[queue_num - 1]
+        bad_message_summaries = [summary for summary in bad_message_summaries if
+                                 selected_queue in summary['affectedQueues']]
 
     bad_message_summaries.sort(key=lambda message: message[group_by])
     print('')
     print(f'There are currently {len(bad_message_summaries)} bad messages:')
     start_index = 0
-    if len(bad_message_summaries) > 20:
-        page_max = math.ceil(len(bad_message_summaries)/20)
+    if len(bad_message_summaries) > ITEMS_PER_PAGE:
+        page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
         print('There are ' + str(page_max) + ' pages of bad messages')
         page_num = input(f'Please enter the page you would like to see 1 - {page_max}: ')
         validate_integer_input_range(page_num, 1, page_max)
-        start_index = int(page_num) * 20 - 20
-        bad_message_summaries = bad_message_summaries[start_index:start_index+20]
+        start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
+        bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
 
     pretty_print_bad_message_summaries(bad_message_summaries, start_index)
     print('')
 
     raw_selection = input(
-        colored(f'Select a message ({start_index+1} to {start_index + len(bad_message_summaries)}) or cancel with ENTER: ', 'cyan'))
+        colored(
+            f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}) or cancel with ENTER: ',
+            'cyan'))
     print('')
 
-    valid_selection = validate_integer_input_range(raw_selection, start_index+1, start_index + len(bad_message_summaries))
+    valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
+                                                   start_index + len(bad_message_summaries))
     if not valid_selection:
         return
 
@@ -251,7 +257,7 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
     print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
           f'|{"-" * (column_widths["queues"] + 2)}')
-    for index, summary in enumerate(bad_message_summaries, start_index+1):
+    for index, summary in enumerate(bad_message_summaries, start_index + 1):
         print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
               f'| {summary["messageHash"]} '
               f'| {summary["firstSeen"]} '
