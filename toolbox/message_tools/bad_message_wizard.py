@@ -5,6 +5,7 @@ from contextlib import suppress
 from json import JSONDecodeError
 
 import requests
+import re
 from termcolor import colored
 
 from toolbox.config import Config
@@ -21,6 +22,7 @@ def main():
         {'description': 'Get quarantined messages', 'action': show_quarantined_messages},
         {'description': 'Quarantine all bad messages', 'action': show_quarantine_all_bad_messages},
         {'description': 'Reset bad message cache', 'action': reset_bad_message_cache},
+        {'description': 'Filter bad messages', 'action': filter_bad_messages }
     )
 
     while True:
@@ -33,7 +35,7 @@ def main():
         print('')
 
         raw_selection = input(colored('Choose an action: ', 'cyan'))
-        valid_selection = validate_integer_input_range(raw_selection, 1, 5)
+        valid_selection = validate_integer_input_range(raw_selection, 1, len(actions))
 
         if not valid_selection:
             continue
@@ -170,23 +172,81 @@ def get_queue_names_and_counts(bad_messages):
     return queue_name_dict
 
 
-def show_bad_message_list():
+def filter_bad_messages():
+    filter_by_text = input(colored('Filter By Text: ', 'cyan'))
+
     all_message_summaries: list = get_message_summaries()
-    bad_message_summaries = [summary for summary in all_message_summaries if not summary['quarantined']]
-    bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
+
+    all_message_summaries = filter_msgs(all_message_summaries, filter_by_text)
+
+    if not all_message_summaries:
+        print('No messages match your filter')
+        return
+
+    bad_message_queue_counts, bad_message_summaries = get_bad_message_summaries(all_message_summaries)
     if not bad_message_summaries:
         show_no_bad_messages()
         return
 
+    print(f'There are currently {len(bad_message_summaries)} bad messages matching your filter:')
+    bad_message_summaries, start_index = get_paginated_messages(bad_message_summaries)
+    display_messages(bad_message_summaries, start_index)
+
+    return
+
+    # show_bad_message_list(filter_by_text)
+
+
+def filter_msgs(all_message_summaries, filter_by_text):
+    filtered_msgs = []
+
+    for msg in all_message_summaries:
+        message_hash = msg['messageHash']
+        message_metadata = get_bad_message_metadata(message_hash)
+
+        # TODO can message_metadata ever be plural
+        for (k, v) in message_metadata[0].items():
+            for item in v.values():
+                if re.search(filter_by_text, str(item)):
+                    if msg not in filtered_msgs:
+                        filtered_msgs.append(msg)
+
+    return filtered_msgs
+
+
+def show_bad_message_list():
+    all_message_summaries: list = get_message_summaries()
+
+    bad_message_queue_counts, bad_message_summaries = get_bad_message_summaries(all_message_summaries)
+    if not bad_message_summaries:
+        show_no_bad_messages()
+        return
+
+    bad_message_summaries = sort_bad_messages(bad_message_queue_counts, bad_message_summaries)
+    print('')
+    print(f'There are currently {len(bad_message_summaries)} bad messages:')
+    bad_message_summaries, start_index = get_paginated_messages(bad_message_summaries)
+
+    display_messages(bad_message_summaries, start_index)
+
+
+def get_bad_message_summaries(all_message_summaries):
+    bad_message_summaries = [summary for summary in all_message_summaries if not summary['quarantined']]
+    bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
+    return bad_message_queue_counts, bad_message_summaries
+
+
+def sort_bad_messages(bad_message_queue_counts, bad_message_summaries):
     print(colored('Actions:', 'cyan', attrs=['underline']))
     print(colored('  1.', 'cyan'), 'View Bad Messages By First Seen')
     print(colored('  2.', 'cyan'), 'View Bad Messages By Last Seen')
     print(colored('  3.', 'cyan'), 'View Bad Messages Grouped By Queue')
     print('')
+
     raw_selection = input(colored('Choose an action: ', 'cyan'))
     valid_selection = validate_integer_input_range(raw_selection, 1, 3)
-
     group_by = 'firstSeen'
+
     if valid_selection == 2:
         group_by = 'lastSeen'
     elif valid_selection == 3:
@@ -196,28 +256,18 @@ def show_bad_message_list():
         selected_queue = list(bad_message_queue_counts.keys())[queue_num - 1]
         bad_message_summaries = [summary for summary in bad_message_summaries if
                                  selected_queue in summary['affectedQueues']]
-
     bad_message_summaries.sort(key=lambda message: message[group_by])
-    print('')
-    print(f'There are currently {len(bad_message_summaries)} bad messages:')
-    start_index = 0
-    if len(bad_message_summaries) > ITEMS_PER_PAGE:
-        page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
-        print('There are ' + str(page_max) + ' pages of bad messages')
-        page_num = input(f'Please enter the page you would like to see 1 - {page_max}: ')
-        validate_integer_input_range(page_num, 1, page_max)
-        start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
-        bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
+    return bad_message_summaries
 
+
+def display_messages(bad_message_summaries, start_index):
     pretty_print_bad_message_summaries(bad_message_summaries, start_index)
     print('')
-
     raw_selection = input(
         colored(
             f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}) or cancel with ENTER: ',
             'cyan'))
     print('')
-
     valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
                                                    start_index + len(bad_message_summaries))
     if not valid_selection:
@@ -227,8 +277,21 @@ def show_bad_message_list():
     message_hash = bad_message_summaries[valid_selection - 1]['messageHash']
     show_bad_message_metadata_for_hash(message_hash)
     in_message_context = True
+
     while in_message_context:
         in_message_context = show_bad_message_options(message_hash)
+
+
+def get_paginated_messages(bad_message_summaries):
+    start_index = 0
+    if len(bad_message_summaries) > ITEMS_PER_PAGE:
+        page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
+        print('There are ' + str(page_max) + ' pages of bad messages')
+        page_num = input(f'Please enter the page you would like to see 1 - {page_max}: ')
+        validate_integer_input_range(page_num, 1, page_max)
+        start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
+        bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
+    return bad_message_summaries, start_index
 
 
 def get_message_summaries():
