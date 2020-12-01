@@ -189,12 +189,9 @@ def filter_bad_messages():
         return
 
     print(f'There are currently {len(bad_message_summaries)} bad messages matching your filter:')
-    bad_message_summaries, start_index = get_paginated_messages(bad_message_summaries)
-    display_messages(bad_message_summaries, start_index)
+    paginate_messages(bad_message_summaries)
 
     return
-
-    # show_bad_message_list(filter_by_text)
 
 
 def filter_msgs(all_message_summaries, filter_by_text):
@@ -229,8 +226,7 @@ def show_bad_message_list():
     if len(bad_message_summaries) > ITEMS_PER_PAGE:
         paginate_messages(bad_message_summaries)
     else:
-        bad_message_summaries, start_index = get_paginated_messages(bad_message_summaries)
-        display_messages(bad_message_summaries, start_index)
+        display_messages(bad_message_summaries, 0)
 
 
 def get_bad_message_summaries(all_message_summaries):
@@ -285,32 +281,24 @@ def display_messages(bad_message_summaries, start_index):
         in_message_context = show_bad_message_options(message_hash)
 
 
-def get_paginated_messages(bad_message_summaries):
-    start_index = 0
-    if len(bad_message_summaries) > ITEMS_PER_PAGE:
-        page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
-        print('There are ' + str(page_max) + ' pages of bad messages')
-        page_num = input(f'Please enter the page you would like to see 1 - {page_max}: ')
-        validate_integer_input_range(page_num, 1, page_max)
-        start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
-        bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
-    return bad_message_summaries, start_index
-
-
 def paginate_messages(bad_message_summaries):
     start_index = 0
+    page_num = 1
+    page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
+
     while True:
-        page_num = 1
-        page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
         print(f'You are on page {str(page_num)} of {page_max}')
 
         display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index)
-        page_num = input(f'Please enter the page you would like to see 1 - {page_max} or c to exit: ')
-        if page_num == 'c':
+        page_num = input(f'Please enter the page you would like to see 1 - {page_max} or Enter to exit: ')
+
+        if not page_num:
             return
+
         validate_integer_input_range(page_num, 1, page_max)
         start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
-        bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
+
+
 
 
 def get_message_summaries():
