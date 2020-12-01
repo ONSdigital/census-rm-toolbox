@@ -225,9 +225,12 @@ def show_bad_message_list():
     bad_message_summaries = sort_bad_messages(bad_message_queue_counts, bad_message_summaries)
     print('')
     print(f'There are currently {len(bad_message_summaries)} bad messages:')
-    bad_message_summaries, start_index = get_paginated_messages(bad_message_summaries)
 
-    display_messages(bad_message_summaries, start_index)
+    if len(bad_message_summaries) > ITEMS_PER_PAGE:
+        paginate_messages(bad_message_summaries)
+    else:
+        bad_message_summaries, start_index = get_paginated_messages(bad_message_summaries)
+        display_messages(bad_message_summaries, start_index)
 
 
 def get_bad_message_summaries(all_message_summaries):
@@ -292,6 +295,22 @@ def get_paginated_messages(bad_message_summaries):
         start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
         bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
     return bad_message_summaries, start_index
+
+
+def paginate_messages(bad_message_summaries):
+    start_index = 0
+    while True:
+        page_num = 1
+        page_max = math.ceil(len(bad_message_summaries) / ITEMS_PER_PAGE)
+        print(f'You are on page {str(page_num)} of {page_max}')
+
+        display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index)
+        page_num = input(f'Please enter the page you would like to see 1 - {page_max} or c to exit: ')
+        if page_num == 'c':
+            return
+        validate_integer_input_range(page_num, 1, page_max)
+        start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
+        bad_message_summaries = bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE]
 
 
 def get_message_summaries():
