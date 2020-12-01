@@ -27,7 +27,7 @@ def main():
 
     while True:
 
-        input(f'press {colored("ENTER", "cyan")} to continue')
+        #input(f'press {colored("ENTER", "cyan")} to continue')
         print('')
         print(colored('Actions:', 'cyan', attrs=['underline']))
         for index, action in enumerate(actions, 1):
@@ -283,9 +283,13 @@ def display_messages(bad_message_summaries, start_index):
     print('')
     raw_selection = input(
         colored(
-            f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}) or cancel with ENTER: ',
+            f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}), Quarantine all with q or cancel with ENTER: ',
             'cyan'))
     print('')
+
+    if raw_selection.lower() == 'q':
+        confirm_quarantine_all_bad_messages(bad_message_summaries)
+        return
     valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
                                                    start_index + len(bad_message_summaries))
     if not valid_selection:
@@ -309,7 +313,7 @@ def paginate_messages(bad_message_summaries):
         print(f'You are on page {str(page_num)} of {page_max}')
 
         display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index)
-        page_num = input(f'Please enter the page you would like to see 1 - {page_max} or Enter to exit: ')
+        page_num = input(colored(f"Please enter the page you would like to see 1 - {page_max} or ENTER to exit: ", color="cyan"))
 
         if not page_num:
             return
@@ -340,25 +344,25 @@ def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries,
         for (k, v) in message_metadata[0].items():
             if k == 'exceptionReport':
                 for (key, value) in v.items():
-                    if key == 'exceptionMessage':
-                        msg['exceptionMessage'] = value
-
+                    if key == 'exceptionClass':
+                        msg['exceptionClass'] = value
+    print(bad_message_summaries)
     column_widths = {
-        'exceptionMessage': len(bad_message_summaries[0]['exceptionMessage']),
+        'exceptionClass':  max(len(str(summary['exceptionClass'])) for summary in bad_message_summaries),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
         'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
     }
     print('')
-    header = (f'      | {colored("Message Hash".ljust(column_widths["exceptionMessage"]), color="cyan")} '
+    header = (f'      | {colored("Exception Class".ljust(column_widths["exceptionClass"]), color="cyan")} '
               f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
               f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
     print(header)
-    print(f'   ---|{"-" * (column_widths["exceptionMessage"] + 2)}'
+    print(f'   ---|{"-" * (column_widths["exceptionClass"] + 2)}'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
           f'|{"-" * (column_widths["queues"] + 2)}')
     for index, summary in enumerate(bad_message_summaries, start_index + 1):
         print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
-              f'| {summary["exceptionMessage"]} '
+              f'| {summary["exceptionClass"]} {" " * (column_widths["exceptionClass"] - len(summary["exceptionClass"]))}'
               f'| {summary["firstSeen"]} '
               f'| {", ".join(summary["affectedQueues"])}')
 
@@ -382,11 +386,6 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
               f'| {summary["messageHash"]} '
               f'| {summary["firstSeen"]} '
               f'| {", ".join(summary["affectedQueues"])}')
-
-    quarrantine_all_on_page = input(f'Quarrantine All On page? Y or Enter to exit: ')
-
-    if quarrantine_all_on_page == 'Y':
-        confirm_quarantine_all_bad_messages(bad_message_summaries)
 
 
 def show_no_bad_messages():
