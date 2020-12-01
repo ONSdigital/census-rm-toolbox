@@ -248,15 +248,33 @@ def sort_bad_messages(bad_message_summaries):
     if valid_selection == 2:
         group_by = 'lastSeen'
     elif valid_selection == 3:
-        bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
-
-        for i, (key, value) in enumerate(bad_message_queue_counts.items(), 1):
-            print(f'{i}) Queue: {key} Message Count: {value}')
-        queue_num = int(input('Select a queue by number: '))
-        selected_queue = list(bad_message_queue_counts.keys())[queue_num - 1]
-        bad_message_summaries = [summary for summary in bad_message_summaries if
-                                 selected_queue in summary['affectedQueues']]
+        bad_message_summaries = group_messages_by_queue(bad_message_summaries)
     bad_message_summaries.sort(key=lambda message: message[group_by])
+    return bad_message_summaries
+
+
+def group_messages_by_queue(bad_message_summaries):
+    bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
+    column_widths = {
+        'queueName': max(len(queue_name) for queue_name in bad_message_queue_counts.keys()),
+        'messageCount': max(queue_item for queue_item in bad_message_queue_counts.values()),
+    }
+    print(column_widths["queueName"])
+    print(column_widths["messageCount"])
+    header = (f'      | {colored("Queue Name".ljust(column_widths["queueName"]), color="cyan")} '
+              f'| {colored("Message Count".ljust(column_widths["messageCount"]), color="cyan")} ')
+    print('')
+    print(header)
+    print(f'   ---|{"-" * (column_widths["queueName"] + 2)}'
+          f'|{"-" * (column_widths["messageCount"] + 2)}')
+    for i, (queue, q_count) in enumerate(bad_message_queue_counts.items(), 1):
+        print(f'   {colored((str(i) + ".").ljust(3), color="cyan")}'
+              f'| {queue} {" " * (column_widths["queueName"] - len(queue))}'
+              f'| {q_count} ')
+    queue_num = int(input('Select a queue by number: '))
+    selected_queue = list(bad_message_queue_counts.keys())[queue_num - 1]
+    bad_message_summaries = [summary for summary in bad_message_summaries if
+                             selected_queue in summary['affectedQueues']]
     return bad_message_summaries
 
 
