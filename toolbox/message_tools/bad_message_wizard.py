@@ -183,7 +183,7 @@ def filter_bad_messages():
         print('No messages match your filter')
         return
 
-    bad_message_queue_counts, bad_message_summaries = get_bad_message_summaries(all_message_summaries)
+    bad_message_summaries = get_bad_message_summaries(all_message_summaries)
     if not bad_message_summaries:
         show_no_bad_messages()
         return
@@ -214,12 +214,12 @@ def filter_msgs(all_message_summaries, filter_by_text):
 def show_bad_message_list():
     all_message_summaries: list = get_message_summaries()
 
-    bad_message_queue_counts, bad_message_summaries = get_bad_message_summaries(all_message_summaries)
+    bad_message_summaries = get_bad_message_summaries(all_message_summaries)
     if not bad_message_summaries:
         show_no_bad_messages()
         return
 
-    bad_message_summaries = sort_bad_messages(bad_message_queue_counts, bad_message_summaries)
+    bad_message_summaries = sort_bad_messages(bad_message_summaries)
     print('')
     print(f'There are currently {len(bad_message_summaries)} bad messages:')
 
@@ -231,11 +231,10 @@ def show_bad_message_list():
 
 def get_bad_message_summaries(all_message_summaries):
     bad_message_summaries = [summary for summary in all_message_summaries if not summary['quarantined']]
-    bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
-    return bad_message_queue_counts, bad_message_summaries
+    return bad_message_summaries
 
 
-def sort_bad_messages(bad_message_queue_counts, bad_message_summaries):
+def sort_bad_messages(bad_message_summaries):
     print(colored('Actions:', 'cyan', attrs=['underline']))
     print(colored('  1.', 'cyan'), 'View Bad Messages By First Seen')
     print(colored('  2.', 'cyan'), 'View Bad Messages By Last Seen')
@@ -249,6 +248,8 @@ def sort_bad_messages(bad_message_queue_counts, bad_message_summaries):
     if valid_selection == 2:
         group_by = 'lastSeen'
     elif valid_selection == 3:
+        bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
+
         for i, (key, value) in enumerate(bad_message_queue_counts.items(), 1):
             print(f'{i}) Queue: {key} Message Count: {value}')
         queue_num = int(input('Select a queue by number: '))
@@ -299,8 +300,6 @@ def paginate_messages(bad_message_summaries):
         start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
 
 
-
-
 def get_message_summaries():
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages/summary?minimumSeenCount=2')
     response.raise_for_status()
@@ -311,6 +310,39 @@ def get_bad_message_list():
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages')
     response.raise_for_status()
     return response.json()
+
+
+def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries, start_index):
+
+    for msg in bad_message_summaries:
+        message_hash = msg['messageHash']
+        message_metadata = get_bad_message_metadata(message_hash)
+
+        # TODO can message_metadata ever be plural
+        for (k, v) in message_metadata[0].items():
+            if k == 'exceptionReport':
+                for (key, value) in v.items():
+                    if key == 'exceptionMessage':
+                        msg['exceptionMessage'] = value
+
+    column_widths = {
+        'exceptionMessage': len(bad_message_summaries[0]['exceptionMessage']),
+        'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
+        'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
+    }
+    print('')
+    header = (f'      | {colored("Message Hash".ljust(column_widths["exceptionMessage"]), color="cyan")} '
+              f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
+              f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
+    print(header)
+    print(f'   ---|{"-" * (column_widths["exceptionMessage"] + 2)}'
+          f'|{"-" * (column_widths["firstSeen"] + 2)}'
+          f'|{"-" * (column_widths["queues"] + 2)}')
+    for index, summary in enumerate(bad_message_summaries, start_index + 1):
+        print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
+              f'| {summary["exceptionMessage"]} '
+              f'| {summary["firstSeen"]} '
+              f'| {", ".join(summary["affectedQueues"])}')
 
 
 def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
@@ -332,6 +364,11 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
               f'| {summary["messageHash"]} '
               f'| {summary["firstSeen"]} '
               f'| {", ".join(summary["affectedQueues"])}')
+
+    quarrantine_all_on_page = input(f'Quarrantine All On page? Y or Enter to exit: ')
+
+    if quarrantine_all_on_page == 'Y':
+        confirm_quarantine_all_bad_messages(bad_message_summaries)
 
 
 def show_no_bad_messages():
