@@ -30,6 +30,7 @@ def main():
         #input(f'press {colored("ENTER", "cyan")} to continue')
         print('')
         print(colored('Actions:', 'cyan', attrs=['underline']))
+
         for index, action in enumerate(actions, 1):
             print(f'  {colored(f"{index}.", "cyan")} {action["description"]}')
         print('')
@@ -39,7 +40,6 @@ def main():
 
         if not valid_selection:
             continue
-
         else:
             actions[valid_selection - 1]['action']()
 
@@ -54,10 +54,12 @@ def pretty_print_quarantined_message(message_hash, metadata, formatted_payload):
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash: ', 'green'), message_hash)
     print(colored('Reports: ', 'green'))
+
     for index, report in enumerate(metadata, 1):
         print(f"  {colored(index, 'blue')}:  ")
         for k, v in report.items():
             print(colored(f'    {k}: ', 'green'), v)
+
     print(colored('Message Payload: ', 'green'), formatted_payload)
     print(colored('-------------------------------------------------------------------------------------', 'green'))
 
@@ -67,13 +69,16 @@ def show_all_quarantined_messages(quarantined_messages):
         message_payload = base64.b64decode(metadata[0]['messagePayload']).decode()
         for report in metadata:
             report.pop('messagePayload')
+
         if len(quarantined_messages) > 1:
             print(f'  {colored(index, "blue")}:')
+
         # Try to JSON decode it, otherwise default to bare un-formatted text
         with suppress(JSONDecodeError):
             pretty_print_quarantined_message(message_hash, metadata, json.dumps(json.loads(message_payload), indent=2))
             print('')
             continue
+
         pretty_print_quarantined_message(message_hash, metadata, message_payload)
         print('')
 
@@ -91,6 +96,7 @@ def confirm_quarantine_all_bad_messages(bad_messages):
     confirmation = input("Confirm by responding with '" +
                          colored(f"I confirm I wish to quarantine all {len(bad_messages)} bad messages", 'red') +
                          "' exactly: ")
+
     if confirmation == f'I confirm I wish to quarantine all {len(bad_messages)} bad messages':
         print('')
         print(colored(f'Confirmed, quarantining all {len(bad_messages)} messages', 'yellow'))
@@ -106,9 +112,11 @@ def confirm_quarantine_all_bad_messages(bad_messages):
 
 def show_quarantine_all_bad_messages():
     bad_messages = get_bad_message_list()
+
     if not bad_messages:
         show_no_bad_messages()
         return
+
     print(colored(
         f'There are currently {len(bad_messages)} bad messages, continuing will quarantine them all', 'yellow'))
     print('')
@@ -118,6 +126,7 @@ def show_quarantine_all_bad_messages():
 
     raw_selection = input(colored('Choose an action: ', 'cyan'))
     valid_selection = validate_integer_input_range(raw_selection, 1, 2)
+
     if not valid_selection:
         return
 
@@ -131,6 +140,7 @@ def show_quarantine_all_bad_messages():
 
 def confirm_quarantine_bad_message(message_hash):
     confirmation = input(f'Confirm you want to quarantine the message by responding "{colored("yes", "cyan")}": ')
+
     if confirmation == 'yes':
         quarantine_bad_message(message_hash)
         print('')
@@ -201,7 +211,6 @@ def filter_msgs(all_message_summaries, filter_by_text):
         message_hash = msg['messageHash']
         message_metadata = get_bad_message_metadata(message_hash)
 
-        # TODO can message_metadata ever be plural
         for (k, v) in message_metadata[0].items():
             for item in v.values():
                 if re.search(filter_by_text, str(item)):
@@ -249,24 +258,24 @@ def sort_bad_messages(bad_message_summaries):
         group_by = 'lastSeen'
     elif valid_selection == 3:
         bad_message_summaries = group_messages_by_queue(bad_message_summaries)
+
     bad_message_summaries.sort(key=lambda message: message[group_by])
     return bad_message_summaries
 
 
 def group_messages_by_queue(bad_message_summaries):
     bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
-    column_widths = {
-        'queueName': max(len(queue_name) for queue_name in bad_message_queue_counts.keys()),
-        'messageCount': max(queue_item for queue_item in bad_message_queue_counts.values()),
-    }
+    column_widths = get_group_by_queue_widths(bad_message_queue_counts)
+
     print(column_widths["queueName"])
     print(column_widths["messageCount"])
-    header = (f'      | {colored("Queue Name".ljust(column_widths["queueName"]), color="cyan")} '
-              f'| {colored("Message Count".ljust(column_widths["messageCount"]), color="cyan")} ')
+
+    header = get_group_by_queue_headers(column_widths)
     print('')
     print(header)
     print(f'   ---|{"-" * (column_widths["queueName"] + 2)}'
           f'|{"-" * (column_widths["messageCount"] + 2)}')
+
     for i, (queue, q_count) in enumerate(bad_message_queue_counts.items(), 1):
         print(f'   {colored((str(i) + ".").ljust(3), color="cyan")}'
               f'| {queue} {" " * (column_widths["queueName"] - len(queue))}'
@@ -276,6 +285,21 @@ def group_messages_by_queue(bad_message_summaries):
     bad_message_summaries = [summary for summary in bad_message_summaries if
                              selected_queue in summary['affectedQueues']]
     return bad_message_summaries
+
+
+def get_group_by_queue_headers(column_widths):
+    header = (f'      | {colored("Queue Name".ljust(column_widths["queueName"]), color="cyan")} '
+              f'| {colored("Message Count".ljust(column_widths["messageCount"]), color="cyan")} ')
+    return header
+
+
+def get_group_by_queue_widths(bad_message_queue_counts):
+    column_widths = {
+        'queueName': max(len(queue_name) for queue_name in bad_message_queue_counts.keys()),
+        'messageCount': max(queue_item for queue_item in bad_message_queue_counts.values()),
+    }
+
+    return column_widths
 
 
 def display_messages(bad_message_summaries, start_index):
@@ -290,6 +314,7 @@ def display_messages(bad_message_summaries, start_index):
     if raw_selection.lower() == 'q':
         confirm_quarantine_all_bad_messages(bad_message_summaries)
         return
+
     valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
                                                    start_index + len(bad_message_summaries))
     if not valid_selection:
@@ -334,13 +359,13 @@ def get_bad_message_list():
     return response.json()
 
 
+# Not current used but could be useful to display to actually bulk quarantine
 def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries, start_index):
 
     for msg in bad_message_summaries:
         message_hash = msg['messageHash']
         message_metadata = get_bad_message_metadata(message_hash)
 
-        # TODO can message_metadata ever be plural
         for (k, v) in message_metadata[0].items():
             if k == 'exceptionReport':
                 for (key, value) in v.items():
@@ -360,6 +385,7 @@ def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries,
     print(f'   ---|{"-" * (column_widths["exceptionClass"] + 2)}'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
           f'|{"-" * (column_widths["queues"] + 2)}')
+
     for index, summary in enumerate(bad_message_summaries, start_index + 1):
         print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
               f'| {summary["exceptionClass"]} {" " * (column_widths["exceptionClass"] - len(summary["exceptionClass"]))}'
@@ -368,24 +394,35 @@ def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries,
 
 
 def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
-    column_widths = {
-        'messageHash': len(bad_message_summaries[0]['messageHash']),
-        'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
-        'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
-    }
+    column_widths = get_bad_msg_column_widths(bad_message_summaries)
     print('')
-    header = (f'      | {colored("Message Hash".ljust(column_widths["messageHash"]), color="cyan")} '
-              f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
-              f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
+    header = get_headers_for_bad_msgs(column_widths)
     print(header)
     print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
           f'|{"-" * (column_widths["queues"] + 2)}')
+
     for index, summary in enumerate(bad_message_summaries, start_index + 1):
         print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
               f'| {summary["messageHash"]} '
               f'| {summary["firstSeen"]} '
               f'| {", ".join(summary["affectedQueues"])}')
+
+
+def get_headers_for_bad_msgs(column_widths):
+    header = (f'      | {colored("Message Hash".ljust(column_widths["messageHash"]), color="cyan")} '
+              f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
+              f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
+    return header
+
+
+def get_bad_msg_column_widths(bad_message_summaries):
+    column_widths = {
+        'messageHash': len(bad_message_summaries[0]['messageHash']),
+        'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
+        'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
+    }
+    return column_widths
 
 
 def show_no_bad_messages():
@@ -426,10 +463,12 @@ def show_bad_message_metadata():
 
 def show_bad_message_metadata_for_hash(message_hash):
     selected_bad_message_metadata = get_bad_message_metadata(message_hash)
+
     if not selected_bad_message_metadata:
         print(colored('Message not found', 'red'))
         print('')
         return
+
     pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadata)
 
 
@@ -444,6 +483,7 @@ def show_bad_message_options(message_hash):
     raw_selection = input(colored('Choose an action: ', 'cyan'))
     valid_selection = validate_integer_input_range(raw_selection, 1, 3)
     stay_in_menu = True
+
     if valid_selection == 1:
         show_bad_message_body(message_hash)
     elif valid_selection == 2:
@@ -457,6 +497,7 @@ def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadat
     print(colored('-------------------------------------------------------------------------------------', 'green'))
     print(colored('Message Hash:', 'green'), message_hash)
     print(colored('Reports: ', 'green'))
+
     for index, report in enumerate(selected_bad_message_metadata, 1):
         if len(report) > 1:
             print(f'  {colored(index, "blue")}:')
@@ -472,12 +513,15 @@ def pretty_print_bad_message_metadata(message_hash, selected_bad_message_metadat
 
 def get_bad_message_metadata(message_hash):
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessage/{message_hash}')
+
     if response.status_code == 404:
         return None
     response.raise_for_status()
     response_json = response.json()
+
     if not response_json:
         return None
+
     return response_json
 
 
