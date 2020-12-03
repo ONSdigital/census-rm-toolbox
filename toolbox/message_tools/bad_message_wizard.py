@@ -10,6 +10,8 @@ from termcolor import colored
 
 from toolbox.config import Config
 
+EXCEPTION_MSG_TABLE_DISPLAY_LENGTH = 80
+MSG_HASH_TABLE_DISPLAY_LENGTH = 12
 ITEMS_PER_PAGE = 20
 
 
@@ -26,8 +28,6 @@ def main():
     )
 
     while True:
-
-        #input(f'press {colored("ENTER", "cyan")} to continue')
         print('')
         print(colored('Actions:', 'cyan', attrs=['underline']))
 
@@ -280,6 +280,7 @@ def group_messages_by_queue(bad_message_summaries):
         print(f'   {colored((str(i) + ".").ljust(3), color="cyan")}'
               f'| {queue} {" " * (column_widths["queueName"] - len(queue))}'
               f'| {q_count} ')
+
     queue_num = int(input('Select a queue by number: '))
     selected_queue = list(bad_message_queue_counts.keys())[queue_num - 1]
     bad_message_summaries = [summary for summary in bad_message_summaries if
@@ -360,8 +361,31 @@ def get_bad_message_list():
 
 
 # Not current used but could be useful to display to actually bulk quarantine
-def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries, start_index):
+def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
 
+    enrich_summaries_with_exception_msg(bad_message_summaries)
+
+    column_widths = get_exception_msg_column_widths(bad_message_summaries)
+
+    print('')
+    header = get_exception_msg_headers(column_widths)
+    print(header)
+
+    print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
+          f'{"-" * (column_widths["exceptionMessage"] + 2)}-'
+          f'|{"-" * (column_widths["firstSeen"] + 2)}'
+          f'|{"-" * (column_widths["queues"] + 2)}')
+
+    for index, summary in enumerate(bad_message_summaries, start_index + 1):
+        print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
+              f'| {summary["messageHash"][0:MSG_HASH_TABLE_DISPLAY_LENGTH]} '
+              f'| {summary["exceptionMessage"]} '
+              f'{" " * (column_widths["exceptionMessage"] - len(summary["exceptionMessage"]))}'
+              f'| {summary["firstSeen"]} '
+              f'| {", ".join(summary["affectedQueues"])}')
+
+
+def enrich_summaries_with_exception_msg(bad_message_summaries):
     for msg in bad_message_summaries:
         message_hash = msg['messageHash']
         message_metadata = get_bad_message_metadata(message_hash)
@@ -369,31 +393,33 @@ def pretty_print_bad_message_summaries_with_exception_msg(bad_message_summaries,
         for (k, v) in message_metadata[0].items():
             if k == 'exceptionReport':
                 for (key, value) in v.items():
-                    if key == 'exceptionClass':
-                        msg['exceptionClass'] = value
-    print(bad_message_summaries)
+                    if key == 'exceptionMessage':
+                        # Get 1st 100 chars
+                        try:
+                            msg['exceptionMessage'] = value[0:EXCEPTION_MSG_TABLE_DISPLAY_LENGTH]
+                        except TypeError:
+                            msg['exceptionMessage'] = 'No Error Msg'
+
+
+def get_exception_msg_column_widths(bad_message_summaries):
     column_widths = {
-        'exceptionClass':  max(len(str(summary['exceptionClass'])) for summary in bad_message_summaries),
+        'messageHash': MSG_HASH_TABLE_DISPLAY_LENGTH,
+        'exceptionMessage': max(len(str(summary['exceptionMessage'])) for summary in bad_message_summaries),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
         'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
     }
-    print('')
-    header = (f'      | {colored("Exception Class".ljust(column_widths["exceptionClass"]), color="cyan")} '
+    return column_widths
+
+
+def get_exception_msg_headers(column_widths):
+    header = (f'      | {colored("Message Hash".ljust(column_widths["messageHash"]), color="cyan")} '
+              f'| {colored("Exception Message".ljust(column_widths["exceptionMessage"]), color="cyan")} '
               f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
               f'| {colored("Queues".ljust(column_widths["queues"]), color="cyan")}')
-    print(header)
-    print(f'   ---|{"-" * (column_widths["exceptionClass"] + 2)}'
-          f'|{"-" * (column_widths["firstSeen"] + 2)}'
-          f'|{"-" * (column_widths["queues"] + 2)}')
-
-    for index, summary in enumerate(bad_message_summaries, start_index + 1):
-        print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
-              f'| {summary["exceptionClass"]} {" " * (column_widths["exceptionClass"] - len(summary["exceptionClass"]))}'
-              f'| {summary["firstSeen"]} '
-              f'| {", ".join(summary["affectedQueues"])}')
+    return header
 
 
-def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
+def pretty_print_bad_message_summaries_old(bad_message_summaries, start_index):
     column_widths = get_bad_msg_column_widths(bad_message_summaries)
     print('')
     header = get_headers_for_bad_msgs(column_widths)
