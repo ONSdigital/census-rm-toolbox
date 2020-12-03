@@ -267,9 +267,6 @@ def group_messages_by_queue(bad_message_summaries):
     bad_message_queue_counts = get_queue_names_and_counts(bad_message_summaries)
     column_widths = get_group_by_queue_widths(bad_message_queue_counts)
 
-    print(column_widths["queueName"])
-    print(column_widths["messageCount"])
-
     header = get_group_by_queue_headers(column_widths)
     print('')
     print(header)
@@ -297,7 +294,7 @@ def get_group_by_queue_headers(column_widths):
 def get_group_by_queue_widths(bad_message_queue_counts):
     column_widths = {
         'queueName': max(len(queue_name) for queue_name in bad_message_queue_counts.keys()),
-        'messageCount': max(queue_item for queue_item in bad_message_queue_counts.values()),
+        'messageCount': len(' Message Count '),
     }
 
     return column_widths
