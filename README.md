@@ -214,7 +214,11 @@ Including the header row. The reason given will always be `ADDRESS_DELTA`.
 
 ### Build Bulk Address Update From Sample File
 
-To enable updating case data from an amended sample file (without knowing the case ID's), this script will run through a sample file looking up the UPRN's in the case API and build a address update file that can be run through the bulk processor. These files must be manually copied onto and off the toolbox pod. The script will fail if there are more than one case ID's or no matching any UPRN as we need to be able to match one and only one case. 
+To enable updating case data from an amended sample file (without knowing the case ID's), this script will run through a sample file looking up the UPRN's in the case API and build a address update file that can be run through the bulk processor. These files must be manually copied onto and off the toolbox pod. 
+
+This script will fail if there are more than one case ID's or no matching any UPRN as we need to be able to match one and only one case.
+
+Note that the columns `REGION`, `ADDRESS_LEVEL` and `ADDRESS_TYPE` are included in the sample file but not in the address update. 
 
 Usage:
 ```
