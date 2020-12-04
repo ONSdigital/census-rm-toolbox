@@ -434,7 +434,7 @@ def enrich_summaries_with_exception_msg(bad_message_summaries):
 
 def get_exception_msg_column_widths(bad_message_summaries):
     column_widths = {
-        'messageHash': MSG_HASH_TABLE_DISPLAY_LENGTH,
+        'messageHash': len(bad_message_summaries[0]['messageHash']),
         'exceptionMessage': max(len(str(summary['exceptionMessage'])) for summary in bad_message_summaries),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
         'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
