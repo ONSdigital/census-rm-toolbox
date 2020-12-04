@@ -27,7 +27,7 @@ def show_home_page():
         {'description': 'Get quarantined messages', 'action': show_quarantined_messages},
         {'description': 'Quarantine all bad messages', 'action': show_quarantine_all_bad_messages},
         {'description': 'Reset bad message cache', 'action': reset_bad_message_cache},
-        {'description': 'Filter bad messages', 'action': filter_bad_messages }
+        {'description': 'Filter bad messages', 'action': filter_bad_messages}
     )
 
     while True:
@@ -94,7 +94,7 @@ def show_quarantined_messages():
     show_all_quarantined_messages(quarantined_messages)
 
 
-def confirm_quarantine_messages(bad_messages):
+def confirm_and_quarantine_messages(bad_messages):
     print('')
     confirmation = input("Confirm by responding with '" +
                          colored(f"I confirm I wish to quarantine all {len(bad_messages)} bad messages", 'red') +
@@ -103,13 +103,15 @@ def confirm_quarantine_messages(bad_messages):
     if confirmation == f'I confirm I wish to quarantine all {len(bad_messages)} bad messages':
         print('')
         print(colored(f'Confirmed, quarantining all {len(bad_messages)} messages', 'yellow'))
-
         print('About to quarantine this number of msgs:', len(bad_messages))
 
         for bad_message in bad_messages:
             quarantine_bad_message(bad_message)
+
         print(colored('Successfully quarantined all bad messages', 'green'))
         print('')
+
+        reset_bad_message_cache()
     else:
         print('')
         print(colored('Aborted', 'red'))
@@ -137,7 +139,7 @@ def show_quarantine_all_bad_messages():
         return
 
     elif valid_selection == 1:
-        confirm_quarantine_messages(bad_messages)
+        confirm_and_quarantine_messages(bad_messages)
     else:
         print('')
         print(colored('Aborted', 'red'))
@@ -152,6 +154,7 @@ def confirm_quarantine_bad_message(message_hash):
         print('')
         print(colored(f'Quarantining {message_hash}', 'green'))
         print('')
+
         return True
     else:
         print(colored('Aborted', 'red'))
@@ -196,6 +199,8 @@ def filter_bad_messages():
 
     all_message_summaries = filter_msgs(all_message_summaries, filter_by_text)
 
+    print('After filter all message summaries: ', all_message_summaries)
+
     if not all_message_summaries:
         print('No messages match your filter')
         return
@@ -220,7 +225,7 @@ def filter_msgs(all_message_summaries, filter_by_text):
 
         for (k, v) in message_metadata[0].items():
             for item in v.values():
-                if re.search(filter_by_text, str(item)):
+                if re.search(filter_by_text.lower(), str(item).lower()):
                     if msg not in filtered_msgs:
                         filtered_msgs.append(msg)
 
@@ -325,13 +330,13 @@ def display_messages(bad_message_summaries, start_index):
     raw_selection = input(
         colored(
             f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}),'
-            f'Quarantine all with q or cancel with ENTER: ',
+            f' Quarantine all with q or cancel with ENTER: ',
             'cyan'))
     print('')
 
     if raw_selection.lower() == 'q':
         bad_message_hashes = [bad_message['messageHash'] for bad_message in bad_message_summaries]
-        confirm_quarantine_messages(bad_message_hashes)
+        confirm_and_quarantine_messages(bad_message_hashes)
         return
 
     valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
@@ -357,7 +362,8 @@ def paginate_messages(bad_message_summaries):
         print(f'You are on page {str(page_num)} of {page_max}')
 
         display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index)
-        page_num = input(colored(f"Please enter the page you would like to see 1 - {page_max} or ENTER to exit: ", color="cyan"))
+        page_num = input(
+            colored(f"Please enter the page you would like to see 1 - {page_max} or ENTER to exit: ", color="cyan"))
 
         if not page_num:
             return
@@ -380,7 +386,6 @@ def get_bad_message_list():
 
 # Not current used but could be useful to display to actually bulk quarantine
 def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
-
     enrich_summaries_with_exception_msg(bad_message_summaries)
 
     column_widths = get_exception_msg_column_widths(bad_message_summaries)
@@ -395,12 +400,20 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
           f'|{"-" * (column_widths["queues"] + 2)}')
 
     for index, summary in enumerate(bad_message_summaries, start_index + 1):
-        print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
-              f'| {summary["messageHash"][0:MSG_HASH_TABLE_DISPLAY_LENGTH]} '
-              f'| {summary["exceptionMessage"]} '
-              f'{" " * (column_widths["exceptionMessage"] - len(summary["exceptionMessage"]))}'
-              f'| {summary["firstSeen"]} '
-              f'| {", ".join(summary["affectedQueues"])}')
+        output_text = f'   {colored((str(index) + ".").ljust(3), color="cyan")}' \
+            f'| {summary["messageHash"]} ' \
+            f'| {summary["exceptionMessage"]} ' \
+            f'{" " * (column_widths["exceptionMessage"] - len(summary["exceptionMessage"]))}' \
+            f'| {summary["firstSeen"]} '
+
+        indent_len = len(output_text)
+        output_text += f'| {summary["affectedQueues"][0]}'
+        print(output_text)
+
+        for queue_name in summary["affectedQueues"][1:len(summary["affectedQueues"])]:
+            print(f'{" " * (indent_len - 8)} {queue_name}')
+
+        # f'| {", ".join(summary["affectedQueues"])}')
 
 
 def enrich_summaries_with_exception_msg(bad_message_summaries):
@@ -416,7 +429,7 @@ def enrich_summaries_with_exception_msg(bad_message_summaries):
                         try:
                             msg['exceptionMessage'] = value[0:EXCEPTION_MSG_TABLE_DISPLAY_LENGTH]
                         except TypeError:
-                            msg['exceptionMessage'] = 'No Error Msg'
+                            msg['exceptionMessage'] = 'None'
 
 
 def get_exception_msg_column_widths(bad_message_summaries):
