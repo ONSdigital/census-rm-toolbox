@@ -1,4 +1,3 @@
-import uuid
 from pathlib import Path
 from unittest.mock import patch
 
@@ -14,15 +13,12 @@ TEST_SAMPLE_FILE = RESOURCE_PATH.joinpath('sample_file_for_address_update.csv')
 # use decorator of patch
 @patch('toolbox.bulk_processing.build_address_update_from_sample.requests')
 def test_happy_path(patch_requests):
-    case_id = uuid.uuid4()
-    patch_requests.get.return_value.json.return_value = [{'id': case_id}]
+    patch_requests.get.return_value.json.return_value = [{'id': '583c3098-42f9-43ca-8b8f-10e37066300b'}]
 
     address_update_file = generate_address_update_file(TEST_SAMPLE_FILE)
 
-    assert address_update_file.read_text() == (
-        'CASE_ID,UPRN,ESTAB_UPRN,ESTAB_TYPE,ABP_CODE,ORGANISATION_NAME,ADDRESS_LINE1,ADDRESS_LINE2,ADDRESS_LINE3,TOWN_NAME,POSTCODE,LATITUDE,LONGITUDE,OA,LSOA,MSOA,LAD,HTC_WILLINGNESS,HTC_DIGITAL,TREATMENT_CODE,FIELDCOORDINATOR_ID,FIELDOFFICER_ID,CE_EXPECTED_CAPACITY,CE_SECURE,PRINT_BATCH\n'
-        f'{case_id},16758681217,47502848454,HOUSEHOLD,RD06,,239 Subfloor Answering Lane,Fossilmere,Wakeby,Diligent Town,IH4 1DZ,-47.5344,1.1E-10,W29441168,W42795527,W45627351,W71087559,1,4,HH_LP1W,QM-QMR6-XW,IR-GSB3-EW-48,0,0,37\n'
-    )
+    assert address_update_file.read_text() == RESOURCE_PATH.joinpath(
+        'excepted_address_update_from_sample.csv').read_text()
 
     address_update_file.unlink()
 

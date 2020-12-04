@@ -212,6 +212,16 @@ case_id,reason
 Including the header row. The reason given will always be `ADDRESS_DELTA`.
 
 
+### Build Bulk Address Update From Sample File
+
+To enable updating case data from an amended sample file (without knowing the case ID's), this script will run through a sample file looking up the UPRN's in the case API and build a address update file that can be run through the bulk processor. These files must be manually copied onto and off the toolbox pod.
+
+Usage:
+```
+python -m toolbox.bulk_processing.build_address_update_from_sample <PATH TO SAMPLE FOR UPDATE>
+```
+(outside the pod using `pipenv run python`)
+
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash

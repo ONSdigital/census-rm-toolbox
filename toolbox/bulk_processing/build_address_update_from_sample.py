@@ -1,3 +1,4 @@
+import argparse
 import csv
 from copy import copy
 from pathlib import Path
@@ -26,6 +27,7 @@ def generate_address_update_file(file_to_process: Path):
         file_reader = csv.DictReader(open_file_to_process, delimiter=',')
         actual_fieldnames = set(file_reader.fieldnames)
         if actual_fieldnames != expected_input_fields:
+            output_address_update_file.unlink()
             raise ValueError(f'Invalid header, '
                              f'missing field names: {expected_input_fields.difference(actual_fieldnames)}, '
                              f'unexpected fieldnames: {actual_fieldnames.difference(expected_input_fields)}')
@@ -35,7 +37,11 @@ def generate_address_update_file(file_to_process: Path):
             output_writer.writeheader()
 
             for line_number, row in enumerate(file_reader, 1):
-                case_id = get_case_id_from_case_api(row['UPRN'], line_number)
+                try:
+                    case_id = get_case_id_from_case_api(row['UPRN'], line_number)
+                except:
+                    output_address_update_file.unlink()
+                    raise
                 address_update_row = {k: row[k] for k in fields_to_copy}
                 address_update_row[case_id_fieldname] = case_id
                 output_writer.writerow(address_update_row)
@@ -49,7 +55,7 @@ def get_case_id_from_case_api(uprn, line_number):
         response.raise_for_status()
     except HTTPError:
         if response.status_code == 404:
-            raise(ValueError(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}'))
+            raise ValueError(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}')
         print(f'Network or Internal Server Error on line {line_number}')
         raise
 
@@ -58,3 +64,20 @@ def get_case_id_from_case_api(uprn, line_number):
     if len(case_ids) > 1:
         raise ValueError(f'UPRN {uprn} matches multiple case IDs, line {line_number}')
     return case_ids[0]
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Tool to build an address update file from a sample file"
+                    " by looking up the UPRN's in the case API")
+    parser.add_argument('file_to_process', help='File to process', type=str)
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    generate_address_update_file(Path(args.file_to_process))
+
+
+if __name__ == '__main__':
+    main()
