@@ -39,7 +39,7 @@ def generate_address_update_file(file_to_process: Path):
             for line_number, row in enumerate(file_reader, 1):
                 try:
                     case_id = get_case_id_from_case_api(row['UPRN'], line_number)
-                except:
+                except Exception:
                     output_address_update_file.unlink()
                     raise
                 address_update_row = {k: row[k] for k in fields_to_copy}
