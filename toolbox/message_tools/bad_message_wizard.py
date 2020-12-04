@@ -17,7 +17,10 @@ ITEMS_PER_PAGE = 20
 
 def main():
     show_splash()
+    show_home_page()
 
+
+def show_home_page():
     actions = (
         {'description': 'List bad messages', 'action': show_bad_message_list},
         {'description': 'Get bad message from hash', 'action': show_bad_message_metadata},
@@ -91,7 +94,7 @@ def show_quarantined_messages():
     show_all_quarantined_messages(quarantined_messages)
 
 
-def confirm_quarantine_all_bad_messages(bad_messages):
+def confirm_quarantine_messages(bad_messages):
     print('')
     confirmation = input("Confirm by responding with '" +
                          colored(f"I confirm I wish to quarantine all {len(bad_messages)} bad messages", 'red') +
@@ -100,6 +103,9 @@ def confirm_quarantine_all_bad_messages(bad_messages):
     if confirmation == f'I confirm I wish to quarantine all {len(bad_messages)} bad messages':
         print('')
         print(colored(f'Confirmed, quarantining all {len(bad_messages)} messages', 'yellow'))
+
+        print('About to quarantine this number of msgs:', len(bad_messages))
+
         for bad_message in bad_messages:
             quarantine_bad_message(bad_message)
         print(colored('Successfully quarantined all bad messages', 'green'))
@@ -131,7 +137,7 @@ def show_quarantine_all_bad_messages():
         return
 
     elif valid_selection == 1:
-        confirm_quarantine_all_bad_messages(bad_messages)
+        confirm_quarantine_messages(bad_messages)
     else:
         print('')
         print(colored('Aborted', 'red'))
@@ -153,6 +159,7 @@ def confirm_quarantine_bad_message(message_hash):
 
 
 def quarantine_bad_message(message_hash):
+    print('About to quarantine message: ', message_hash)
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/skipmessage/{message_hash}')
     response.raise_for_status()
 
@@ -229,6 +236,10 @@ def show_bad_message_list():
         return
 
     bad_message_summaries = sort_bad_messages(bad_message_summaries)
+
+    if not bad_message_summaries:
+        return
+
     print('')
     print(f'There are currently {len(bad_message_summaries)} bad messages:')
 
@@ -259,6 +270,9 @@ def sort_bad_messages(bad_message_summaries):
     elif valid_selection == 3:
         bad_message_summaries = group_messages_by_queue(bad_message_summaries)
 
+    if not bad_message_summaries:
+        return
+
     bad_message_summaries.sort(key=lambda message: message[group_by])
     return bad_message_summaries
 
@@ -278,7 +292,12 @@ def group_messages_by_queue(bad_message_summaries):
               f'| {queue} {" " * (column_widths["queueName"] - len(queue))}'
               f'| {q_count} ')
 
-    queue_num = int(input('Select a queue by number: '))
+    queue_num = input('Select a queue by number: ')
+    queue_num = validate_integer_input_range(queue_num, 1, len(bad_message_queue_counts))
+
+    if not queue_num:
+        return
+
     selected_queue = list(bad_message_queue_counts.keys())[queue_num - 1]
     bad_message_summaries = [summary for summary in bad_message_summaries if
                              selected_queue in summary['affectedQueues']]
@@ -305,12 +324,14 @@ def display_messages(bad_message_summaries, start_index):
     print('')
     raw_selection = input(
         colored(
-            f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}), Quarantine all with q or cancel with ENTER: ',
+            f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}),'
+            f'Quarantine all with q or cancel with ENTER: ',
             'cyan'))
     print('')
 
     if raw_selection.lower() == 'q':
-        confirm_quarantine_all_bad_messages(bad_message_summaries)
+        bad_message_hashes = [bad_message['messageHash'] for bad_message in bad_message_summaries]
+        confirm_quarantine_messages(bad_message_hashes)
         return
 
     valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
