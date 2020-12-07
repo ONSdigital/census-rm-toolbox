@@ -5,6 +5,7 @@ from pathlib import Path
 
 import requests
 from requests import HTTPError
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 
 from toolbox.bulk_processing.address_update_processor import AddressUpdateProcessor
 from toolbox.config import Config
@@ -49,15 +50,17 @@ def generate_address_update_file(file_to_process: Path):
     return output_address_update_file
 
 
+@retry(wait=wait_exponential(multiplier=1, min=1, max=4), stop=stop_after_attempt(10),
+       retry=retry_if_exception_type(HTTPError),
+       reraise=True)
 def get_case_id_from_case_api(uprn, line_number):
     response = requests.get(f'http://{Config.CASEAPI_HOST}:{Config.CASEAPI_PORT}/cases/uprn/{uprn}')
     try:
         response.raise_for_status()
-    except HTTPError:
+    except HTTPError as e:
         if response.status_code == 404:
             raise ValueError(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}')
-        print(f'Network or Internal Server Error on line {line_number}')
-        raise
+        raise HTTPError(f'Network or Internal Server Error on line {line_number}') from e
 
     result = response.json()
     case_ids = [case['id'] for case in result]

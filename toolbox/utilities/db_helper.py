@@ -2,10 +2,8 @@ import contextlib
 
 import psycopg2
 from psycopg2 import pool
-
+from tenacity import retry, wait_exponential, stop_after_attempt
 from termcolor import colored
-
-from retrying import retry
 
 from toolbox.config import Config
 
@@ -36,7 +34,7 @@ def connect_to_read_replica_pool():
             conn_pool.closeall()
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
+@retry(wait=wait_exponential(multiplier=1, min=1, max=10), stop=stop_after_attempt(10), reraise=True)
 def execute_in_connection_pool(*args, conn_pool):
     try:
         conn = conn_pool.getconn()
@@ -47,7 +45,7 @@ def execute_in_connection_pool(*args, conn_pool):
         conn_pool.putconn(conn)
 
 
-@retry(wait_exponential_multiplier=1000, wait_exponential_max=10000, stop_max_attempt_number=10)
+@retry(wait=wait_exponential(multiplier=1, min=1, max=4), stop=stop_after_attempt(10), reraise=True)
 def execute_in_connection_pool_with_column_names(*args, conn_pool):
     try:
         conn = conn_pool.getconn()
