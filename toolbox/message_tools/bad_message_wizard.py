@@ -384,7 +384,6 @@ def get_bad_message_list():
     return response.json()
 
 
-# Not current used but could be useful to display to actually bulk quarantine
 def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
     enrich_summaries_with_exception_msg(bad_message_summaries)
 
@@ -397,14 +396,14 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
     print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
           f'{"-" * (column_widths["exceptionMessage"] + 2)}-'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
-          f'|{"-" * (column_widths["queues"] + 2)}')
+          f'|{"-" * (column_widths["queues"] + 1)}')
 
     for index, summary in enumerate(bad_message_summaries, start_index + 1):
         output_text = f'   {colored((str(index) + ".").ljust(3), color="cyan")}' \
-            f'| {summary["messageHash"]} ' \
-            f'| {summary["exceptionMessage"]} ' \
-            f'{" " * (column_widths["exceptionMessage"] - len(summary["exceptionMessage"]))}' \
-            f'| {summary["firstSeen"]} '
+                      f'| {summary["messageHash"]} ' \
+                      f'| {summary["exceptionMessage"]} ' \
+                      f'{" " * (column_widths["exceptionMessage"] - len(summary["exceptionMessage"]))}' \
+                      f'| {summary["firstSeen"]} '
 
         indent_len = len(output_text)
         output_text += f'| {summary["affectedQueues"][0]}'
@@ -412,8 +411,6 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
 
         for queue_name in summary["affectedQueues"][1:len(summary["affectedQueues"])]:
             print(f'{" " * (indent_len - 8)} {queue_name}')
-
-        # f'| {", ".join(summary["affectedQueues"])}')
 
 
 def enrich_summaries_with_exception_msg(bad_message_summaries):
@@ -433,11 +430,18 @@ def enrich_summaries_with_exception_msg(bad_message_summaries):
 
 
 def get_exception_msg_column_widths(bad_message_summaries):
+    longest_queue_names = []
+
+    for msg in bad_message_summaries:
+        longest_queue_names.append(max([len(queues) for queues in msg['affectedQueues']]))
+
+    max_queue_length = max(longest_queue_names)
+
     column_widths = {
         'messageHash': len(bad_message_summaries[0]['messageHash']),
         'exceptionMessage': max(len(str(summary['exceptionMessage'])) for summary in bad_message_summaries),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
-        'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
+        'queues': max_queue_length,
     }
     return column_widths
 
@@ -450,22 +454,6 @@ def get_exception_msg_headers(column_widths):
     return header
 
 
-def pretty_print_bad_message_summaries_old(bad_message_summaries, start_index):
-    column_widths = get_bad_msg_column_widths(bad_message_summaries)
-    print('')
-    header = get_headers_for_bad_msgs(column_widths)
-    print(header)
-    print(f'   ---|{"-" * (column_widths["messageHash"] + 2)}'
-          f'|{"-" * (column_widths["firstSeen"] + 2)}'
-          f'|{"-" * (column_widths["queues"] + 2)}')
-
-    for index, summary in enumerate(bad_message_summaries, start_index + 1):
-        print(f'   {colored((str(index) + ".").ljust(3), color="cyan")}'
-              f'| {summary["messageHash"]} '
-              f'| {summary["firstSeen"]} '
-              f'| {", ".join(summary["affectedQueues"])}')
-
-
 def get_headers_for_bad_msgs(column_widths):
     header = (f'      | {colored("Message Hash".ljust(column_widths["messageHash"]), color="cyan")} '
               f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
@@ -474,10 +462,19 @@ def get_headers_for_bad_msgs(column_widths):
 
 
 def get_bad_msg_column_widths(bad_message_summaries):
+    longest_queue_names = []
+
+    for msg in bad_message_summaries:
+        longest_queue_names.append(max([len(queues) for queues in msg['affectedQueues']]))
+
+    max_queue_length = max(longest_queue_names)
+
+    print('Max Queue Length:', max_queue_length)
+
     column_widths = {
         'messageHash': len(bad_message_summaries[0]['messageHash']),
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
-        'queues': max(len(', '.join(summary['affectedQueues'])) for summary in bad_message_summaries),
+        'queues':  max_queue_length,
     }
     return column_widths
 
