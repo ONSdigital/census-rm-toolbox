@@ -114,8 +114,6 @@ def confirm_and_quarantine_messages(bad_messages):
 
         print(colored('Successfully quarantined all bad messages', 'green'))
         print('')
-
-        reset_bad_message_cache()
     else:
         print('')
         print(colored('Aborted', 'red'))
@@ -339,7 +337,7 @@ def display_messages(bad_message_summaries, start_index):
     raw_selection = input(
         colored(
             f'Select a message ({start_index + 1} to {start_index + len(bad_message_summaries)}),'
-            f' Quarantine all with q or cancel with ENTER: ',
+            f' Quarantine all with q or press ENTER for page selection: ',
             'cyan'))
     print('')
 
@@ -396,10 +394,10 @@ def get_bad_message_list():
 def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
     enrich_summaries_with_exception_msg(bad_message_summaries)
 
-    column_widths = get_exception_msg_column_widths(bad_message_summaries)
+    column_widths = get_msg_column_widths(bad_message_summaries)
 
     print('')
-    header = get_exception_msg_headers(column_widths)
+    header = get_msg_headers(column_widths)
     print(header)
 
     print(f'     ---|{"-" * (column_widths["messageHash"] + 2)}'
@@ -440,7 +438,7 @@ def enrich_summaries_with_exception_msg(bad_message_summaries):
                             msg['exceptionMessage'] = 'None'
 
 
-def get_exception_msg_column_widths(bad_message_summaries):
+def get_msg_column_widths(bad_message_summaries):
     longest_queue_names = []
 
     for msg in bad_message_summaries:
@@ -457,7 +455,7 @@ def get_exception_msg_column_widths(bad_message_summaries):
     return column_widths
 
 
-def get_exception_msg_headers(column_widths):
+def get_msg_headers(column_widths):
     header = (f'        | {colored("Hash".ljust(column_widths["messageHash"]), color="cyan")} '
               f'| {colored("Exception Message".ljust(column_widths["exceptionMessage"]), color="cyan")} '
               f'| {colored("First Seen".ljust(column_widths["firstSeen"]), color="cyan")} '
