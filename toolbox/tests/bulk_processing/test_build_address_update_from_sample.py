@@ -44,7 +44,7 @@ def test_raises_unknown_error(patch_requests):
 
 
 @patch('toolbox.bulk_processing.build_address_update_from_sample.requests')
-def test_rasises_if_uprn_has_multiple_cases(patch_requests):
+def test_raises_if_uprn_has_multiple_cases(patch_requests):
     patch_requests.get.return_value.json.return_value = [{'id': 'foo'},
                                                          {'id': 'blah'}]
 
