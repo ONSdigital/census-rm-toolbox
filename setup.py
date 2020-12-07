@@ -10,5 +10,5 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ONSdigital/census-rm-toolbox",
     packages=setuptools.find_packages(),
-    install_requires=['termcolor']
+    install_requires=['termcolor', 'tenacity']
 )
