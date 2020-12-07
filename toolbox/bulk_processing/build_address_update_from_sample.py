@@ -45,7 +45,7 @@ def generate_address_update_file(file_to_process: Path):
                 address_update_row = {k: row[k] for k in fields_to_copy}
                 address_update_row[case_id_fieldname] = case_id
                 output_writer.writerow(address_update_row)
-                if not (line_number % 1000 == 0):
+                if line_number % 1000 == 0:
                     print(f'Processed {line_number} rows')
         print(f'Finished processing all {line_number} rows')
         print(f'Output written to {str(output_address_update_file)}')
