@@ -36,26 +36,30 @@ def connect_to_read_replica_pool():
 
 @retry(wait=wait_exponential(multiplier=1, min=1, max=10), stop=stop_after_attempt(10), reraise=True)
 def execute_in_connection_pool(*args, conn_pool):
+    conn = None
     try:
         conn = conn_pool.getconn()
         cursor = conn.cursor()
         cursor.execute(*args)
         return cursor.fetchall()
     finally:
-        conn_pool.putconn(conn)
+        if conn:
+            conn_pool.putconn(conn)
 
 
-@retry(wait=wait_exponential(multiplier=1, min=1, max=4), stop=stop_after_attempt(10), reraise=True)
+@retry(wait=wait_exponential(multiplier=1, min=1, max=10), stop=stop_after_attempt(10), reraise=True)
 def execute_in_connection_pool_with_column_names(*args, conn_pool):
+    """NOTE: only use with 'SELECT * FROM' queries"""
+    conn = None
     try:
         conn = conn_pool.getconn()
-        """NOTE: only use with 'SELECT * FROM' queries"""
         cursor = conn.cursor()
         cursor.execute(*args)
         colnames = [desc[0] for desc in cursor.description]
         return [dict(zip(colnames, row)) for row in cursor.fetchall()]
     finally:
-        conn_pool.putconn(conn)
+        if conn:
+            conn_pool.putconn(conn)
 
 
 def execute_parametrized_sql_query(sql_query, values: tuple, db_host=Config.DB_HOST, extra_options=""):
