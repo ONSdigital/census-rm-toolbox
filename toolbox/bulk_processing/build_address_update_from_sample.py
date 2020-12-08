@@ -3,11 +3,9 @@ import csv
 from copy import copy
 from pathlib import Path
 
-import requests
-from requests import HTTPError
-
 from toolbox.bulk_processing.address_update_processor import AddressUpdateProcessor
 from toolbox.config import Config
+from toolbox.utilities import db_helper
 
 
 def generate_address_update_file(file_to_process: Path):
@@ -32,13 +30,14 @@ def generate_address_update_file(file_to_process: Path):
                              f'missing field names: {expected_input_fields.difference(actual_fieldnames)}, '
                              f'unexpected fieldnames: {actual_fieldnames.difference(expected_input_fields)}')
 
-        with open(output_address_update_file, 'w') as open_output_file:
+        with open(output_address_update_file,
+                  'w') as open_output_file, db_helper.connect_to_read_replica_pool() as conn_pool:
             output_writer = csv.DictWriter(open_output_file, fieldnames=address_update_fieldnames)
             output_writer.writeheader()
 
             for line_number, row in enumerate(file_reader, 1):
                 try:
-                    case_id = get_case_id_from_case_api(row['UPRN'], line_number)
+                    case_id = get_case_id_from_uprn(row['UPRN'], line_number, conn_pool=conn_pool)
                 except Exception:
                     output_address_update_file.unlink()
                     raise
@@ -53,18 +52,12 @@ def generate_address_update_file(file_to_process: Path):
     return output_address_update_file
 
 
-def get_case_id_from_case_api(uprn, line_number):
-    response = requests.get(f'http://{Config.CASEAPI_HOST}:{Config.CASEAPI_PORT}/cases/uprn/{uprn}')
-    try:
-        response.raise_for_status()
-    except HTTPError:
-        if response.status_code == 404:
-            raise ValueError(f'Error 404: Cannot find the UPRN {uprn} on line {line_number}')
-        print(f'Network or Internal Server Error on line {line_number}')
-        raise
-
-    result = response.json()
-    case_ids = [case['id'] for case in result]
+def get_case_id_from_uprn(uprn, line_number, conn_pool):
+    result = db_helper.execute_in_connection_pool('SELECT case_id FROM casev2.cases WHERE uprn = %s', (uprn,),
+                                                  conn_pool=conn_pool)
+    case_ids = [row[0] for row in result]
+    if len(case_ids) < 1:
+        raise ValueError(f'UPRN {uprn} does not match any cases, line {line_number}')
     if len(case_ids) > 1:
         raise ValueError(f'UPRN {uprn} matches multiple case IDs, line {line_number}')
     return case_ids[0]
