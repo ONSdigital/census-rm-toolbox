@@ -2,7 +2,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from requests import HTTPError
 
 from toolbox.bulk_processing.build_address_update_from_sample import generate_address_update_file
 
@@ -10,10 +9,9 @@ RESOURCE_PATH = Path(__file__).parent.joinpath('resources')
 TEST_SAMPLE_FILE = RESOURCE_PATH.joinpath('sample_file_for_address_update.csv')
 
 
-# use decorator of patch
-@patch('toolbox.bulk_processing.build_address_update_from_sample.requests')
-def test_happy_path(patch_requests):
-    patch_requests.get.return_value.json.return_value = [{'id': '583c3098-42f9-43ca-8b8f-10e37066300b'}]
+@patch('toolbox.bulk_processing.build_address_update_from_sample.db_helper')
+def test_happy_path(patch_db_helper):
+    patch_db_helper.execute_in_connection_pool.return_value = [('583c3098-42f9-43ca-8b8f-10e37066300b',)]
 
     address_update_file = generate_address_update_file(TEST_SAMPLE_FILE)
 
@@ -23,30 +21,22 @@ def test_happy_path(patch_requests):
     address_update_file.unlink()
 
 
-@patch('toolbox.bulk_processing.build_address_update_from_sample.requests')
-def test_raises_if_uprn_is_invalid(patch_requests):
-    patch_requests.get.return_value.raise_for_status.side_effect = HTTPError()
+@patch('toolbox.bulk_processing.build_address_update_from_sample.db_helper')
+def test_raises_if_uprn_is_invalid(patch_db_helper):
+    patch_db_helper.execute_in_connection_pool.return_value = []
 
-    patch_requests.get.return_value.status_code = 404
-
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as expected_error:
         generate_address_update_file(TEST_SAMPLE_FILE)
 
+    assert 'does not match any cases' in str(expected_error.value)
 
-@patch('toolbox.bulk_processing.build_address_update_from_sample.requests')
-def test_raises_unknown_error(patch_requests):
-    patch_requests.get.return_value.raise_for_status.side_effect = HTTPError()
 
-    patch_requests.get.return_value.status_code = 500
+@patch('toolbox.bulk_processing.build_address_update_from_sample.db_helper')
+def test_raises_if_uprn_has_multiple_cases(patch_db_helper):
+    patch_db_helper.execute_in_connection_pool.return_value = [('583c3098-42f9-43ca-8b8f-10e37066300b',),
+                                                               ('a1ea5579-9691-426d-9352-9eb22e5d6297',)]
 
-    with pytest.raises(HTTPError):
+    with pytest.raises(ValueError) as expected_error:
         generate_address_update_file(TEST_SAMPLE_FILE)
 
-
-@patch('toolbox.bulk_processing.build_address_update_from_sample.requests')
-def test_raises_if_uprn_has_multiple_cases(patch_requests):
-    patch_requests.get.return_value.json.return_value = [{'id': 'foo'},
-                                                         {'id': 'blah'}]
-
-    with pytest.raises(ValueError):
-        generate_address_update_file(TEST_SAMPLE_FILE)
+    assert 'matches multiple case IDs' in str(expected_error.value)
