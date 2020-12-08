@@ -47,9 +47,9 @@ def generate_address_update_file(file_to_process: Path):
                 output_writer.writerow(address_update_row)
                 if line_number % 1000 == 0:
                     print(f'Processed {line_number} rows')
-        print(f'Finished processing all {line_number} rows')
-        print(f'Output written to {str(output_address_update_file)}')
 
+    print(f'Finished processing all {line_number} rows')
+    print(f'Output written to {str(output_address_update_file)}')
     return output_address_update_file
 
 

@@ -226,6 +226,8 @@ python -m toolbox.bulk_processing.build_address_update_from_sample <PATH TO SAMP
 ```
 (outside the pod using `pipenv run python`)
 
+The output file will be written to `address_updates_<SOURCE FILE NAME>` in the current working directory.
+
 ## Questionnaire Linking
 On dev-toolbox run
 ```bash
