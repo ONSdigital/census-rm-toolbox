@@ -30,7 +30,7 @@ def show_home_page():
         {'description': 'List bad messages', 'action': show_bad_message_list},
         {'description': 'Get bad message from hash', 'action': show_bad_message_metadata},
         {'description': 'Get quarantined messages', 'action': show_quarantined_messages},
-        {'description': 'Quarantine all bad messages', 'action': show_quarantine_all_bad_messages},
+        {'description': 'Quarantine all bad messages', 'action': quarantine_all_bad_messages},
         {'description': 'Reset bad message cache', 'action': reset_bad_message_cache},
         {'description': 'Filter bad messages', 'action': filter_bad_messages}
     )
@@ -114,22 +114,25 @@ def confirm_and_quarantine_messages(bad_messages):
             quarantine_bad_message(bad_message)
 
         print(colored('Successfully quarantined all bad messages', 'green'))
-        print('')
+
+        # if reset_cache:
+        #     reset_bad_message_cache()
     else:
         print('')
         print(colored('Aborted', 'red'))
         print('')
 
 
-def show_quarantine_all_bad_messages():
-    bad_messages = get_bad_message_list()
+def quarantine_all_bad_messages():
+    all_messages = get_message_summaries()
+    unquarantined_msg_hashes = [msg['messageHash'] for msg in get_bad_message_summaries(all_messages)]
 
-    if not bad_messages:
+    if not unquarantined_msg_hashes:
         show_no_bad_messages()
         return
 
     print(colored(
-        f'There are currently {len(bad_messages)} bad messages, continuing will quarantine them all', 'yellow'))
+        f'There are currently {len(unquarantined_msg_hashes)} bad messages, continuing will quarantine them all', 'yellow'))
     print('')
     print(colored('1.', 'cyan'), 'Continue')
     print(colored('2.', 'cyan'), 'Cancel')
@@ -142,7 +145,7 @@ def show_quarantine_all_bad_messages():
         return
 
     elif valid_selection == 1:
-        confirm_and_quarantine_messages(bad_messages)
+        confirm_and_quarantine_messages(unquarantined_msg_hashes)
     else:
         print('')
         print(colored('Aborted', 'red'))
@@ -165,7 +168,6 @@ def confirm_quarantine_bad_message(message_hash):
 
 
 def quarantine_bad_message(message_hash):
-    print('About to quarantine message: ', message_hash)
     response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/skipmessage/{message_hash}')
     response.raise_for_status()
 
@@ -388,7 +390,7 @@ def get_message_summaries():
 
 
 def get_bad_message_list():
-    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages')
+    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages?minimumSeenCount=2')
     response.raise_for_status()
     return response.json()
 
