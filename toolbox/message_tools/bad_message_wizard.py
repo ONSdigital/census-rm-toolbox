@@ -6,6 +6,8 @@ from json import JSONDecodeError
 
 import requests
 import re
+
+import rfc3339
 from termcolor import colored
 
 from toolbox.config import Config
@@ -261,7 +263,7 @@ def get_bad_message_summaries(all_message_summaries):
 
 def remove_milliseconds_from_firstseen(bad_message_summaries):
     for msg in bad_message_summaries:
-        msg['firstSeen'] = msg['firstSeen'][0:len(msg['firstSeen']) - MILLISECOND_STR_LEN]
+        msg['firstSeen'] = rfc3339.parse_datetime(msg['firstSeen']).strftime("%Y-%m-%dT%H:%M:%S")
 
     return bad_message_summaries
 
