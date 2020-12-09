@@ -114,9 +114,7 @@ def confirm_and_quarantine_messages(bad_messages):
             quarantine_bad_message(bad_message)
 
         print(colored('Successfully quarantined all bad messages', 'green'))
-
-        # if reset_cache:
-        #     reset_bad_message_cache()
+        return True
     else:
         print('')
         print(colored('Aborted', 'red'))
@@ -343,8 +341,7 @@ def display_messages(bad_message_summaries, start_index):
 
     if raw_selection.lower() == 'q':
         bad_message_hashes = [bad_message['messageHash'] for bad_message in bad_message_summaries]
-        confirm_and_quarantine_messages(bad_message_hashes)
-        return
+        return confirm_and_quarantine_messages(bad_message_hashes)
 
     valid_selection = validate_integer_input_range(raw_selection, start_index + 1,
                                                    start_index + len(bad_message_summaries))
@@ -368,7 +365,10 @@ def paginate_messages(bad_message_summaries):
     while True:
         print(f'You are on page {str(page_num)} of {page_max}')
 
-        display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index)
+        # If this returns True it means that it's quarantined the msgs, so
+        if display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index):
+            return
+
         input_pagenum = input(
             colored(f"Please enter the page you would like to see 1 - {page_max} or ENTER to exit: ", color="cyan"))
 
