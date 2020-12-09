@@ -370,13 +370,17 @@ def paginate_messages(bad_message_summaries):
         print(f'You are on page {str(page_num)} of {page_max}')
 
         display_messages(bad_message_summaries[start_index:start_index + ITEMS_PER_PAGE], start_index)
-        page_num = input(
+        input_pagenum = input(
             colored(f"Please enter the page you would like to see 1 - {page_max} or ENTER to exit: ", color="cyan"))
 
-        if not page_num:
+        if not input_pagenum:
             return
 
-        validate_integer_input_range(page_num, 1, page_max)
+        if not validate_integer_input_range(input_pagenum, 1, page_max):
+            continue
+
+        page_num = input_pagenum
+
         start_index = (int(page_num) * ITEMS_PER_PAGE) - ITEMS_PER_PAGE
 
 
