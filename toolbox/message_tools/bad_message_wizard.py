@@ -224,9 +224,8 @@ def filter_msgs(all_message_summaries, filter_by_text):
 
         for (k, v) in message_metadata[0].items():
             for item in v.values():
-                if re.search(filter_by_text.lower(), str(item).lower()):
-                    if msg not in filtered_msgs:
-                        filtered_msgs.append(msg)
+                if re.search(filter_by_text.lower(), str(item).lower()) and msg not in filtered_msgs:
+                    filtered_msgs.append(msg)
 
     return filtered_msgs
 
