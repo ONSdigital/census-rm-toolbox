@@ -42,7 +42,7 @@ def execute_in_connection_pool(*args, conn_pool):
         conn = conn_pool.getconn()
         cursor = conn.cursor()
         cursor.execute(*args)
-        yield cursor.fetchall()
+        return cursor.fetchall()
     finally:
         conn_pool.putconn(conn)
 
@@ -55,7 +55,7 @@ def execute_in_connection_pool_with_column_names(*args, conn_pool):
         cursor = conn.cursor()
         cursor.execute(*args)
         colnames = [desc[0] for desc in cursor.description]
-        yield [dict(zip(colnames, row)) for row in cursor.fetchall()]
+        return [dict(zip(colnames, row)) for row in cursor.fetchall()]
     finally:
         conn_pool.putconn(conn)
 
