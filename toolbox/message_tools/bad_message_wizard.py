@@ -13,7 +13,6 @@ from termcolor import colored
 from toolbox.config import Config
 
 COLOUR_FORMATTING_LEN = 8
-MILLISECOND_STR_LEN = 8
 EXCEPTION_MSG_TABLE_DISPLAY_LENGTH = 130
 ITEMS_PER_PAGE = 20
 EXCEPTION_HASH_LENGTH = 4
