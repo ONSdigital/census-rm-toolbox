@@ -214,8 +214,6 @@ def filter_bad_messages():
     print(f'There are currently {len(bad_message_summaries)} bad messages matching your filter:')
     paginate_messages(bad_message_summaries)
 
-    return
-
 
 def filter_msgs(all_message_summaries, filter_by_text):
     filtered_msgs = []
