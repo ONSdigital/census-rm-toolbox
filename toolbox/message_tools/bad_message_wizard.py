@@ -130,7 +130,8 @@ def quarantine_all_bad_messages():
         return
 
     print(colored(
-        f'There are currently {len(unquarantined_msg_hashes)} bad messages, continuing will quarantine them all', 'yellow'))
+        f'There are currently {len(unquarantined_msg_hashes)} bad messages, continuing will quarantine them all',
+        'yellow'))
     print('')
     print(colored('1.', 'cyan'), 'Continue')
     print(colored('2.', 'cyan'), 'Cancel')
