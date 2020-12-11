@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+from shutil import move
 
 from toolbox.utilities.rabbit_context import RabbitContext
 
@@ -11,7 +12,8 @@ def publish_messages_from_json_file_path(queue_name: str, source_file_path: Path
     with RabbitContext(queue_name=queue_name) as rabbit:
         for file_path in source_file_path.rglob('*.json'):
             rabbit.publish_message(file_path.read_text(), 'application/json', None)
-            file_path.replace(destination_file_path.joinpath(file_path.name))
+            move(str(source_file_path.joinpath(file_path.name)),
+                 str(destination_file_path.joinpath(file_path.name)))
 
 
 def publish_messages_from_dump_files(queue_name: str, source_file_path: Path, destination_file_path: Path):
@@ -19,7 +21,8 @@ def publish_messages_from_dump_files(queue_name: str, source_file_path: Path, de
         for file_path in source_file_path.rglob('*.dump'):
             for json_message in file_path.open():
                 rabbit.publish_message(json_message, 'application/json', None)
-            file_path.replace(destination_file_path.joinpath(file_path.name))
+            move(str(source_file_path.joinpath(file_path.name)),
+                 str(destination_file_path.joinpath(file_path.name)))
 
 
 def parse_arguments():
