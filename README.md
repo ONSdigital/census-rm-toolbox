@@ -242,6 +242,17 @@ msgwizard
 ```
 
 This should start a terminal wizard for dealing with bad messages through the exception manager service
+
+There is an option to filter messages, this works by regex on every field in the message summary.
+Some common examples are:
+
+```
+    ^Case ID.*not present$ 
+```
+
+```
+    ^Questionnaire Id.*not found!
+```
    
 ## How to use - Find and remove messages on pubsub
 
