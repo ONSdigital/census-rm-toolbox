@@ -348,6 +348,14 @@ To connect to SFTP (i.e. GoAnywhere) to check print files (read only).
 doftp
 ```
 
+## Uploading a file to a bucket
+To upload a file to a bucket.
+
+### Usage
+```bash
+uploadfiletobucket <file> <project> <bucket>
+```
+
 ## Running in Kubernetes
 To run the toolbox in a kubernetes environment, you'll have to create the deployment using the YAML files in census-rm-kubernetes. If you do not have a Cloud SQL Read Replica, use the dev deployment YAML file
 

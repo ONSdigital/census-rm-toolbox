@@ -10,6 +10,7 @@ alias helpme='echo "Commands: helpme, msgwizard, findbad, baddetails, queuetool 
 alias dumpfilestoqueue='python -m toolbox.message_tools.dump_files_to_queue'
 alias dumpqueuetofiles='python -m toolbox.message_tools.dump_queue_to_files'
 alias downloadfilefrombucket='python -m toolbox.message_tools.download_file_from_bucket'
+alias uploadfiletobucket='python -m toolbox.message_tools.upload_file_to_bucket'
 alias makemessage='python -m toolbox.message_tools.message_maker'
 alias findbad='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/badmessages | jq'
 alias viewskipped='curl -s http://$EXCEPTIONMANAGER_HOST:$EXCEPTIONMANAGER_PORT/skippedmessages | jq'
