@@ -26,11 +26,10 @@ def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.U
         action_rule = generate_action_rule(reminder_action_type, action_rule_classifiers, action_plan_id,
                                            trigger_date_time)
         print()
-        print('Generated action rule:')
-        print(action_rule)
-        print('')
         print('About to insert action rule for:')
         print('Action type:', colored(reminder_action_type, "red"))
+        print('Action Plan ID:', colored(action_plan_id, "red"))
+        print('Number of LSOAs from file:', colored(str(len(lsoas)), "red"))
         print('Trigger date time:', colored(trigger_date_time.isoformat(), 'red'))
         if not confirm_insert_rule():
             print(colored('ABORTING', 'red'))
@@ -67,8 +66,8 @@ def generate_action_rule(action_type, action_rule_classifiers, action_plan_id, t
 
 def insert_action_rule(action_rule):
     with db_helper.open_write_cursor(Config.DB_HOST_ACTION, Config.DB_ACTION_CERTIFICATES) as db_cursor:
-        print("Inserting action rule", action_rule)
-        db_helper.execute_sql_query_with_write(db_cursor, action_rule[0], action_rule[1])
+        print("Inserting action rule")
+        db_helper.execute_sql_query_with_write(db_cursor, action_rule[0], action_rule[1], suppress_sql_print=True)
 
 
 def parse_trigger_date_time(trigger_date_time):
