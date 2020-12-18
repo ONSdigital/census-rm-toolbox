@@ -8,16 +8,20 @@ def get_lsoas_from_file(lsoa_file_path):
 
 
 def check_lsoas(lsoas):
-    if not all(check_lsoa(row, lsoa) for row, lsoa in enumerate(lsoas, 1)):
+    errors = []
+    for row, lsoa in enumerate(lsoas, 1):
+        errors.extend(check_lsoa(row, lsoa))
+    if errors:
         print('INVALID FILE, EXITING')
+        for error in errors:
+            print(error)
         exit(1)
 
 
 def check_lsoa(row, lsoa):
+    row_errors = []
     if not lsoa.isalnum():
-        print(f'Row: {row}, LSOA {repr(lsoa)} is not alphanumeric')
-        return False
+        row_errors.append(f'Row: {row}, LSOA {repr(lsoa)} is not alphanumeric')
     if len(lsoa) > 9:
-        print(f'Row: {row}, LSOA {repr(lsoa)} is too long')
-        return False
-    return True
+        row_errors.append(f'Row: {row}, LSOA {repr(lsoa)} is too long')
+    return row_errors

@@ -30,17 +30,23 @@ def test_check_lsoas_exit():
         check_lsoas(lsoas)
 
 
-def test_check_lsoas_():
-    unittest_helper.assertTrue(check_lsoa(1, "E00000001"))
-
-
 def test_check_lsoa_is_valid():
-    unittest_helper.assertTrue(check_lsoa(1, "E00000001"))
+    unittest_helper.assertEqual([], check_lsoa(1, "E00000001"))
 
 
 def test_check_lsoa_invalid_format():
-    unittest_helper.assertFalse(check_lsoa(1, "'E100000001'"))
+    expected_error = ['Row: 1, LSOA "E1000000\'" is not alphanumeric']
+    unittest_helper.assertEqual(expected_error, check_lsoa(1, "E1000000'"))
 
 
 def test_check_lsoa_invalid_length():
-    unittest_helper.assertFalse(check_lsoa(1, "E000000001"))
+    expected_error = ["Row: 1, LSOA 'E000000001' is too long"]
+    unittest_helper.assertEqual(expected_error, check_lsoa(1, "E000000001"))
+
+
+def test_check_lsoa_invalid_format_and_length():
+    expected_error = [
+        'Row: 1, LSOA "\'E000000001\'" is not alphanumeric',
+        'Row: 1, LSOA "\'E000000001\'" is too long'
+    ]
+    unittest_helper.assertEqual(expected_error, check_lsoa(1, "'E000000001'"))

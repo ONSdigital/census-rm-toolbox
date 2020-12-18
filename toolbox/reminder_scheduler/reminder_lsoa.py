@@ -20,8 +20,7 @@ def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.U
 
     print()
     print(f'Reminder Action type: {reminder_action_type}')
-    print('Classifiers clause:')
-    print(action_rule_classifiers)
+    print(f'Count of LSOAs to use in classifiers clause: {len(lsoas)}')
 
     if insert_rule:
         action_rule = generate_action_rule(reminder_action_type, action_rule_classifiers, action_plan_id,
