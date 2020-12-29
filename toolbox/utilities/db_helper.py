@@ -70,9 +70,10 @@ def execute_parametrized_sql_query(sql_query, values: tuple, db_host=Config.DB_H
     return result
 
 
-def execute_sql_query_with_write(cursor, sql_query, values: tuple):
+def execute_sql_query_with_write(cursor, sql_query, values: tuple, suppress_sql_print=False):
     sanity_checked_sql = cursor.mogrify(sql_query, values)
-    print(colored(f'RUNNING SQL WITH WRITE: {sanity_checked_sql}', 'red'))
+    if not suppress_sql_print:
+        print(colored(f'RUNNING SQL WITH WRITE: {sanity_checked_sql}', 'red'))
     cursor.execute(sanity_checked_sql)
 
 

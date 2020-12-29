@@ -1,6 +1,6 @@
 import uuid
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch, mock_open, ANY
 
 import pytest
 import rfc3339
@@ -38,7 +38,7 @@ def test_main_with_db_insert_rule(_mock_csv_data, patch_input, patch_db_helper):
 
     # Then
     patch_input.assert_called_once()
-    patch_db_helper.execute_sql_query_with_write.assert_called_once()
+    patch_db_helper.execute_sql_query_with_write.assert_called_once_with(ANY, ANY, ANY, suppress_sql_print=True)
 
 
 @patch('toolbox.reminder_scheduler.reminder_lsoa.db_helper')
