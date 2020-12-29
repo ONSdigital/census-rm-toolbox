@@ -404,7 +404,6 @@ def pretty_print_bad_message_summaries(bad_message_summaries, start_index):
     print('')
     header = get_msg_headers(column_widths)
     print(header)
-
     print(f'     ---|{"-" * (column_widths["messageHash"] + 2)}'
           f'{"-" * (column_widths["exceptionMessage"] + 2)}-'
           f'|{"-" * (column_widths["firstSeen"] + 2)}'
@@ -457,6 +456,10 @@ def get_msg_column_widths(bad_message_summaries):
         'firstSeen': max(len(str(summary['firstSeen'])) for summary in bad_message_summaries),
         'queues': max_queue_length,
     }
+
+    exception_header_min_length = len('Exception Message')
+    if column_widths['exceptionMessage'] < exception_header_min_length:
+        column_widths['exceptionMessage'] = exception_header_min_length
     return column_widths
 
 
