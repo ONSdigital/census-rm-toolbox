@@ -7,7 +7,7 @@ from google.cloud import storage
 def put_audit_files_to_bucket(audit_files_folder, project_name, bucket_name):
     audit_folders = [folder for folder in audit_files_folder.iterdir() if folder.is_dir()]
     for folder in audit_folders:
-        log_files = list(folder.glob('*.log'))
+        log_files = list(folder.glob('*.log'))  # TODO: this doesn't exclude SQL logs at the moment
         if log_files:
             for log_file in log_files:
                 client = storage.Client(project=project_name)
