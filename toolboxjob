@@ -1,1 +1,1 @@
-* * * * * root echo "$(date) Hello" >> /var/log/toolboxjob.log
+* * * * * root gsutil rsync -r ~/.audit/ gs://<BUCKET> >> /var/log/toolboxjob.log
