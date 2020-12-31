@@ -1,2 +1,1 @@
-#* * * * * root python -m toolbox.audit_backup.put_audit_files_to_bucket /home/toolbox/.audit $PROJECT_NAME $TOOLBOX_AUDIT_BUCKET >> /var/log/cron.log
-* * * * * root echo "$(date) Hello" >> /var/log/cron.log
+* * * * * toolboxcronuser echo "$(date) Hello" >> /var/opt/toolboxcronuser/cron.log
