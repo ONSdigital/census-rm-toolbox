@@ -7,9 +7,13 @@ COPY .bashrc_extras /tmp
 RUN apt-get update && apt-get -yq install curl && apt-get -yq install jq && apt-get -yq install vim-tiny && \
     apt-get -yq install unzip && apt-get -yq install postgresql-client || true && \
     apt-get -yq install openssh-client || true && apt-get -yq install procps || true && \
-    apt-get -yq clean && groupadd --gid 1000 toolbox && \
+    apt-get -yq clean && apt-get -yq install cron && apt-get -yq install sudo && groupadd --gid 1000 toolbox && \
     useradd --create-home --system --uid 1000 --gid toolbox toolbox && \
+    usermod -a -G sudo toolbox && echo "toolbox ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     cat /tmp/.bashrc_extras >> /home/toolbox/.bashrc && rm /tmp/.bashrc_extras
+
+COPY toolboxjob /etc/cron.d/toolboxjob
+
 WORKDIR /home/toolbox
 
 ENV RABBITMQ_SERVICE_HOST rabbitmq
@@ -26,3 +30,5 @@ USER toolbox
 RUN mkdir /home/toolbox/.postgresql &&  mkdir /home/toolbox/.postgresql-rw &&  mkdir /home/toolbox/.postgresql-action
 
 COPY --chown=toolbox . /home/toolbox
+
+CMD ["sudo", "cron", "-f"]
