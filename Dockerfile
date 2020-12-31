@@ -7,9 +7,13 @@ COPY .bashrc_extras /tmp
 RUN apt-get update && apt-get -yq install curl && apt-get -yq install jq && apt-get -yq install vim-tiny && \
     apt-get -yq install unzip && apt-get -yq install postgresql-client || true && \
     apt-get -yq install openssh-client || true && apt-get -yq install procps || true && \
-    apt-get -yq clean && apt-get -yq install cron && apt-get -yq install sudo && groupadd --gid 1000 toolbox && \
+    apt-get -yq clean && apt-get -yq install cron && apt-get -yq install sudo && \
+    apt-get -yq install apt-transport-https ca-certificates gnupg && groupadd --gid 1000 toolbox && \
     useradd --create-home --system --uid 1000 --gid toolbox toolbox && \
     cat /tmp/.bashrc_extras >> /home/toolbox/.bashrc && rm /tmp/.bashrc_extras
+
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg  add - && apt-get update -y && apt-get install google-cloud-sdk -y
+RUN gsutil --version
 
 COPY toolboxjob /etc/cron.d/toolboxjob
 RUN crontab -u toolbox /etc/cron.d/toolboxjob
