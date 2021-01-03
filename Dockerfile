@@ -7,6 +7,7 @@ COPY .bashrc_extras /tmp
 RUN apt-get update && apt-get -yq install curl && apt-get -yq install jq && apt-get -yq install vim-tiny && \
     apt-get -yq install unzip && apt-get -yq install postgresql-client || true && \
     apt-get -yq install openssh-client || true && apt-get -yq install procps || true && \
+    apt-get -yq install apt-transport-https ca-certificates gnupg && \
     echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" \
     | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
     curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
