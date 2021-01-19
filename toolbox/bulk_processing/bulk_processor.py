@@ -1,16 +1,21 @@
 import csv
 import json
+import logging
 import shutil
 from pathlib import Path
 from typing import Collection
 
 from google.cloud import storage
+from structlog import wrap_logger
 
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import header_equal, Invalid, ValidationFailure
 from toolbox.config import Config
 from toolbox.utilities import db_helper
 from toolbox.utilities.rabbit_context import RabbitContext
+
+
+logger = wrap_logger(logging.getLogger(__name__))
 
 
 class BulkProcessor:
@@ -24,8 +29,7 @@ class BulkProcessor:
         self.db_connection_pool = None
 
     def run(self):
-        print(f'Checking for files in bucket {repr(self.processor.bucket_name)}'
-              f' with prefix {repr(self.processor.file_prefix)}')
+        logger.info('Checking for files in bucket', bucket_name=self.processor.bucket_name, prefix=self.processor.file_prefix)
         with db_helper.connect_to_read_replica_pool() as self.db_connection_pool, RabbitContext() as self.rabbit:
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
@@ -34,20 +38,21 @@ class BulkProcessor:
                 self.process_bulk_file_from_bucket(blob_to_process)
 
     def process_bulk_file_from_bucket(self, blob_to_process):
-        print(f'Processing file: {blob_to_process.name}')
+        logger.info('Processing file', file_to_process=blob_to_process.name)
         file_to_process = self.download_file_to_process(blob_to_process)
         success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
         successes, errors = self.process_file(file_to_process, success_file, error_file,
                                               error_detail_file)
 
-        print(f'Uploading results from processing file: {blob_to_process.name}')
+        logger.info('Uploading results from processing file', file_to_process=blob_to_process.name)
         self.upload_results(successes, errors, success_file, error_file, error_detail_file)
 
-        print(f'Deleting remote file: {blob_to_process.name}')
+        logger.info('Deleting remote file', deleted_file=blob_to_process.name)
         blob_to_process.delete()
 
         self.delete_local_files((file_to_process, success_file, error_file, error_detail_file))
-        print(f'Finished processing file: {blob_to_process.name}')
+        logger.info('Finished processing file', file_to_process=blob_to_process.name)
+
 
     def process_file(self, file_to_process, success_file, error_file, error_detail_file):
         try:
@@ -57,7 +62,7 @@ class BulkProcessor:
                 header_validation_failures = self.find_header_validation_errors(file_reader.fieldnames)
 
                 if header_validation_failures:
-                    print(f'File: {file_to_process.name}, header row is invalid')
+                    logger.info('Header row is invalid for file', file=file_to_process.name)
                     shutil.copy(file_to_process, error_file)
                     self.write_error_details_to_file([header_validation_failures], error_detail_file)
                     return 0, 1  # success_count, error_count
@@ -88,8 +93,7 @@ class BulkProcessor:
                 event_messages = self.processor.build_event_messages(row)
                 self.publish_messages(event_messages, self.rabbit)
                 self.write_row_success_to_file(row, success_file)
-        print(f'Processing results: {line_number} rows processed, '
-              f'Failures: {error_count}')
+        logger.info('Processing results', rows_processed=line_number, failures=error_count)
         return success_count, error_count
 
     def initialise_results_files(self, file_to_process_name):
@@ -176,6 +180,6 @@ class BulkProcessor:
 
     @staticmethod
     def delete_local_files(files_to_delete: Collection[Path]):
-        print(f'Deleting local files: {files_to_delete}')
+        logger.info('Deleting local files', files_to_delete=files_to_delete)
         for file_to_delete in files_to_delete:
             file_to_delete.unlink()
