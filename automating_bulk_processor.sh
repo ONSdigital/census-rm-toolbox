@@ -1,5 +1,4 @@
 #!/bin/bash
-
 while [ 1 ]
 do
     python -m toolbox.bulk_processing.refusal_processor
@@ -17,5 +16,5 @@ do
     python -m toolbox.bulk_processing.non_compliance_processor
     echo "Completed bulk non compliance"
     echo "Now sleeping"
-    sleep 1h
+    sleep $1
 done
