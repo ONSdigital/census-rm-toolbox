@@ -16,5 +16,5 @@ do
     python -m toolbox.bulk_processing.non_compliance_processor
     echo "Completed bulk non compliance"
     echo "Now sleeping"
-    sleep $1
+    sleep $BULK_PROCESSING_INTERVAL
 done
