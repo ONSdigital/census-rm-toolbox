@@ -35,10 +35,10 @@ class BulkProcessor:
                                                               prefix=self.processor.file_prefix)
 
             for blob_to_process in blobs_to_process:
-                self.process_bulk_file_from_bucket(blob_to_process)
+                self.process_bulk_file_from_bucket(blob_to_process, prefix=self.processor.file_prefix)
 
-    def process_bulk_file_from_bucket(self, blob_to_process):
-        logger.info('Processing file', file_to_process=blob_to_process.name)
+    def process_bulk_file_from_bucket(self, blob_to_process, prefix):
+        logger.info('Processing file', file_to_process=blob_to_process.name, prefix=prefix)
         file_to_process = self.download_file_to_process(blob_to_process)
         success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
         successes, errors = self.process_file(file_to_process, success_file, error_file,
