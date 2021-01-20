@@ -97,7 +97,7 @@ class NewAddressProcessor(Processor):
 def main():
     logger_initial_config()
     logger = wrap_logger(logging.getLogger(__name__))
-    logger.info('Starting bulk processing new addresses', app_log_level=Config.LOG_LEVEL, environment=Config.ENVIRONMENT)
+    logger.info('Started bulk processing new addresses', app_log_level=Config.LOG_LEVEL, environment=Config.ENVIRONMENT)
     BulkProcessor(NewAddressProcessor()).run()
 
 

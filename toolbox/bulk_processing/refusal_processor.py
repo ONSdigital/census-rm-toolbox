@@ -45,7 +45,7 @@ class RefusalProcessor(Processor):
 def main():
     logger_initial_config()
     logger = wrap_logger(logging.getLogger(__name__))
-    logger.info('Starting bulk processing refusal', app_log_level=Config.LOG_LEVEL, environment=Config.ENVIRONMENT)
+    logger.info('Started bulk processing refusals', app_log_level=Config.LOG_LEVEL, environment=Config.ENVIRONMENT)
     BulkProcessor(RefusalProcessor()).run()
 
 

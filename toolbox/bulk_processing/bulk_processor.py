@@ -14,7 +14,6 @@ from toolbox.config import Config
 from toolbox.utilities import db_helper
 from toolbox.utilities.rabbit_context import RabbitContext
 
-
 logger = wrap_logger(logging.getLogger(__name__))
 
 
@@ -29,7 +28,8 @@ class BulkProcessor:
         self.db_connection_pool = None
 
     def run(self):
-        logger.info('Checking for files in bucket', bucket_name=self.processor.bucket_name, prefix=self.processor.file_prefix)
+        logger.info('Checking for files in bucket', bucket_name=self.processor.bucket_name,
+                    prefix=self.processor.file_prefix)
         with db_helper.connect_to_read_replica_pool() as self.db_connection_pool, RabbitContext() as self.rabbit:
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
@@ -52,7 +52,6 @@ class BulkProcessor:
 
         self.delete_local_files((file_to_process, success_file, error_file, error_detail_file))
         logger.info('Finished processing file', file_to_process=blob_to_process.name)
-
 
     def process_file(self, file_to_process, success_file, error_file, error_detail_file):
         try:
