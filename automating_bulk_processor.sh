@@ -1,17 +1,37 @@
 #!/bin/bash
 
 python -m toolbox.bulk_processing.refusal_processor
-echo "Completed bulk refusals"
+ret_value=$?
+if [ $ret_value -ne 0 ];
+then
+  echo "refusal_processor has failed"
+fi
 python -m toolbox.bulk_processing.new_address_processor
-echo "Completed bulk new addresses"
+ret_value=$?
+if [ $ret_value -ne 0 ];
+then
+  echo "new_address_processor has failed"
+fi
 python -m toolbox.bulk_processing.invalid_address_processor
-echo "Completed bulk invalid addresses"
+ret_value=$?
+if [ $ret_value -ne 0 ];
+then
+  echo "invalid_address_processor has failed"
+fi
 python -m toolbox.bulk_processing.deactivate_uac_processor
-echo "Completed bulk deactivate uacs"
+ret_value=$?
+if [ $ret_value -ne 0 ];
+then
+  echo "deactivate_uac_processor has failed"
+fi
 python -m toolbox.bulk_processing.address_update_processor
-echo "Completed bulk address update"
+ret_value=$?
+if [ $ret_value -ne 0 ];
+then
+  echo "address_update_processor has failed"
+fi
 python -m toolbox.bulk_processing.uninvalidate_address_processor
-echo "Completed bulk uninvalidate addresses"
-python -m toolbox.bulk_processing.non_compliance_processor
-echo "Completed bulk non compliance"
-echo "Now sleeping"
+ret_value=$?
+if [ $ret_value -ne 0 ];then
+    echo "uninvalidate_address_processor has failed"
+fi

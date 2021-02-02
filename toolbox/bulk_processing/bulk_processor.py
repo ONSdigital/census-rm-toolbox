@@ -92,7 +92,8 @@ class BulkProcessor:
                 event_messages = self.processor.build_event_messages(row)
                 self.publish_messages(event_messages, self.rabbit)
                 self.write_row_success_to_file(row, success_file)
-        logger.info('Processing results', rows_processed=line_number, failures=error_count)
+        logger.info('Processing results', rows_processed=line_number, failures=error_count,
+                    bucket_name=self.processor.bucket_name)
         return success_count, error_count
 
     def initialise_results_files(self, file_to_process_name):
