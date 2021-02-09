@@ -1,11 +1,15 @@
+import logging
 import uuid
 from datetime import datetime
+
+from structlog import wrap_logger
 
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import alphanumeric_plus_hyphen_field_values, hh_case_exists_by_id, \
     in_set, is_uuid, max_length, no_padding_whitespace, no_pipe_character
 from toolbox.config import Config
+from toolbox.logger import logger_initial_config
 
 
 class NonComplianceProcessor(Processor):
@@ -44,6 +48,10 @@ class NonComplianceProcessor(Processor):
 
 
 def main():
+    logger_initial_config()
+    logger = wrap_logger(logging.getLogger(__name__))
+    logger.info('Started bulk processing non compliance', app_log_level=Config.LOG_LEVEL,
+                environment=Config.ENVIRONMENT)
     BulkProcessor(NonComplianceProcessor()).run()
 
 

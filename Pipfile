@@ -19,6 +19,7 @@ google-cloud-storage = "*"
 python-dateutil = "*"
 tonyg-rfc3339 = "*"
 retrying = "*"
+structlog = "*"
 
 [requires]
 python_version = "3.7"

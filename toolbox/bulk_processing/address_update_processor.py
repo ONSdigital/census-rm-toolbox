@@ -1,13 +1,17 @@
+import logging
 import uuid
 from datetime import datetime
 
+from structlog import wrap_logger
+
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
-from toolbox.bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace,\
+from toolbox.bulk_processing.validators import mandatory, max_length, numeric, no_padding_whitespace, \
     no_pipe_character, alphanumeric_postcode, latitude_longitude, in_set, latitude_longitude_range, case_exists_by_id, \
     mandatory_after_update, cant_be_deleted, check_delete_keyword, \
     numeric_2_digit_or_delete, optional_in_set
 from toolbox.config import Config
+from toolbox.logger import logger_initial_config
 
 address_resolution = 'AR'
 
@@ -153,6 +157,10 @@ def is_delete_keyword(value: str):
 
 
 def main():
+    logger_initial_config()
+    logger = wrap_logger(logging.getLogger(__name__))
+    logger.info('Started bulk processing address updates', app_log_level=Config.LOG_LEVEL,
+                environment=Config.ENVIRONMENT)
     BulkProcessor(AddressUpdateProcessor()).run()
 
 

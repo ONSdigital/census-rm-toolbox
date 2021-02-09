@@ -3,6 +3,9 @@ from pathlib import Path
 
 
 class Config:
+    NAME = 'census-rm-toolbox'
+    LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
+    LOG_DATE_FORMAT = os.getenv('LOG_DATE_FORMAT', '%Y-%m-%dT%H:%M:%S.%f')
     RABBITMQ_HOST = os.getenv('RABBITMQ_SERVICE_HOST', 'localhost')
     RABBITMQ_PORT = os.getenv('RABBITMQ_SERVICE_PORT', '6672')
     RABBITMQ_HTTP_PORT = os.getenv('RABBITMQ_HTTP_PORT', '16672')
@@ -46,6 +49,7 @@ class Config:
     COLLECTION_EXERCISE_ID = os.getenv('COLLECTION_EXERCISE_ID')
     ACTION_PLAN_ID = os.getenv('ACTION_PLAN_ID')
     ENVIRONMENT = os.getenv('ENVIRONMENT')
+    LOG_LEVEL_PIKA = os.getenv('LOG_LEVEL_PIKA', 'ERROR')
 
     BULK_INVALID_ADDRESS_FILE_PREFIX = os.getenv('BULK_INVALID_ADDRESS_FILE_PREFIX', 'invalid_addresses_')
     BULK_INVALID_ADDRESS_BUCKET_NAME = os.getenv('BULK_INVALID_ADDRESS_BUCKET_NAME')

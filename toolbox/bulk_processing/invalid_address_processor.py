@@ -1,10 +1,14 @@
+import logging
 import uuid
 from datetime import datetime
+
+from structlog import wrap_logger
 
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import case_exists_by_id, is_uuid, max_length, mandatory
 from toolbox.config import Config
+from toolbox.logger import logger_initial_config
 
 
 class InvalidAddressProcessor(Processor):
@@ -40,6 +44,10 @@ class InvalidAddressProcessor(Processor):
 
 
 def main():
+    logger_initial_config()
+    logger = wrap_logger(logging.getLogger(__name__))
+    logger.info('Started bulk processing invalid addresses', app_log_level=Config.LOG_LEVEL,
+                environment=Config.ENVIRONMENT)
     BulkProcessor(InvalidAddressProcessor()).run()
 
 

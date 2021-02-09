@@ -1,3 +1,7 @@
+import logging
+
+from structlog import wrap_logger
+
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
@@ -5,6 +9,7 @@ from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
     in_set, region_matches_treatment_code, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
     alphanumeric_postcode, no_pipe_character, latitude_longitude_range, alphanumeric_plus_hyphen_field_values
 from toolbox.config import Config
+from toolbox.logger import logger_initial_config
 
 
 class NewAddressProcessor(Processor):
@@ -90,6 +95,9 @@ class NewAddressProcessor(Processor):
 
 
 def main():
+    logger_initial_config()
+    logger = wrap_logger(logging.getLogger(__name__))
+    logger.info('Started bulk processing new addresses', app_log_level=Config.LOG_LEVEL, environment=Config.ENVIRONMENT)
     BulkProcessor(NewAddressProcessor()).run()
 
 
