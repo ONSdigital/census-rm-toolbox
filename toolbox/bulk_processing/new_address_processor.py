@@ -7,8 +7,7 @@ from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import mandatory, max_length, numeric, \
     no_padding_whitespace, latitude_longitude, \
     in_set, region_matches_treatment_code, ce_u_has_expected_capacity, ce_e_has_expected_capacity, \
-    alphanumeric_postcode, no_pipe_character, latitude_longitude_range, \
-    alphanumeric_plus_hyphen_field_values
+    alphanumeric_postcode, no_pipe_character, latitude_longitude_range, alphanumeric_plus_hyphen_field_values
 from toolbox.config import Config
 from toolbox.logger import logger_initial_config
 
