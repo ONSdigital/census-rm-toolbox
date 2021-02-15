@@ -421,7 +421,7 @@ def test_alphanumeric_plus_hyphen_field_with_empty_string_values_valid():
 
     # When
     alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator("")
-    alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator('')
+    alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator('TE-STT1-ES-01')
 
     # Then no invalid exception is raised
 
