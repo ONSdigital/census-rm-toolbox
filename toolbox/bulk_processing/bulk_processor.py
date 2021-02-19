@@ -118,13 +118,17 @@ class BulkProcessor:
         # Check we have the correct number of columns
         # If there are extra columns the values will be stored as a list in the None key
         if row.get(None):
-            errors.append(ValidationFailure(line_number, 'Multiple', 'Row contains too many columns'))
+            errors.append(ValidationFailure(line_number,
+                                            column='Multiple',
+                                            description='Row contains too many columns'))
             return errors
 
         # If we have too few columns the value for the missing end columns will be None
-        # (instead of '' for an empty but present value)
+        # (Empty but present columns values are an empty string, not None)
         if any(value is None for value in row.values()):
-            errors.append(ValidationFailure(line_number, 'Multiple', 'Row contains too few columns'))
+            errors.append(ValidationFailure(line_number,
+                                            column='Multiple',
+                                            description='Row contains too few columns'))
             return errors
 
         for column, validators in self.processor.schema.items():
