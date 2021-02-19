@@ -281,7 +281,7 @@ def test_rebuild_errored_csv_row():
 
 def test_rebuild_errored_csv_row_too_many_columns():
     # Given
-    # If a row contains too many columns, the excess will be stored in a list in the None key
+    # If a row contains too many columns then the excess will be stored in a list in the None key
     row_in_expected_format = {'COL_1': 'value_1', None: ['extra_1', 'extra_2']}
 
     # When
@@ -293,7 +293,7 @@ def test_rebuild_errored_csv_row_too_many_columns():
 
 def test_rebuild_errored_csv_row_too_few_columns():
     # Given
-    # If a row contains too few columns, the missing values on the end will be stored as None
+    # If a row contains too few columns then the missing values on the end will be stored as None
     row_in_expected_format = {'COL_1': 'value_1', 'COL_MISSING_2': None}
 
     # When
