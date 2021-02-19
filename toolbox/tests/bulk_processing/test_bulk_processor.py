@@ -270,17 +270,18 @@ def test_validation_row_too_short(patch_storage, patch_rabbit, patch_db_helper, 
 
 def test_rebuild_errored_csv_row():
     # Given
-    row_in_expected_format = {'COL_1': 'value_1', 'COL_2': 'value_2'}
+    row_in_expected_format = {'COL_1': 'value_1', 'COL_2': '', 'COL_3': 'value_3'}
 
     # When
     rebuilt_row = BulkProcessor.rebuild_errored_csv_row(row_in_expected_format)
 
     # Then
-    assert rebuilt_row == 'value_1,value_2'
+    assert rebuilt_row == 'value_1,,value_3'
 
 
 def test_rebuild_errored_csv_row_too_many_columns():
     # Given
+    # If a row contains too many columns, the excess will be stored in a list in the None key
     row_in_expected_format = {'COL_1': 'value_1', None: ['extra_1', 'extra_2']}
 
     # When
@@ -292,6 +293,7 @@ def test_rebuild_errored_csv_row_too_many_columns():
 
 def test_rebuild_errored_csv_row_too_few_columns():
     # Given
+    # If a row contains too few columns, the missing values on the end will be stored as None
     row_in_expected_format = {'COL_1': 'value_1', 'COL_MISSING_2': None}
 
     # When
