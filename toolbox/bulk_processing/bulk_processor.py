@@ -151,7 +151,7 @@ class BulkProcessor:
         extra_values = row.pop(None, [])
         extra_values_str = ','.join(extra_values)
 
-        rebuilt_row = ','.join({k: v for k, v in row.items() if v is not None}.values())
+        rebuilt_row = ','.join(value for value in row.values() if value is not None)
         if extra_values_str:
             rebuilt_row = rebuilt_row + f',{extra_values_str}'
 
