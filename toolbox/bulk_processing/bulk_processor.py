@@ -114,6 +114,23 @@ class BulkProcessor:
 
     def find_row_validation_errors(self, line_number, row):
         errors = []
+
+        # Check we have the correct number of columns
+        # If there are extra columns the values will be stored as a list in the None key
+        if row.get(None):
+            errors.append(ValidationFailure(line_number,
+                                            column='Multiple',
+                                            description='Row contains too many columns'))
+            return errors
+
+        # If we have too few columns the value for the missing end columns will be None
+        # (Empty but present columns values are an empty string, not None)
+        if any(value is None for value in row.values()):
+            errors.append(ValidationFailure(line_number,
+                                            column='Multiple',
+                                            description='Row contains too few columns'))
+            return errors
+
         for column, validators in self.processor.schema.items():
             for validator in validators:
                 try:
@@ -124,9 +141,21 @@ class BulkProcessor:
 
     def write_row_errors_to_files(self, errored_row, errors, error_file, error_detail_file):
         with open(error_file, 'a') as append_error_file:
-            append_error_file.write(','.join(errored_row.values()))
+            append_error_file.write(self.rebuild_errored_csv_row(errored_row))
             append_error_file.write('\n')
         self.write_error_details_to_file(errors, error_detail_file)
+
+    @staticmethod
+    def rebuild_errored_csv_row(row: dict):
+        # Pop and safely join any extra, unexpected columns which are stored in a list in the 'None' key
+        extra_values = row.pop(None, [])
+        extra_values_str = ','.join(extra_values)
+
+        rebuilt_row = ','.join(value for value in row.values() if value is not None)
+        if extra_values_str:
+            rebuilt_row = rebuilt_row + f',{extra_values_str}'
+
+        return rebuilt_row
 
     @staticmethod
     def write_error_details_to_file(errors, error_detail_file):
