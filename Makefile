@@ -5,7 +5,7 @@ flake:
 	pipenv run flake8
 
 check:
-	PIPENV_PYUP_API_KEY="" pipenv check
+	PIPENV_PYUP_API_KEY="" pipenv check -i 39611 -i 39608
 
 test: flake check
 	ENVIRONMENT=TEST pipenv run pytest
