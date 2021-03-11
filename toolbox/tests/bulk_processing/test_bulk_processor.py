@@ -206,6 +206,103 @@ def test_run_success_failure_mix(patch_storage, patch_rabbit, patch_db_helper, t
     assert_no_left_over_files(tmp_path)
 
 
+def test_validation_row_too_long(patch_storage, patch_rabbit, patch_db_helper, tmp_path):
+    # Given
+    mock_processor = setup_mock_processor({'COL_1': []}, None)
+    bulk_processor = BulkProcessor(mock_processor)
+    bulk_processor.working_dir = tmp_path
+    mock_blob = Mock()
+    mock_blob.name = 'mock_blob_name'
+    patch_storage.Client.return_value.list_blobs.return_value = [mock_blob]
+
+    # Mock data includes an extra, unexpected column in it's row
+    patch_storage.Client.return_value.download_blob_to_file.side_effect = partial(
+        mock_download_blob,
+        mock_data=b'COL_1\n'
+                  b'col_1_value,unexpected_extra_value')
+
+    # When
+    bulk_processor.run()
+
+    # Then
+    mock_upload_to_bucket = patch_storage.Client.return_value.bucket.return_value.blob.return_value \
+        .upload_from_filename
+    mock_upload_calls = mock_upload_to_bucket.call_args_list
+    assert len(mock_upload_calls) == 2, 'Upload to bucket should be called twice'
+    assert call(str(tmp_path.joinpath('ERROR_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('ERROR_DETAIL_mock_blob_name'))) in mock_upload_calls
+    patch_rabbit.return_value.__enter__.return_value.publish_message.assert_not_called()
+    patch_db_helper.connect_to_read_replica_pool.assert_called_once()
+
+    assert_no_left_over_files(tmp_path)
+
+
+def test_validation_row_too_short(patch_storage, patch_rabbit, patch_db_helper, tmp_path):
+    # Given
+    mock_processor = setup_mock_processor({'COL_1': [], 'COL_2': []}, None)
+    bulk_processor = BulkProcessor(mock_processor)
+    bulk_processor.working_dir = tmp_path
+    mock_blob = Mock()
+    mock_blob.name = 'mock_blob_name'
+    patch_storage.Client.return_value.list_blobs.return_value = [mock_blob]
+
+    # Mock data misses the 2nd column in it's row entirely
+    patch_storage.Client.return_value.download_blob_to_file.side_effect = partial(
+        mock_download_blob,
+        mock_data=b'COL_1,COL_2\n'
+                  b'col_1_value')
+
+    # When
+    bulk_processor.run()
+
+    # Then
+    mock_upload_to_bucket = patch_storage.Client.return_value.bucket.return_value.blob.return_value \
+        .upload_from_filename
+    mock_upload_calls = mock_upload_to_bucket.call_args_list
+    assert len(mock_upload_calls) == 2, 'Upload to bucket should be called twice'
+    assert call(str(tmp_path.joinpath('ERROR_mock_blob_name'))) in mock_upload_calls
+    assert call(str(tmp_path.joinpath('ERROR_DETAIL_mock_blob_name'))) in mock_upload_calls
+    patch_rabbit.return_value.__enter__.return_value.publish_message.assert_not_called()
+    patch_db_helper.connect_to_read_replica_pool.assert_called_once()
+
+    assert_no_left_over_files(tmp_path)
+
+
+def test_rebuild_errored_csv_row():
+    # Given
+    row_in_expected_format = {'COL_1': 'value_1', 'COL_2': '', 'COL_3': 'value_3'}
+
+    # When
+    rebuilt_row = BulkProcessor.rebuild_errored_csv_row(row_in_expected_format)
+
+    # Then
+    assert rebuilt_row == 'value_1,,value_3'
+
+
+def test_rebuild_errored_csv_row_too_many_columns():
+    # Given
+    # If a row contains too many columns then the excess will be stored in a list in the None key
+    row_in_expected_format = {'COL_1': 'value_1', None: ['extra_1', 'extra_2']}
+
+    # When
+    rebuilt_row = BulkProcessor.rebuild_errored_csv_row(row_in_expected_format)
+
+    # Then
+    assert rebuilt_row == 'value_1,extra_1,extra_2'
+
+
+def test_rebuild_errored_csv_row_too_few_columns():
+    # Given
+    # If a row contains too few columns then the missing values on the end will be stored as None
+    row_in_expected_format = {'COL_1': 'value_1', 'COL_MISSING_2': None}
+
+    # When
+    rebuilt_row = BulkProcessor.rebuild_errored_csv_row(row_in_expected_format)
+
+    # Then
+    assert rebuilt_row == 'value_1'
+
+
 def setup_mock_processor(schema, test_message):
     mock_processor = Mock(spec=Processor)
     mock_processor.schema = schema

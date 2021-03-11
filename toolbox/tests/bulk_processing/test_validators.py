@@ -414,6 +414,28 @@ def test_alphanumeric_plus_hyphen_field_values_invalid():
         alphanumeric_plus_hyphen_field_validator('TE-STT1-ES-!!')
 
 
+def test_alphanumeric_plus_hyphen_field_with_empty_string_values_valid():
+    # Given
+    alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator = \
+        validators.alphanumeric_plus_hyphen_field_values_ignore_empty_strings()
+
+    # When
+    alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator("")
+    alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator('TE-STT1-ES-01')
+
+    # Then no invalid exception is raised
+
+
+def test_alphanumeric_plus_hyphen_field_with_empty_string_values_invalid():
+    # Given
+    alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator = \
+        validators.alphanumeric_plus_hyphen_field_values_ignore_empty_strings()
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        alphanumeric_plus_hyphen_field_values_ignore_empty_strings_validator(" ")
+
+
 def test_latitude_longitude_range_valid():
     # Given
     latitude_longitude_range_validator = validators.latitude_longitude_range()
