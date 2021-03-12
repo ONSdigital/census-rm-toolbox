@@ -1,12 +1,11 @@
 import base64
 import json
 import math
+import re
 from contextlib import suppress
 from json import JSONDecodeError
 
 import requests
-import re
-
 import rfc3339
 from termcolor import colored
 
@@ -385,13 +384,15 @@ def paginate_messages(bad_message_summaries):
 
 
 def get_message_summaries():
-    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages/summary?minimumSeenCount=2')
+    response = requests.get(
+        f'{Config.EXCEPTIONMANAGER_URL}/badmessages/summary?minimumSeenCount={Config.BAD_MESSAGE_MINIMUM_SEEN_COUNT}')
     response.raise_for_status()
     return response.json()
 
 
 def get_bad_message_list():
-    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/badmessages?minimumSeenCount=2')
+    response = requests.get(
+        f'{Config.EXCEPTIONMANAGER_URL}/badmessages?minimumSeenCount={Config.BAD_MESSAGE_MINIMUM_SEEN_COUNT}')
     response.raise_for_status()
     return response.json()
 
