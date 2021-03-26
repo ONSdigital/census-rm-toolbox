@@ -41,8 +41,24 @@ class BulkProcessor:
         logger.info('Processing file', file_to_process=blob_to_process.name, prefix=prefix)
         file_to_process = self.download_file_to_process(blob_to_process)
         success_file, error_file, error_detail_file = self.initialise_results_files(file_to_process.name)
-        successes, errors = self.process_file(file_to_process, success_file, error_file,
-                                              error_detail_file)
+
+        try:
+            successes, errors = self.process_file(file_to_process, success_file, error_file,
+                                                  error_detail_file)
+        except Exception as e:
+            logger.error('Unexpected exception while processing file. '
+                         'Will quarantine source file and attempt to upload partial successes and errors')
+
+            quarantined_file_name = 'QUARANTINED_' + blob_to_process.name
+            logger.warn('Quarantining source file due to unexpected errors', file_to_process=blob_to_process.name,
+                        quarantined_file=quarantined_file_name)
+            self.storage_bucket.rename_blob(blob_to_process, quarantined_file_name)
+
+            logger.warn('Uploading partials results from errored file. These files may be empty.',
+                        file_to_process=blob_to_process.name, quarantined_file=quarantined_file_name)
+            self.upload_files_to_bucket((success_file, error_file, error_detail_file))
+
+            raise e
 
         logger.info('Uploading results from processing file', file_to_process=blob_to_process.name)
         self.upload_results(successes, errors, success_file, error_file, error_detail_file)
