@@ -69,19 +69,35 @@ def test_case_exists_by_id_succeeds(mock_execute_method):
     # When
     case_exists_validator = validators.case_exists_by_id()
 
-    case_exists_validator("valid_uuid", db_connection_pool='db_connection_pool')
+    case_exists_validator(str(uuid.uuid4()), db_connection_pool='db_connection_pool')
 
     # Then no invalid exception is raised
+    mock_execute_method.assert_called_once()
 
 
 @patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
 def test_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        case_exists_validator = validators.case_exists_by_id()
+        case_exists_validator(str(uuid.uuid4()), db_connection_pool='db_connection_pool')
+
+    # Then
+    mock_execute_method.assert_called_once()
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
+def test_case_exists_by_id_fails_gracefully_on_invalid_uuid(mock_execute_method):
     # When, then raises
     with pytest.raises(validators.Invalid):
         case_exists_validator = validators.case_exists_by_id()
         case_exists_validator("invalid_uuid", db_connection_pool='db_connection_pool')
+
+    # Then we never try to look up an invalid UUID in the database
+    mock_execute_method.assert_not_called()
 
 
 @patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
