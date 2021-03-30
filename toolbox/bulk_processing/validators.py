@@ -48,6 +48,12 @@ def is_uuid():
 def case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
+            # If the case ID is not a valid UUID the database lookup will fail
+            uuid.UUID(case_id, version=4)
+        except Exception:
+            raise Invalid(f'Cannot look up Case ID {case_id}, it is not a valid UUID')
+
+        try:
             case_id_exists = execute_in_connection_pool("SELECT 1 FROM casev2.cases WHERE case_id = %s",
                                                         (case_id,), conn_pool=kwargs['db_connection_pool'])
         except Exception as e:
