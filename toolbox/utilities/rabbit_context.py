@@ -16,6 +16,7 @@ class RabbitContext:
         self._password = kwargs.get('password') or Config.RABBITMQ_PASSWORD
         self.queue_name = kwargs.get('queue_name')
         self.queue_declare_result = None
+        self.transactional = kwargs.get('transactional') or False
 
     def __enter__(self):
         self.open_connection()
@@ -37,6 +38,9 @@ class RabbitContext:
 
         self._channel = self._connection.channel()
 
+        if self.transactional:
+            self._channel.tx_select()
+
         # Limit to 100 messages to avoid rabbit 'issues'
         self._channel.basic_qos(prefetch_count=100)
 
@@ -56,7 +60,12 @@ class RabbitContext:
             routing_key=routing_key or self.queue_name,
             body=message,
             properties=pika.BasicProperties(content_type=content_type, headers=headers,
-                                            delivery_mode=PERSISTENT_DELIVERY_MODE))
+                                            delivery_mode=PERSISTENT_DELIVERY_MODE),
+            mandatory=True
+        )
+
+        if self.transactional:
+            self.channel.tx_commit()
 
     def get_queue_message_qty(self):
         return self.queue_declare_result.method.message_count

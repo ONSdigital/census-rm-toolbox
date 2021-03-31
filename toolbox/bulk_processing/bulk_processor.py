@@ -30,7 +30,8 @@ class BulkProcessor:
     def run(self):
         logger.info('Checking for files in bucket', bucket_name=self.processor.bucket_name,
                     prefix=self.processor.file_prefix)
-        with db_helper.connect_to_read_replica_pool() as self.db_connection_pool, RabbitContext() as self.rabbit:
+        with db_helper.connect_to_read_replica_pool() as self.db_connection_pool,\
+                RabbitContext(transactional=True) as self.rabbit:
             blobs_to_process = self.storage_client.list_blobs(self.processor.bucket_name,
                                                               prefix=self.processor.file_prefix)
 
