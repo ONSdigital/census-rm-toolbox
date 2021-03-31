@@ -3,6 +3,8 @@ from functools import partial
 from pathlib import Path
 from unittest.mock import Mock, call
 
+import pytest
+
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import Invalid
@@ -112,6 +114,48 @@ def test_process_file_encoding_failure(patch_storage, patch_rabbit, tmp_path):
     assert success_file.read_text() == header + '\n'
     assert 'Invalid file encoding, requires utf-8' in error_detail_file.read_text()
     patch_rabbit.publish_message.assert_not_called()
+
+
+def test_process_file_from_bucket_unexpected_error(patch_storage, patch_rabbit, tmp_path):
+    error_message_description = 'tests value invalid failure message'
+
+    schema = {'header_1': [no_invalid_validator(message=error_message_description)], 'header_2': []}
+    mock_processor = setup_mock_processor(schema, None)
+    mock_processor.build_event_messages.side_effect = lambda row: [row]
+    bulk_processor = BulkProcessor(mock_processor)
+    bulk_processor.working_dir = tmp_path
+    bulk_processor.rabbit = patch_rabbit
+    test_file = RESOURCE_PATH.joinpath('bulk_test_file_unexpected_error.csv')
+
+    test_exception = Exception('mock rabbit failure')
+    bulk_processor.rabbit.publish_message.side_effect = test_exception
+
+    def patch_download_blob_side_effect(_blob, open_file_handle):
+        open_file_handle.write(test_file.read_bytes())
+
+    patch_storage_client = patch_storage.Client.return_value
+    patch_storage_client.download_blob_to_file.side_effect = patch_download_blob_side_effect
+
+    mock_blob = Mock()
+    mock_blob.name = 'test_file_1'
+
+    bulk_file_prefix = 'test_file'
+    with pytest.raises(Exception) as e:
+        bulk_processor.process_bulk_file_from_bucket(mock_blob, prefix=bulk_file_prefix)
+
+    assert e.value == test_exception, 'Raised exception must match the forced test exception'
+
+    # Check the failed file is renamed to prevent automatic re-processing
+    bulk_processor.storage_bucket.rename_blob.assert_called_once()
+    rename_call = bulk_processor.storage_bucket.rename_blob.call_args
+    assert rename_call[0][1] == ('QUARANTINED_' + mock_blob.name)
+
+    # Check the 3 output files are all uploaded
+    patch_bucket = patch_storage_client.bucket.return_value
+    patch_blob = patch_bucket.blob.return_value
+    patch_upload_from_file = patch_blob.upload_from_filename
+    upload_calls = patch_upload_from_file.call_args_list
+    assert len(upload_calls) == 3, 'Should upload all 3 results files'
 
 
 def test_run_validation_successful(patch_storage, patch_rabbit, patch_db_helper, tmp_path):
