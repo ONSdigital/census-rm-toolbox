@@ -23,13 +23,13 @@ def logger_initial_config():
         """
         if method_name == "warn":
             # The stdlib has an alias, we always want 'warning' in full
-            method_name = "warning"
+            method_name = "WARNING"
 
         if method_name == "exception":
             # exception level is not as universal, use 'error' instead
-            method_name = "error"
+            method_name = "ERROR"
 
-        event_dict["severity"] = method_name
+        event_dict["severity"] = method_name.upper()
         return event_dict
 
     logging.basicConfig(stream=sys.stdout, level=Config.LOG_LEVEL, format="%(message)s")
