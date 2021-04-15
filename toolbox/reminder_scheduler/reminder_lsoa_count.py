@@ -27,7 +27,8 @@ def build_lsoas_count_query(action_plan_id, lsoas):
             "AND skeleton = 'f' "
             "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' "
             "AND case_type = 'HH' "
-            "AND lsoa IN %s; "), query_param_values
+            "AND lsoa IN %s "
+            "AND case_id NOT IN public.cases_excluded_from_reminders_temp; "), query_param_values
 
 
 def count_cases(action_plan_id, lsoas):

@@ -35,7 +35,8 @@ def test_build_lsoas_count_query():
                            "AND skeleton = 'f' " \
                            "AND refusal_received IS DISTINCT FROM 'EXTRAORDINARY_REFUSAL' " \
                            "AND case_type = 'HH' " \
-                           "AND lsoa IN %s; "
+                           "AND lsoa IN %s " \
+                           "AND case_id NOT IN public.cases_excluded_from_reminders_temp; "
 
     expected_count_values = (str(TEST_ACTION_PLAN_ID), ('E00000001', 'E00000002'))
 
