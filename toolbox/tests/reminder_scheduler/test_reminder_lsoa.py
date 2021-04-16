@@ -62,7 +62,9 @@ def test_build_action_rule_classifiers():
     # Given
     lsoas = ['E00000001', 'E00000002']
     expected_classifiers = "case_type = 'HH' " \
-                           "AND lsoa IN ('E00000001', 'E00000002')"
+                           "AND treatment_code NOT IN ('HH_QP3E', 'HH_QP3W')" \
+                           "AND lsoa IN ('E00000001', 'E00000002') " \
+                           "AND case_id NOT IN public.cases_excluded_from_reminders_temp"
 
     # When
     action_rule_classifiers = reminder_lsoa.build_action_rule_classifiers(lsoas)
@@ -91,7 +93,7 @@ def test_generate_action_rules():
     # Given
     action_plan_id = 'test_action_plan_id'
     action_type = 'DUMMY_TEST'
-    action_rule_classifiers = "lsoa IN ('E00000001', 'E00000002')"
+    action_rule_classifiers = "lsoa IN ('E00000001', 'E00000002') "
 
     # When
     action_rules = reminder_lsoa.generate_action_rule(action_type, action_rule_classifiers, action_plan_id,

@@ -42,7 +42,9 @@ def main(lsoa_file_path: Path, reminder_action_type: str, action_plan_id: uuid.U
 def build_action_rule_classifiers(lsoas):
     lsoa_classifier_clause = "', '".join(lsoas)
     return f"case_type = 'HH' " \
-           f"AND lsoa IN ('{lsoa_classifier_clause}')"
+           f"AND treatment_code NOT IN ('HH_QP3E', 'HH_QP3W')" \
+           f"AND lsoa IN ('{lsoa_classifier_clause}') " \
+           f"AND case_id NOT IN public.cases_excluded_from_reminders_temp"
 
 
 def confirm_insert_rule():
