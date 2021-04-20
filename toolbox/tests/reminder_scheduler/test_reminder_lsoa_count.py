@@ -37,7 +37,7 @@ def test_build_lsoas_count_query():
                            "AND case_type = 'HH' " \
                            "AND treatment_code NOT IN ('HH_QP3E', 'HH_QP3W') " \
                            "AND lsoa IN %s " \
-                           "AND case_id NOT IN public.cases_excluded_from_reminders_temp; "
+                           "AND case_id not in (select case_id from public.cases_excluded_from_reminders_temp); "
 
     expected_count_values = (str(TEST_ACTION_PLAN_ID), ('E00000001', 'E00000002'))
 

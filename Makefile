@@ -4,8 +4,9 @@ docker_build:
 flake:
 	pipenv run flake8
 
+# -i 40014
 check:
-	PIPENV_PYUP_API_KEY="" pipenv check -i 39611 -i 39608 -i 40014
+	PIPENV_PYUP_API_KEY="" pipenv check -i 39611 -i 39608
 
 test: flake check
 	ENVIRONMENT=TEST pipenv run pytest

@@ -44,7 +44,7 @@ def build_action_rule_classifiers(lsoas):
     return f"case_type = 'HH' " \
            f"AND treatment_code NOT IN ('HH_QP3E', 'HH_QP3W')" \
            f"AND lsoa IN ('{lsoa_classifier_clause}') " \
-           f"AND case_id NOT IN public.cases_excluded_from_reminders_temp"
+           f"AND case_id NOT IN (select case_id from public.cases_excluded_from_reminders_temp);"
 
 
 def confirm_insert_rule():

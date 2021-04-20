@@ -64,7 +64,7 @@ def test_build_action_rule_classifiers():
     expected_classifiers = "case_type = 'HH' " \
                            "AND treatment_code NOT IN ('HH_QP3E', 'HH_QP3W')" \
                            "AND lsoa IN ('E00000001', 'E00000002') " \
-                           "AND case_id NOT IN public.cases_excluded_from_reminders_temp"
+                           "AND case_id not in (select case_id from public.cases_excluded_from_reminders_temp)"
 
     # When
     action_rule_classifiers = reminder_lsoa.build_action_rule_classifiers(lsoas)
