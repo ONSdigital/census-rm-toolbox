@@ -175,6 +175,7 @@ Bulk non-compliance files can be dropped in a bucket for processing, the file fo
 CASE_ID,NC_STATUS,FIELDCOORDINATOR_ID,FIELDOFFICER_ID
 16400b37-e0fb-4cf4-9ddf-728abce92049,NCL,ABC123,XYZ999
 180e2636-d8e5-4949-bced-f7a0c532190c,NCF,ABC123,XYZ999
+d40ee445-26a4-4a80-b84b-ba17c9b76ce8,NCFW,ABC123,XYZ999
 ```
 Including the header row.
 
@@ -182,6 +183,7 @@ The non-compliance status must be one of
 ```
 NCL - for 1st letter
 NCF - for field follow up
+NCFW - for final warning letter
 ```
 
 The file should be placed in the configured bulk non-compliance bucket with a name matching `non_compliance_*.csv`, then the processor can be run with

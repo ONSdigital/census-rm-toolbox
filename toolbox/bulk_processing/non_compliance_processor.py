@@ -21,7 +21,7 @@ class NonComplianceProcessor(Processor):
     project_id = Config.BULK_NON_COMPLIANCE_PROJECT_ID
     schema = {
         "CASE_ID": [is_uuid(), hh_case_exists_by_id()],
-        "NC_STATUS": [in_set({"NCL", "NCF"}, label='non-compliance status')],
+        "NC_STATUS": [in_set({"NCL", "NCF", "NCFW"}, label='non-compliance status')],
         "FIELDCOORDINATOR_ID": [max_length(10), no_padding_whitespace(), no_pipe_character(),
                                 alphanumeric_plus_hyphen_field_values_ignore_empty_strings()],
         "FIELDOFFICER_ID": [max_length(13), no_padding_whitespace(), no_pipe_character(),
