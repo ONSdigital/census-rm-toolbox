@@ -11,6 +11,7 @@ from toolbox.bulk_processing.non_compliance_processor import NonComplianceProces
                          [('test_case_id', 'TEST', 'ABC123', 'XYZ321'),
                           (uuid.uuid4(), 'NCL', '', ''),
                           (uuid.uuid4(), 'NCF', '123', '321'),
+                          (uuid.uuid4(), 'NCFW', '789', '987'),
                           ('anything', 'BLAH', 'DE', 'BLAH'), ])
 def test_build_event_messages(case_id, nc_status, fieldcoordinator_id, fieldofficer_id):
     # Given
