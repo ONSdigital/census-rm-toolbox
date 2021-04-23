@@ -32,5 +32,7 @@ ACTION_TYPES_FOR_RESPONSE_DRIVEN_REMINDER = [
     'P_RD_RNP51',
     'P_RD_RNP52B',
     'P_QU_H1',
-    'P_QU_H2'
+    'P_QU_H2',
+    'P_RL_1RL1_1',
+    'P_RL_1RL2B_1'
 ]
