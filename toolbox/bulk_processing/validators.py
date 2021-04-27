@@ -68,6 +68,12 @@ def case_exists_by_id():
 def hh_case_exists_by_id():
     def validate(case_id, **kwargs):
         try:
+            # If the HH case ID is not a valid UUID the database lookup will fail
+            uuid.UUID(case_id, version=4)
+        except Exception:
+            raise Invalid(f'Cannot look up HH Case ID {case_id}, it is not a valid UUID')
+
+        try:
             query = "SELECT 1 FROM casev2.cases WHERE case_id = %s AND case_type = 'HH'"
             case_id_exists = execute_in_connection_pool(query, (case_id,), conn_pool=kwargs['db_connection_pool'])
         except Exception as e:
@@ -238,6 +244,13 @@ def mandatory_after_update(column_name):
             return
 
         case_id = kwargs['row']['CASE_ID']
+
+        try:
+            # If the case ID is not a valid UUID the database lookup will fail
+            uuid.UUID(case_id, version=4)
+        except Exception:
+            raise Invalid(f'Cannot look up Case ID {case_id}, it is not a valid UUID')
+
         try:
             case = execute_in_connection_pool_with_column_names("SELECT * FROM casev2.cases WHERE case_id = %s",
                                                                 (case_id,), conn_pool=kwargs['db_connection_pool'])[0]

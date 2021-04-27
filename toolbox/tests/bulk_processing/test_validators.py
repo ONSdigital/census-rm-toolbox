@@ -107,19 +107,35 @@ def test_hh_case_exists_by_id_succeeds(mock_execute_method):
     # When
     hh_case_exists_validator = validators.hh_case_exists_by_id()
 
-    hh_case_exists_validator("valid_uuid", db_connection_pool='db_connection_pool')
+    hh_case_exists_validator(str(uuid.uuid4()), db_connection_pool='db_connection_pool')
 
     # Then no invalid exception is raised
+    mock_execute_method.assert_called_once()
 
 
 @patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
 def test_hh_case_exists_by_id_fails(mock_execute_method):
     # Given
     mock_execute_method.return_value = []
+
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        hh_case_exists_validator = validators.hh_case_exists_by_id()
+        hh_case_exists_validator(str(uuid.uuid4()), db_connection_pool='db_connection_pool')
+
+    # Then
+    mock_execute_method.assert_called_once()
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
+def test_hh_case_exists_by_id_fails_gracefully_on_invalid_uuid(mock_execute_method):
     # When, then raises
     with pytest.raises(validators.Invalid):
         hh_case_exists_validator = validators.hh_case_exists_by_id()
         hh_case_exists_validator("invalid_uuid", db_connection_pool='db_connection_pool')
+
+    # Then we never try to look up an invalid UUID in the database
+    mock_execute_method.assert_not_called()
 
 
 @pytest.mark.parametrize('value,is_valid', [
@@ -496,18 +512,21 @@ def test_optional_in_set(valid_set, value, is_valid):
 
 @pytest.mark.parametrize(['column_name', 'mock_return_value', 'value', 'row', 'is_valid'], [
     # Value is present in the row, not DB
-    ('test_col', ({'test_col': None},), 'TEST', {'CASE_ID': 'dummy', 'TEST': 'IS_PRESENT_IN_ROW'}, True),
+    ('test_col', ({'test_col': None},), 'TEST', {'CASE_ID': 'fee19362-9741-4179-bca7-b773914d1007',
+                                                 'TEST': 'IS_PRESENT_IN_ROW'}, True),
 
     # Value is present in the DB, not row
-    ('test_col', ({'test_col': 'is present'},), '', {'CASE_ID': 'dummy'}, True),
+    ('test_col', ({'test_col': 'is present'},), '', {'CASE_ID': 'fee19362-9741-4179-bca7-b773914d1007'}, True),
 
     # Value is present in the DB and row
-    ('test_col', ({'test_col': 'is present'},), 'is also present', {'CASE_ID': 'dummy'}, True),
+    ('test_col', ({'test_col': 'is present'},), 'is also present', {'CASE_ID': 'fee19362-9741-4179-bca7-b773914d1007'},
+     True),
 
     # Value not in file, not in DB
-    ('foo', ({'foo': None},), '', {'CASE_ID': 'dummy'}, False),
-    ('foo', ({'foo': ''},), '', {'CASE_ID': 'dummy'}, False),
-    ('foo', ({'foo': None, 'irrelevant': 'other data'},), '', {'CASE_ID': 'dummy'}, False),
+    ('foo', ({'foo': None},), '', {'CASE_ID': 'fee19362-9741-4179-bca7-b773914d1007'}, False),
+    ('foo', ({'foo': ''},), '', {'CASE_ID': 'fee19362-9741-4179-bca7-b773914d1007'}, False),
+    ('foo', ({'foo': None, 'irrelevant': 'other data'},), '', {'CASE_ID': 'fee19362-9741-4179-bca7-b773914d1007'},
+     False),
 ])
 @patch('toolbox.bulk_processing.validators.execute_in_connection_pool_with_column_names')
 def test_mandatory_after_update(mock_execute_db, column_name, mock_return_value, value, row, is_valid):
