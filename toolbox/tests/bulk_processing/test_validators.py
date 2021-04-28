@@ -543,6 +543,17 @@ def test_mandatory_after_update(mock_execute_db, column_name, mock_return_value,
             mandatory_after_update_validator(value, row=row, db_connection_pool=None)
 
 
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool_with_column_names')
+def test_mandatory_after_update_fails_gracefully_on_invalid_uuid(mock_execute_method):
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        mandatory_after_update_validator = validators.mandatory_after_update("test_col")
+        mandatory_after_update_validator(value=None, row={'CASE_ID': "invalid_uuid"}, db_connection_pool=None)
+
+    # Then we never try to look up an invalid UUID in the database
+    mock_execute_method.assert_not_called()
+
+
 @pytest.mark.parametrize(['value', 'is_valid'], [
     ('-', False),
     ('--', False),
