@@ -47,7 +47,7 @@ def is_uuid():
 
 def case_exists_by_id():
     def validate(case_id, **kwargs):
-        is_case_id_a_valid_uuid(case_id)
+        fail_validation_if_invalid_uuid(case_id)
 
         try:
             case_id_exists = execute_in_connection_pool("SELECT 1 FROM casev2.cases WHERE case_id = %s",
@@ -63,7 +63,7 @@ def case_exists_by_id():
 
 def hh_case_exists_by_id():
     def validate(case_id, **kwargs):
-        is_case_id_a_valid_uuid(case_id)
+        fail_validation_if_invalid_uuid(case_id)
 
         try:
             query = "SELECT 1 FROM casev2.cases WHERE case_id = %s AND case_type = 'HH'"
@@ -237,7 +237,7 @@ def mandatory_after_update(column_name):
 
         case_id = kwargs['row']['CASE_ID']
 
-        is_case_id_a_valid_uuid(case_id)
+        fail_validation_if_invalid_uuid(case_id)
 
         try:
             case = execute_in_connection_pool_with_column_names("SELECT * FROM casev2.cases WHERE case_id = %s",
@@ -287,7 +287,7 @@ def numeric_2_digit_or_delete():
     return validate
 
 
-def is_case_id_a_valid_uuid(case_id):
+def fail_validation_if_invalid_uuid(case_id):
     try:
         # If the case ID is not a valid UUID the database lookup will fail
         uuid.UUID(case_id, version=4)
