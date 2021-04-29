@@ -31,6 +31,7 @@ def show_home_page():
         {'description': 'Get quarantined messages', 'action': show_quarantined_messages},
         {'description': 'Quarantine all bad messages', 'action': quarantine_all_bad_messages},
         {'description': 'Reset bad message cache', 'action': reset_bad_message_cache},
+        {'description': 'Reset resolved bad messages', 'action': reset_resolved_bad_messages},
         {'description': 'Filter bad messages', 'action': filter_bad_messages}
     )
 
@@ -178,6 +179,20 @@ def reset_bad_message_cache():
         response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset')
         response.raise_for_status()
         print(colored('Successfully reset bad message cache', 'green'))
+        print('')
+    else:
+        print(colored('Aborted', 'red'))
+        print('')
+
+
+def reset_resolved_bad_messages():
+    confirmation = input(f'Confirm you want to reset '
+                         f'resolved bad messages by responding "{colored("yes", "cyan")}": ')
+    if confirmation == 'yes':
+        print(colored('Removing all resolved bad messages', 'yellow'))
+        response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset?resetOldMessages=true')
+        response.raise_for_status()
+        print(colored('Successfully reset resolved bad messages', 'green'))
         print('')
     else:
         print(colored('Aborted', 'red'))
