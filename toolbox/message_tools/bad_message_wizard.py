@@ -188,24 +188,24 @@ def reset_bad_message_cache():
 def reset_resolved_bad_messages():
     confirmation = input(f'Confirm you want to reset '
                          f'resolved bad messages by responding "{colored("yes", "cyan")}": ')
-    if confirmation == 'yes':
-        option = input('Resolve messages not seen in in the last? (default 300s): ')
-        if not option:
-            option = 300
-        try:
-            int(option)
-        except ValueError:
-            print(colored('Aborted', 'red'))
-            print('')
-            return
-        print(colored('Removing all resolved bad messages', 'yellow'))
-        response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset?lastSeenCutoffSeconds={option}')
-        response.raise_for_status()
-        print(colored('Successfully reset resolved bad messages', 'green'))
-        print('')
-    else:
+    if confirmation != 'yes':
         print(colored('Aborted', 'red'))
         print('')
+        return
+    option = input('Clear cached bad messages unseen for how many seconds? Press ENTER for default 300: ')
+    if not option:
+        option = 300
+    try:
+        int(option)
+    except ValueError:
+        print(colored('Aborted: Expected an integer', 'red'))
+        print('')
+        return
+    print(colored('Removing all resolved bad messages', 'yellow'))
+    response = requests.get(f'{Config.EXCEPTIONMANAGER_URL}/reset?lastSeenCutoffSeconds={option}')
+    response.raise_for_status()
+    print(colored('Successfully reset resolved bad messages', 'green'))
+    print('')
 
 
 def get_queue_names_and_counts(bad_messages):
