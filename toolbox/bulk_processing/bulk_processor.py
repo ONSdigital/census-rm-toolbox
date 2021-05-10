@@ -228,8 +228,8 @@ class BulkProcessor:
                 email_address=self.recipient_email,  # required string
                 template_id=Config.GOV_NOTIFY_EMAIL_TEMPLATE_ID,  # required UUID string
                 personalisation={
-                    'bulk_process_status': 'failures' if error_count else 'success',
-                    'bucket_name': self.storage_bucket,
+                    'bulk_process_status': 'errored' if error_count else 'successfully completed',
+                    'bulk_process_bucket_name': self.storage_bucket,
                     'bulk_process_success_count': success_count,
                     'bulk_process_error_count': error_count
                 }
@@ -237,4 +237,4 @@ class BulkProcessor:
         except HTTPError as err:
             logger.error('Error sending email for bucket', bucket=self.storage_bucket)
             logger.error(err)
-        logger.info('Email sent successfully')
+        logger.info('Email sent successfully', response=response)
