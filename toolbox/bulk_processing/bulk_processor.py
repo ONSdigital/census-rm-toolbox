@@ -224,7 +224,7 @@ class BulkProcessor:
         notifications_client = NotificationsAPIClient(Config.GOV_NOTIFY_EMAIL_API_KEY)
 
         try:
-            response = notifications_client.send_email_notification(
+            notifications_client.send_email_notification(
                 email_address=self.recipient_email,  # required string
                 template_id=Config.GOV_NOTIFY_EMAIL_TEMPLATE_ID,  # required UUID string
                 personalisation={
@@ -234,7 +234,8 @@ class BulkProcessor:
                     'bulk_process_error_count': error_count
                 }
             )
+            logger.info('Email sent successfully')
         except HTTPError as err:
             logger.error('Error sending email for bucket', bucket=self.storage_bucket)
             logger.error(err)
-        logger.info('Email sent successfully', response=response)
+
