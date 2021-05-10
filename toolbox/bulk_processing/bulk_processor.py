@@ -6,7 +6,9 @@ from pathlib import Path
 from typing import Collection
 
 from google.cloud import storage
+from notifications_python_client.errors import HTTPError
 from structlog import wrap_logger
+from notifications_python_client.notifications import NotificationsAPIClient
 
 from toolbox.bulk_processing.processor_interface import Processor
 from toolbox.bulk_processing.validators import header_equal, Invalid, ValidationFailure
@@ -26,6 +28,7 @@ class BulkProcessor:
         self.storage_bucket = self.storage_client.bucket(self.processor.bucket_name)
         self.rabbit = None
         self.db_connection_pool = None
+        self.recipient_email = processor.recipient_email
 
     def run(self):
         logger.info('Checking for files in bucket', bucket_name=self.processor.bucket_name,
@@ -46,6 +49,10 @@ class BulkProcessor:
 
         logger.info('Uploading results from processing file', file_to_process=blob_to_process.name)
         self.upload_results(successes, errors, success_file, error_file, error_detail_file)
+
+        if self.recipient_email:
+            logger.info('Sending email results')
+            self.send_email(successes, errors)
 
         logger.info('Deleting remote file', deleted_file=blob_to_process.name)
         blob_to_process.delete()
@@ -212,3 +219,22 @@ class BulkProcessor:
         logger.info('Deleting local files', files_to_delete=files_to_delete)
         for file_to_delete in files_to_delete:
             file_to_delete.unlink()
+
+    def send_email(self, success_count, error_count):
+        notifications_client = NotificationsAPIClient(Config.GOV_NOTIFY_EMAIL_API_KEY)
+
+        try:
+            response = notifications_client.send_email_notification(
+                email_address=self.recipient_email,  # required string
+                template_id=Config.GOV_NOTIFY_EMAIL_TEMPLATE_ID,  # required UUID string
+                personalisation={
+                    'bulk_process_status': 'failures' if error_count else 'success',
+                    'bucket_name': self.storage_bucket,
+                    'bulk_process_success_count': success_count,
+                    'bulk_process_error_count': error_count
+                }
+            )
+        except HTTPError as err:
+            logger.error('Error sending email for bucket', bucket=self.storage_bucket)
+            logger.error(err)
+        logger.info('Email sent successfully')

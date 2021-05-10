@@ -17,6 +17,7 @@ class InvalidAddressProcessor(Processor):
     exchange = Config.EVENTS_EXCHANGE
     bucket_name = Config.BULK_INVALID_ADDRESS_BUCKET_NAME
     project_id = Config.BULK_INVALID_ADDRESS_PROJECT_ID
+    recipient_email = Config.BULK_INVALID_ADDRESS_RECEIPIENT_EMAIL
     schema = {
         "case_id": [is_uuid(), case_exists_by_id()],
         "reason": [mandatory(), max_length(255)]

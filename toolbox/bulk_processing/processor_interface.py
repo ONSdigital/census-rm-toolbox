@@ -32,3 +32,7 @@ class Processor(ABC):
 
     @abstractmethod
     def build_event_messages(self, row) -> List[Dict]: pass
+
+    @property
+    @abstractmethod
+    def recipient_email(self): pass

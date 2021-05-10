@@ -20,6 +20,7 @@ python-dateutil = "*"
 tonyg-rfc3339 = "*"
 retrying = "*"
 structlog = "*"
+notifications-python-client = "*"
 
 [requires]
 python_version = "3.7"
