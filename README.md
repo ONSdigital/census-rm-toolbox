@@ -203,11 +203,11 @@ d40ee445-26a4-4a80-b84b-ba17c9b76ce8,0130000000000002
 ```
 Including the header row.
 
-The file should be placed in the configured bulk qid link bucket with a name matching `link_qid_*.csv`, then the processor can be run with
+The file should be placed in the configured bulk qid link bucket with a name matching `qid_link_*.csv`, then the processor can be run with
 ```shell script
 bulkqidlink
 ```
-Rows which are successfully processed will be added to `PROCESSED_link_qid_*.csv` and errored rows be appended to `ERROR_link_qid_*.csv` with the corresponding error details written to `ERROR_DETAIL_link_qid_*.csv`.
+Rows which are successfully processed will be added to `PROCESSED_qid_link_*.csv` and errored rows be appended to `ERROR_qid_link_*.csv` with the corresponding error details written to `ERROR_DETAIL_qid_link_*.csv`.
 
 ### Find Invalid Address Case IDs from UPRN File
 Run Book - https://collaborate2.ons.gov.uk/confluence/display/SDC/Find+Invalid+Address+Case+ID%27s+by+UPRN+-+ADDRESS_DELTA
