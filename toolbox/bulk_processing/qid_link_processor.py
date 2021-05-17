@@ -6,7 +6,7 @@ from structlog import wrap_logger
 
 from toolbox.bulk_processing.bulk_processor import BulkProcessor
 from toolbox.bulk_processing.processor_interface import Processor
-from toolbox.bulk_processing.validators import case_exists_by_id, is_uuid, qid_exists
+from toolbox.bulk_processing.validators import is_uuid, qid_exists, qid_linked_to_correct_survey_type
 from toolbox.config import Config
 from toolbox.logger import logger_initial_config
 
@@ -18,8 +18,8 @@ class QidLinkProcessor(Processor):
     bucket_name = Config.BULK_QID_LINK_BUCKET_NAME
     project_id = Config.BULK_QID_LINK_PROJECT_ID
     schema = {
-        "case_id": [is_uuid(), case_exists_by_id()],
-        "qid": [qid_exists()]
+        "case_id": [is_uuid()],
+        "qid": [qid_exists(), qid_linked_to_correct_survey_type()]
     }
 
     def build_event_messages(self, row):

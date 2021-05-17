@@ -293,3 +293,27 @@ def fail_validation_if_invalid_uuid(case_id):
         uuid.UUID(case_id, version=4)
     except Exception:
         raise Invalid(f'Cannot look up Case ID {case_id}, it is not a valid UUID')
+
+
+def qid_linked_to_correct_survey_type():
+    def validate(qid, **kwargs):
+        ccs_qids = ['71', '73', '51', '53', '61', '63', '81', '83']
+
+        case_id = kwargs['row']['case_id']
+        try:
+            survey = execute_in_connection_pool("SELECT survey FROM casev2.cases WHERE case_id = %s LIMIT 1",
+                                                (case_id,), conn_pool=kwargs['db_connection_pool'])
+        except Exception as e:
+            print(f'Error looking up qid {qid}, Error: {e}')
+            raise Invalid(f'Error looking up case ID: {case_id}')
+
+        if not survey:
+            raise Invalid(f'Case does not exist in RM for Case ID "{case_id}"')
+
+        if qid[:2] in ccs_qids and ("CENSUS",) in survey:
+            raise Invalid(f'CCS qid {qid} cannot be linked to CENSUS case_id {case_id}')
+
+        if qid[:2] not in ccs_qids and ("CCS",) in survey:
+            raise Invalid(f'CENSUS qid {qid} cannot be linked to CCS case_id {case_id}')
+
+    return validate
