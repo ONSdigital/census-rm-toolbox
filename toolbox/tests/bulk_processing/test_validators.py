@@ -646,7 +646,7 @@ def test_valid_qid_link(mock_execute_method):
     # When
     qid_link_validator = validators.qid_linked_to_correct_survey_type()
 
-    qid_link_validator("0120000000000000", row={'case_id': 'valid_case'},
+    qid_link_validator("0120000000000000", row={'case_id': str(uuid.uuid4())},
                        db_connection_pool='db_connection_pool')
 
     # Then no invalid exception is raised

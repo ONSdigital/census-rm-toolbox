@@ -300,6 +300,9 @@ def qid_linked_to_correct_survey_type():
         ccs_qids = ['71', '73', '51', '53', '61', '63', '81', '83']
 
         case_id = kwargs['row']['case_id']
+
+        fail_validation_if_invalid_uuid(case_id)
+
         try:
             survey = execute_in_connection_pool("SELECT survey FROM casev2.cases WHERE case_id = %s LIMIT 1",
                                                 (case_id,), conn_pool=kwargs['db_connection_pool'])
