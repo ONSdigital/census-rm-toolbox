@@ -197,9 +197,9 @@ Rows which are successfully processed will be added to `PROCESSED_non_compliance
 Bulk qid linking files can be dropped in a bucket for processing, the file format required is
 ```csv
 case_id,qid
-16400b37-e0fb-4cf4-9ddf-728abce92049,
-180e2636-d8e5-4949-bced-f7a0c532190c,
-d40ee445-26a4-4a80-b84b-ba17c9b76ce8,
+16400b37-e0fb-4cf4-9ddf-728abce92049,0130000000000000
+180e2636-d8e5-4949-bced-f7a0c532190c,0130000000000001
+d40ee445-26a4-4a80-b84b-ba17c9b76ce8,0130000000000002
 ```
 Including the header row.
 

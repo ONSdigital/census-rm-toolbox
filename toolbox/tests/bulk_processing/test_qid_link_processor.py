@@ -9,9 +9,7 @@ from toolbox.bulk_processing.qid_link_processor import QidLinkProcessor
 
 @pytest.mark.parametrize('case_id,qid',
                          [('test_case_id', 'TEST'),
-                          (uuid.uuid4(), 'HARD_REFUSAL'),
-                          (uuid.uuid4(), 'EXTRAORDINARY_REFUSAL'),
-                          ('anything', 'BLAH'), ])
+                          (uuid.uuid4(), '1234'), ])
 def test_build_event_messages(case_id, qid):
     # Given
     qid_link_processor = QidLinkProcessor()
@@ -60,7 +58,7 @@ def test_qid_link_validation_headers_fails_qid(_patched_storage_client):
 
 
 @patch('toolbox.bulk_processing.bulk_processor.storage')
-def test_refusal_validation_headers_fails_empty(_patched_storage_client):
+def test_qid_link_validation_headers_fails_empty(_patched_storage_client):
     result = BulkProcessor(QidLinkProcessor()).find_header_validation_errors({})
 
     assert result.line_number == 1
