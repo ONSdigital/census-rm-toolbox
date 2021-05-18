@@ -637,3 +637,52 @@ def test_numeric_2_digit_or_delete(value, is_valid):
     else:
         with pytest.raises(validators.Invalid):
             numeric_2_digit_validator(value)
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
+def test_valid_qid_link(mock_execute_method):
+    # Given
+    mock_execute_method.return_value = [("CENSUS",)]
+    # When
+    qid_link_validator = validators.qid_linked_to_correct_survey_type()
+
+    qid_link_validator("0120000000000000", row={'case_id': str(uuid.uuid4())},
+                       db_connection_pool='db_connection_pool')
+
+    # Then no invalid exception is raised
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
+def test_invalid_caseid_in_qid_link(mock_execute_method):
+    # Given
+    mock_execute_method.return_value = []
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        qid_link_validator = validators.qid_linked_to_correct_survey_type()
+
+        qid_link_validator("7120000000000000", row={'case_id': 'invalid_case'},
+                           db_connection_pool='db_connection_pool')
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
+def test_link_ccs_qid_to_census_case_invalid(mock_execute_method):
+    # Given
+    mock_execute_method.return_value = [("CENSUS",)]
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        qid_link_validator = validators.qid_linked_to_correct_survey_type()
+
+        qid_link_validator("7130000000000000", row={'case_id': 'invalid_case'},
+                           db_connection_pool='db_connection_pool')
+
+
+@patch('toolbox.bulk_processing.validators.execute_in_connection_pool')
+def test_link_census_qid_to_ccs_case_invalid(mock_execute_method):
+    # Given
+    mock_execute_method.return_value = [("CCS",)]
+    # When, then raises
+    with pytest.raises(validators.Invalid):
+        qid_link_validator = validators.qid_linked_to_correct_survey_type()
+
+        qid_link_validator("0130000000000000", row={'case_id': 'invalid_case'},
+                           db_connection_pool='db_connection_pool')

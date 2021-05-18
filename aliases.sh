@@ -29,6 +29,7 @@ alias bulkaddressupdate='python -m toolbox.bulk_processing.address_update_proces
 alias invalidaddressdelta='invalid_address_delta.sh'
 alias bulkuninvalidateaddresses='python -m toolbox.bulk_processing.uninvalidate_address_processor'
 alias bulknoncompliance='python -m toolbox.bulk_processing.non_compliance_processor'
+alias bulkqidlink='python -m toolbox.bulk_processing.qid_link_processor'
 alias doftp='sftp -i $SFTP_KEY_FILENAME $SFTP_USERNAME@$SFTP_HOST'
 
 baddetails() {
